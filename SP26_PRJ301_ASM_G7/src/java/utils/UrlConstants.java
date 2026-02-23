@@ -11,5 +11,5 @@ package utils;
 public class UrlConstants {
     public static final String URL_ADMIN = "/admin";
     public static final String URL_MANAGER = "/manager";
-    public static final String URL_STAFF = "/admin";
+    public static final String URL_STAFF = "/staff";
 }

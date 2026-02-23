@@ -42,7 +42,7 @@ public class ListSite extends HttpServlet {
 
         request.setAttribute("siteList", siteList);
 
-        request.getRequestDispatcher("/views/manager/site/list-site.jsp").forward(request, response);
+        request.getRequestDispatcher("/list-site.jsp").forward(request, response);
     }
 
     /**
