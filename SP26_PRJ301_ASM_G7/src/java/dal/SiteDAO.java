@@ -33,7 +33,12 @@ public class SiteDAO extends DBContext {
     }
 
     public void update(ParkingSite newSiteData) {
-        String sql = "UPDATE ParkingSites SET site_name = ?, address = ?, region = ?, status = ?, manager_id = ? WHERE site_id = ?";
+        String sql = 
+                """
+                UPDATE ParkingSites
+                SET site_name = ?, address = ?, region = ?, status = ?, manager_id = ? 
+                WHERE site_id = ?
+                """;
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
 
@@ -94,9 +99,37 @@ public class SiteDAO extends DBContext {
         return list;
     }
 
+    public ParkingSite getById(int id) {
+        String sql
+                = """
+                SELECT s.site_id, s.site_name,s.address, s.region, s.manager_id, s.status,SUM(a.totalSlots) AS total_slots
+                    FROM ParkingSites s
+                    JOIN ParkingAreas a ON s.site_id = a.site_id 
+                    WHERE s.site_id = ?
+                    GROUP BY 
+                        s.site_id,
+                        s.site_name,
+                        s.address,
+                        s.region,
+                        s.manager_id,
+                        s.status;
+                """;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapRowToSite(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getById: " + e.getMessage());
+        }
+        return null;
+    }
+
     public List<ParkingSite> searchByName(String keyword) {
         List<ParkingSite> list = new ArrayList<>();
-//        String sql = "SELECT * FROM ParkingSites WHERE site_name LIKE ?";
 
         String sql
                 = """
@@ -125,35 +158,6 @@ public class SiteDAO extends DBContext {
             System.out.println("Error searchByName: " + e.getMessage());
         }
         return list;
-    }
-
-    private ParkingSite mapRowToSite(ResultSet rs) throws SQLException {
-        int id = rs.getInt("site_id");
-        String name = rs.getString("site_name");
-        String address = rs.getString("address");
-        String regionStr = rs.getString("region");
-        String statusStr = rs.getString("status");
-        int managerId = rs.getInt("manager_id");
-        int totalSlots = rs.getInt("total_slots");
-        ParkingSite.Region region = ParkingSite.Region.NORTH; // Default
-        try {
-            if (regionStr != null) {
-                region = ParkingSite.Region.valueOf(regionStr.toUpperCase());
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Lỗi convert Region: " + regionStr);
-        }
-
-        ParkingSite.Status status = ParkingSite.Status.CLOSED;
-        try {
-            if (statusStr != null) {
-                status = ParkingSite.Status.valueOf(statusStr.toUpperCase());
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Lỗi convert Status: " + statusStr);
-        }
-
-        return new ParkingSite(id, name, address, region, status, managerId, totalSlots);
     }
 
     public List<ParkingSite> getSpecificSites(String siteRegion, String querySite) {
@@ -197,4 +201,34 @@ public class SiteDAO extends DBContext {
             return null;
         }
     }
+
+    private ParkingSite mapRowToSite(ResultSet rs) throws SQLException {
+        int id = rs.getInt("site_id");
+        String name = rs.getString("site_name");
+        String address = rs.getString("address");
+        String regionStr = rs.getString("region");
+        String statusStr = rs.getString("status");
+        int managerId = rs.getInt("manager_id");
+        int totalSlots = rs.getInt("total_slots");
+        ParkingSite.Region region = ParkingSite.Region.NORTH; // Default
+        try {
+            if (regionStr != null) {
+                region = ParkingSite.Region.valueOf(regionStr.toUpperCase());
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Lỗi convert Region: " + regionStr);
+        }
+
+        ParkingSite.Status status = ParkingSite.Status.CLOSED;
+        try {
+            if (statusStr != null) {
+                status = ParkingSite.Status.valueOf(statusStr.toUpperCase());
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Lỗi convert Status: " + statusStr);
+        }
+
+        return new ParkingSite(id, name, address, region, status, managerId, totalSlots);
+    }
+
 }

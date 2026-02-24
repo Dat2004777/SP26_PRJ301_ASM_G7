@@ -37,12 +37,13 @@ public class ListSite extends HttpServlet {
         HttpSession session = request.getSession();
         
         session.setAttribute("rolePrefix", UrlConstants.URL_ADMIN);
+        session.setAttribute("ctx", request.getContextPath() + UrlConstants.URL_ADMIN);
         
         List<ParkingSite> siteList = siteDAO.getAll();
-
+        
         request.setAttribute("siteList", siteList);
-
-        request.getRequestDispatcher("/list-site.jsp").forward(request, response);
+        
+        request.getRequestDispatcher("/WEB-INF/views/site/list.jsp").forward(request, response);
     }
 
     /**
