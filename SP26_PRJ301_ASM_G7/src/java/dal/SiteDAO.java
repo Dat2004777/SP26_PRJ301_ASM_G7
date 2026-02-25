@@ -159,7 +159,7 @@ public class SiteDAO extends DBContext {
         }
         return list;
     }
-
+    
     public List<ParkingSite> getSpecificSites(String siteRegion, String querySite) {
         String sql
                 = """
@@ -230,5 +230,7 @@ public class SiteDAO extends DBContext {
 
         return new ParkingSite(id, name, address, region, status, managerId, totalSlots);
     }
+
+    
 
 }

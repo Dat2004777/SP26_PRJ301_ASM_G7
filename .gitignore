@@ -24,3 +24,4 @@ Desktop.ini
 
 /SP26_PRJ301_ASM_G7/nbproject/private/
 SP26_PRJ301_ASM_G7/database/ConnectDB.properties
+SP26_PRJ301_ASM_G7/web/WEB-INF/ConnectDB.properties
