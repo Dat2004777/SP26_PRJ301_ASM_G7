@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -9,16 +9,26 @@
 
         <link href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+        <!-- Google Fonts: Inter -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
         <style>
             :root {
-                --bs-primary: #2563eb; /* Màu xanh hiện đại giống mockup */
                 --bs-body-bg: #f3f4f6;
+                --bs-primary: #1a56db;
+                --bs-primary-rgb: 26, 86, 219;
+                --bs-font-sans-serif: 'Inter', sans-serif;
+                --text-main: #374151;
+                --text-muted: #6b7280;
                 --navbar-height: 70px;
             }
             body {
-                font-family: 'Inter', sans-serif;
+                font-family: var(--bs-font-sans-serif);
+                color: var(--text-main);
+                -webkit-font-smoothing: antialiased;
                 background-color: var(--bs-body-bg);
                 padding-top: var(--navbar-height);
             }
@@ -154,6 +164,30 @@
                 font-size: 1.2rem;
             }
 
+            /* Container giới hạn chiều cao cho danh sách khu vực */
+            .scrollable-area-list {
+                max-height: 280px; /* Bạn có thể tăng giảm số này tùy theo độ cao màn hình muốn hiển thị */
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-right: 8px; /* Tránh để thanh cuộn đè lên nội dung */
+            }
+
+            /* Custom Scrollbar cho Webkit (Chrome, Safari, Edge) */
+            .scrollable-area-list::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollable-area-list::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 8px;
+            }
+            .scrollable-area-list::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 8px;
+            }
+            .scrollable-area-list::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
             /* NÚT XÁC NHẬN */
             .btn-submit {
                 background: var(--bs-primary);
@@ -216,255 +250,355 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-4">
-                    <button class="btn btn-light rounded-circle position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas" title="Nhật ký hoạt động">
-                        <i class="bi bi-bell fs-5"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                    </button>
 
-                    <div class="d-flex align-items-center gap-3 border-start ps-4">
-                        <div class="text-end d-none d-lg-block">
-                            <div class="fw-bold text-dark" style="font-size: 0.95rem;">${stats.empName}</div>
-                        </div>
-                        <img src="https://ui-avatars.com/api/?name=SP&background=eff6ff&color=2563eb" alt="Avatar" class="rounded-circle" width="42" height="42">
-                    </div>
+                    
                 </div>
             </div>
         </nav>
 
+        <main class="container-fluid d-flex align-items-center justify-content-center" style="max-width: 1400px; min-height: calc(100vh - 80px); padding: 2rem 15px;">
 
-        <main class="container-fluid" style="max-width: 1200px; padding-top: 2rem;">
+            <div class="row g-4 w-100 align-items-center">
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div>
-                            <p class="text-muted fw-medium mb-1">Chỗ còn trống</p>
-                            <h2 class="fw-bold mb-0 text-primary">${stats.availableSpaces}</h2>
+                <div class="col-12 d-lg-none order-1">
+                    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">
+                                        Chỗ còn trống
+                                    </div>
+                                    <div class="fw-bold text-primary" style="font-size: 2.2rem; line-height: 1;">
+                                        ${stats.availableSpaces != null ? stats.availableSpaces : '0'}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">
+                                        Đã đỗ / Tổng
+                                    </div>
+                                    <div class="fw-bold text-dark" style="font-size: 1.1rem; line-height: 1;">
+                                        ${stats.occupiedSpaces != null ? stats.occupiedSpaces : '0'} <span class="text-muted fw-normal" style="font-size: 0.85rem;">/ ${stats.totalCapacity != null ? stats.totalCapacity : '0'}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-p-square-fill"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div>
-                            <p class="text-muted fw-medium mb-1">Chỗ đã đỗ</p>
-                            <h2 class="fw-bold mb-0" style="color: #475569;">${stats.occupiedSpaces}</h2>
+
+                <div class="col-lg-8 order-2 order-lg-1">
+
+                    <div class="form-card shadow-lg p-4 p-xl-5 mx-auto" style="border-radius: 16px; background-color: #fff; max-width: 700px;">
+                        <div class="w-100">
+
+                            <div class="tab-switch mb-4" id="formTabs">
+                                <button type="button" class="active" id="tabIn" onclick="switchMode('in')">
+                                    VÀO BÃI <span class="fw-bold opacity-75 ms-1">[F1]</span>
+                                </button>
+                                <button type="button" id="tabOut" onclick="switchMode('out')">
+                                    RA BÃI <span class="fw-bold opacity-75 ms-1">[F2]</span>
+                                </button>
+                            </div>
+
+                            <form action="${ctx}/parking/checkin" method="POST" id="mainGateForm">
+                                <input type="hidden" name="actionType" id="actionType" value="checkin">
+
+                                <div class="input-group-custom mb-4">
+                                    <label class="form-label text-secondary fw-bold" style="font-size: 0.85rem;">MÃ SỐ THẺ</label>
+                                    <i class="bi bi-credit-card-2-front icon-left"></i>
+                                    <input type="text" id="cardId" name="cardId" placeholder="Quét thẻ hoặc nhập mã số..." required autofocus autocomplete="off" class="form-control-lg fs-5">
+                                </div>
+
+                                <div class="input-group-custom mb-4">
+                                    <label class="form-label text-secondary fw-bold" style="font-size: 0.85rem;">BIỂN SỐ XE</label>
+                                    <i class="bi bi-123 icon-left"></i>
+                                    <input type="text" id="licensePlate" name="licensePlate" placeholder="NHẬP BIỂN SỐ (VD: 30A-123.45)" required autocomplete="off" class="form-control-lg fs-5 text-uppercase">
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2 mb-4 mt-3">
+                                    <i class="bi bi-info-circle text-muted"></i>
+                                    <small class="text-muted">Nhấn phím <b>Enter</b> để xác nhận và gửi thông tin.</small>
+                                </div>
+
+                                <button type="button" id="btnSubmitForm" class="btn-submit py-3 fs-5" style="background-color: #3b82f6;" onclick="submitForm()">
+                                    <span id="btnSubmitText">XÁC NHẬN VÀO</span> <i id="btnSubmitIcon" class="bi bi-box-arrow-in-right ms-2"></i>
+                                </button>
+                            </form>
+
                         </div>
-                        <div class="stat-icon bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-car-front-fill"></i></div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-4 order-3 order-lg-2 d-flex flex-column gap-3">
+
+                    <div class="card shadow-sm border-0 d-none d-lg-block" style="border-radius: 16px;">
+                        <div class="card-body p-3 p-xl-4">
+
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <div>
+                                    <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Chỗ còn trống</div>
+                                    <div class="fw-bold text-primary" style="font-size: 2.5rem; line-height: 1;">${stats.availableSpaces != null ? stats.availableSpaces : '0'}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Đã đỗ / Tổng</div>
+                                    <div class="fw-bold text-dark" style="font-size: 1.25rem; line-height: 1;">
+                                        ${stats.occupiedSpaces != null ? stats.occupiedSpaces : '0'} <span class="text-muted fw-normal" style="font-size: 0.9rem;">/ ${stats.totalCapacity != null ? stats.totalCapacity : '0'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted opacity-25 my-3">
+
+                            <div class="scrollable-area-list">
+                                <div class="row g-3 mb-2">
+
+                                    <c:if test="${empty overview.areas}">
+                                        <div class="col-12 text-center text-muted py-4">
+                                            <i>Chưa có dữ liệu phân khu cho bãi xe này.</i>
+                                        </div>
+                                    </c:if>
+
+                                    <c:forEach items="${overview.areas}" var="area">
+
+                                        <c:choose>
+                                            <c:when test="${area.vehicleTypeName.toLowerCase().contains('car')}">
+                                                <c:set var="borderColor" value="#3b82f6" />
+                                                <c:set var="iconClass" value="bi-car-front-fill" />
+                                                <c:set var="textColor" value="text-primary" />
+                                            </c:when>
+                                            <c:when test="${area.vehicleTypeName.toLowerCase().contains('motorbike')}">
+                                                <c:set var="borderColor" value="#eab308" />
+                                                <c:set var="iconClass" value="bi-bicycle" />
+                                                <c:set var="textColor" value="text-warning" />
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:set var="borderColor" value="#94a3b8" />
+                                                <c:set var="iconClass" value="bi-p-circle-fill" />
+                                                <c:set var="textColor" value="text-secondary" />
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                        <div class="col-6">
+                                            <div class="border rounded p-3 h-100 zone-card" style="border-left: 4px solid ${borderColor} !important;">
+                                                <div class="text-muted fw-bold mb-2 text-uppercase" style="font-size: 0.8rem;">
+                                                    <i class="bi ${iconClass} me-2 ${textColor}"></i>${area.areaName}
+                                                </div>
+
+                                                <div class="d-flex justify-content-between align-items-baseline">
+                                                    <c:choose>
+                                                        <c:when test="${area.availableSlots <= 0}">
+                                                            <div class="fw-bold text-danger fs-5" style="line-height: 1;">Hết chỗ</div>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="fw-bold ${textColor} fs-3" style="line-height: 1;">${area.availableSlots}</div>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                    <div class="text-muted fw-medium" style="font-size: 0.8rem;">${area.occupiedSlots}/${area.totalSlots}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </c:forEach>
+
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 flex-grow-1" style="border-radius: 16px; display: flex; flex-direction: column;">
+
+                        <div class="card-header bg-white border-bottom py-2 px-3 d-flex justify-content-between align-items-center" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                            <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.9rem;"><i class="bi bi-clock-history me-2"></i>Hoạt động gần đây</h6>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill" style="font-size: 0.7rem;">Real-time</span>
+                        </div>
+
+                        <div class="card-body p-0" style="max-height: 280px; overflow-y: auto;">
+                            <div class="list-group list-group-flush">
+
+                                <c:forEach var="log" items="${recentLogs}">
+                                    <c:choose>
+                                        <c:when test="${log.sessionState == 'parked' || log.sessionState == 'PARKED'}">
+                                            <c:set var="actionName" value="Xe vào bãi" />
+                                            <c:set var="badgeClass" value="bg-primary-subtle text-primary" />
+                                            <c:set var="icon" value="bi-arrow-down-circle" />
+                                            <c:set var="statusText" value="Đang đỗ" />
+                                        </c:when>
+                                        <c:when test="${log.sessionState == 'completed' || log.sessionState == 'COMPLETED'}">
+                                            <c:set var="actionName" value="Xe ra bãi" />
+                                            <c:set var="badgeClass" value="bg-success-subtle text-success" />
+                                            <c:set var="icon" value="bi-arrow-up-circle" />
+                                            <c:set var="statusText" value="Đã ra" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:set var="actionName" value="Lỗi Dữ liệu" />
+                                            <c:set var="badgeClass" value="bg-secondary-subtle text-secondary" />
+                                            <c:set var="icon" value="bi-question-circle" />
+                                            <c:set var="statusText" value="Lỗi" />
+                                        </c:otherwise>
+                                    </c:choose>
+
+                                    <div class="list-group-item px-3 py-2 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">${log.licensePlate}</span>
+                                            <span class="badge ${badgeClass}" style="font-size: 0.7rem;">${statusText}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="${badgeClass} fw-medium px-2 rounded" style="font-size: 0.7rem; padding-top: 2px; padding-bottom: 2px;">
+                                                <i class="bi ${icon} me-1"></i> ${actionName}
+                                            </span>
+                                            <small class="text-muted" style="font-size: 0.75rem;">${log.formattedTime}</small>
+                                        </div>
+                                    </div>
+                                </c:forEach>
+
+                                <c:if test="${empty recentLogs}">
+                                    <div class="py-4 text-center text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-1 text-light"></i>
+                                        <small style="font-size: 0.8rem;">Chưa có dữ liệu.</small>
+                                    </div>
+                                </c:if>
+
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top text-center py-2" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                            <a href="${pageContext.request.contextPath}/staff/history" class="text-decoration-none fw-bold text-primary" style="font-size: 0.8rem;">
+                                Xem toàn bộ <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div>
-                            <p class="text-muted fw-medium mb-1">Tổng sức chứa</p>
-                            <h2 class="fw-bold mb-0 text-dark">${stats.totalCapacity}</h2>
-                        </div>
-                        <div class="stat-icon bg-light text-dark border"><i class="bi bi-buildings-fill"></i></div>
-                    </div>
+
+            </div>
+            <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
+
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="fw-bold mb-0 text-success"><i class="bi bi-p-square-fill me-2"></i>Smart Parking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
                 </div>
+
+                <div class="offcanvas-body d-flex flex-column p-3">
+                    <jsp:include page="/WEB-INF/views/layout/sidebar.jsp"/>
+                </div>
+
             </div>
 
-            <div class="row justify-content-center">
-                <div class="col-lg-7 col-xl-6">
-                    <div class="form-card">
-
-                        <div class="tab-switch" id="formTabs">
-                            <button type="button" class="active" id="tabIn" onclick="switchMode('in')">
-                                VÀO BÃI <span class="fw-bold opacity-75 ms-1">[F1]</span>
-                            </button>
-                            <button type="button" id="tabOut" onclick="switchMode('out')">
-                                RA BÃI <span class="fw-bold opacity-75 ms-1">[F2]</span>
-                            </button>
-                        </div>
-
-                        <form action="${ctx}/parking/checkin" method="POST" id="mainGateForm">
-                            <input type="hidden" name="actionType" id="actionType" value="checkin">
-
-                            <div class="input-group-custom">
-                                <label class="form-label">MÃ SỐ THẺ</label>
-                                <i class="bi bi-credit-card-2-front icon-left"></i>
-                                <input type="text" id="cardId" name="cardId" placeholder="Quét thẻ hoặc nhập mã số..." required autofocus autocomplete="off">
-                            </div>
-
-                            <div class="input-group-custom">
-                                <label class="form-label">BIỂN SỐ XE</label>
-                                <i class="bi bi-123 icon-left"></i>
-                                <input type="text" id="licensePlate" name="licensePlate" placeholder="NHẬP BIỂN SỐ (VD: 30A-123.45)" required autocomplete="off" style="text-transform: uppercase;">
-                            </div>
-
-                            <div class="d-flex align-items-center gap-2 mb-4 mt-2">
-                                <i class="bi bi-info-circle text-muted"></i>
-                                <small class="text-muted">Nhấn phím <b>Enter</b> để xác nhận và gửi thông tin.</small>
-                            </div>
-
-                            <button type="button" id="btnSubmitForm" class="btn-submit" onclick="submitForm()">
-                                <span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right"></i>
-                            </button>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
         </main>
-
-        <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-p-square-fill me-2"></i>Smart Parking</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body d-flex flex-column p-3">
-                <nav class="nav flex-column sidebar-nav flex-grow-1">
-                    <a href="#" class="nav-link active"><i class="bi bi-arrow-left-right me-2"></i> Xử lý Vào/Ra</a>
-                    <a href="#" class="nav-link"><i class="bi bi-grid-1x2 me-2"></i> Sơ đồ bãi xe</a>
-                    <a href="#" class="nav-link"><i class="bi bi-search me-2"></i> Tra cứu thẻ/xe</a>
-                    <a href="#" class="nav-link"><i class="bi bi-exclamation-triangle me-2"></i> Sự cố & Cảnh báo</a>
-                </nav>
-                <div class="mt-auto">
-                    <a href="#" class="nav-link text-danger fw-bold"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="offcanvas offcanvas-end border-0 shadow" tabindex="-1" id="historyOffcanvas" style="width: 380px;">
-            <div class="offcanvas-header border-bottom bg-light">
-                <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-2"></i>Hoạt động gần đây</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body p-0">
-                <div class="list-group list-group-flush">
-
-                    <c:forEach var="log" items="${recentLogs}" varStatus="loop">
-
-                        <div class="list-group-item p-3 ${loop.index % 2 == 1 ? 'bg-light' : ''}">
-
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="fw-bold ${log.licensePlate == 'ERR-404' ? 'text-danger' : ''}">${log.licensePlate}</span>
-                                <span class="badge badge-status ${log.badgeClass}">${log.badgeText}</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between mt-2">
-                                <span class="${log.textClass} small fw-medium">
-                                    <i class="bi ${log.iconClass} me-1"></i> ${log.actionName}
-                                </span>
-                                <small class="text-muted"><i class="bi bi-clock"></i> ${log.formattedTime} • ${log.dateLabel}</small>
-                            </div>
-
-                        </div>
-
-                    </c:forEach>
-
-                    <c:if test="${empty recentLogs}">
-                        <div class="p-4 text-center text-muted">
-                            <small>Chưa có hoạt động nào được ghi nhận.</small>
-                        </div>
-                    </c:if>
-
-                </div>
-                <div class="p-3 text-center border-top">
-                    <a href="#" class="text-decoration-none text-primary small fw-semibold">Xem tất cả lịch sử</a>
-                </div>
-            </div>
-        </div>
 
 
         <script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.min.js"></script>
         <script>
-                                // Các elements
-                                const form = document.getElementById('mainGateForm');
-                                const actionType = document.getElementById('actionType');
-                                const tabIn = document.getElementById('tabIn');
-                                const tabOut = document.getElementById('tabOut');
-                                const cardIdInput = document.getElementById('cardId');
-                                const plateInput = document.getElementById('licensePlate');
-                                const btnSubmit = document.getElementById('btnSubmitForm');
-                                const ctx = "${ctx}";
+                                    // Bọc toàn bộ code để đảm bảo HTML đã load xong 100% mới chạy JS
+                                    document.addEventListener('DOMContentLoaded', function () {
 
-                                // 1. Logic Đổi Tab (Vào/Ra)
-                                function switchMode(mode) {
-                                    if (mode === 'in') {
-                                        tabIn.classList.add('active');
-                                        tabOut.classList.remove('active');
-                                        actionType.value = 'checkin';
-                                        form.action = ctx + '/parking/checkin';
+                                        // 1. Khai báo Elements
+                                        const form = document.getElementById('mainGateForm');
+                                        const actionType = document.getElementById('actionType');
+                                        const tabIn = document.getElementById('tabIn');
+                                        const tabOut = document.getElementById('tabOut');
+                                        const cardIdInput = document.getElementById('cardId');
+                                        const plateInput = document.getElementById('licensePlate');
+                                        const btnSubmit = document.getElementById('btnSubmitForm');
+                                        const ctx = "${ctx}";
 
-                                        // Đổi UI Nút
-                                        btnSubmit.classList.remove('btn-checkout');
-                                        btnSubmit.innerHTML = '<span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right"></i>';
-                                    } else {
-                                        tabOut.classList.add('active');
-                                        tabIn.classList.remove('active');
-                                        actionType.value = 'checkout';
-                                        form.action = ctx + '/parking/checkout';
+                                        // Tự động focus vào ô Mã thẻ khi vừa vào trang
+                                        if (cardIdInput)
+                                            cardIdInput.focus();
 
-                                        // Đổi UI Nút
-                                        btnSubmit.classList.add('btn-checkout');
-                                        btnSubmit.innerHTML = '<span>XÁC NHẬN RA</span> <i class="bi bi-box-arrow-right"></i>';
-                                    }
-                                    // Xóa trắng & Focus lại
-                                    cardIdInput.value = '';
-                                    plateInput.value = '';
-                                    cardIdInput.focus();
-                                }
+                                        // 2. Logic Đổi Tab (Vào/Ra)
+                                        // Gắn vào window để gọi được từ onclick trong HTML
+                                        window.switchMode = function (mode) {
+                                            if (mode === 'in') {
+                                                tabIn.classList.add('active');
+                                                tabOut.classList.remove('active');
+                                                actionType.value = 'checkin';
+                                                form.action = ctx + '/parking/checkin';
 
-                                // 2. Logic Smart Focus & Submit bằng Enter
-                                // Chặn phím Enter ở ô Mã thẻ, bắt nhảy xuống ô Biển số
-                                cardIdInput.addEventListener('keydown', function (e) {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        if (this.value.trim() !== '')
-                                            plateInput.focus();
-                                    }
-                                });
+                                                btnSubmit.classList.remove('btn-checkout');
+                                                btnSubmit.innerHTML = '<span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right ms-2"></i>';
+                                            } else {
+                                                tabOut.classList.add('active');
+                                                tabIn.classList.remove('active');
+                                                actionType.value = 'checkout';
+                                                form.action = ctx + '/parking/checkout';
 
-                                // Phím Enter ở ô Biển số sẽ tự động gọi hàm submit
-                                plateInput.addEventListener('keydown', function (e) {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        submitForm();
-                                    }
-                                });
+                                                btnSubmit.classList.add('btn-checkout');
+                                                btnSubmit.innerHTML = '<span>XÁC NHẬN RA</span> <i class="bi bi-box-arrow-right ms-2"></i>';
+                                            }
 
-                                function submitForm() {
-                                    if (cardIdInput.value.trim() === '' && plateInput.value.trim() === '') {
-                                        // Tùy chọn: Dùng Toast của Bootstrap thay cho alert nếu muốn đẹp hơn
-                                        alert('Vui lòng quét thẻ hoặc nhập biển số!');
-                                        cardIdInput.focus();
-                                        return;
-                                    }
-                                    form.submit();
-                                }
+                                            // Xóa trắng & Tự động Focus lại ô đầu tiên
+                                            cardIdInput.value = '';
+                                            plateInput.value = '';
+                                            cardIdInput.focus();
+                                        };
 
-                                // 3. Phím tắt F1 / F2 toàn cục
-                                document.addEventListener('keydown', function (e) {
-                                    if (e.key === 'F1') {
-                                        e.preventDefault();
-                                        switchMode('in');
-                                    } else if (e.key === 'F2') {
-                                        e.preventDefault();
-                                        switchMode('out');
-                                    }
-                                });
+                                        // 3. Phím tắt F1 / F2 toàn cục
+                                        document.addEventListener('keydown', function (e) {
+                                            if (e.key === 'F1') {
+                                                e.preventDefault(); // Chặn popup Help mặc định của trình duyệt
+                                                switchMode('in');
+                                            } else if (e.key === 'F2') {
+                                                e.preventDefault();
+                                                switchMode('out');
+                                            }
+                                        });
 
-                                // Tự động focus lại form nếu bấm ra ngoài màn hình
-                                document.addEventListener('click', function (e) {
-                                    const isClickInsideMenuOrNav = e.target.closest('.offcanvas') || e.target.closest('[data-bs-toggle]');
-                                    const isClickInsideInput = e.target.id === 'cardId' || e.target.id === 'licensePlate';
-                                    if (!isClickInsideMenuOrNav && !isClickInsideInput) {
-                                        cardIdInput.value === '' ? cardIdInput.focus() : plateInput.focus();
-                                    }
-                                });
+                                        // 4. Logic Smart Focus & Submit bằng Enter
+                                        cardIdInput.addEventListener('keydown', function (e) {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                if (this.value.trim() !== '') {
+                                                    plateInput.focus(); // Quét thẻ xong tự nhảy sang ô Biển số
+                                                }
+                                            }
+                                        });
 
-                                // 4. Đồng hồ Realtime
-                                function updateClock() {
-                                    const now = new Date();
-                                    const timeString = now.toLocaleTimeString('vi-VN', {hour12: false});
-                                    const dateString = now.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+                                        plateInput.addEventListener('keydown', function (e) {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                submitForm();
+                                            }
+                                        });
 
-                                    document.getElementById('realtimeClock').innerText = timeString;
-                                    document.getElementById('realtimeDate').innerText = dateString;
-                                }
-                                setInterval(updateClock, 1000);
-                                updateClock(); // Chạy ngay lập tức khi load trang
+                                        window.submitForm = function () {
+                                            if (cardIdInput.value.trim() === '' && plateInput.value.trim() === '') {
+                                                alert('Vui lòng quét thẻ hoặc nhập biển số!');
+                                                cardIdInput.focus();
+                                                return;
+                                            }
+                                            form.submit();
+                                        };
+
+                                        // 5. Auto focus thông minh & an toàn
+                                        // (Chỉ focus lại nếu click ra ngoài các vùng tương tác)
+                                        document.addEventListener('click', function (e) {
+                                            // Kiểm tra xem user có đang click vào Nút, Link, Input hay Offcanvas không
+                                            const isInteractiveArea = e.target.closest('button, a, input, .offcanvas');
+
+                                            if (!isInteractiveArea) {
+                                                if (cardIdInput.value === '') {
+                                                    cardIdInput.focus();
+                                                } else {
+                                                    plateInput.focus();
+                                                }
+                                            }
+                                        });
+
+                                        // 6. Đồng hồ Realtime
+                                        function updateClock() {
+                                            const clockEl = document.getElementById('realtimeClock');
+                                            const dateEl = document.getElementById('realtimeDate');
+
+                                            if (clockEl && dateEl) {
+                                                const now = new Date();
+                                                clockEl.innerText = now.toLocaleTimeString('vi-VN', {hour12: false});
+                                                dateEl.innerText = now.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+                                            }
+                                        }
+                                        setInterval(updateClock, 1000);
+                                        updateClock();
+                                    });
         </script>
     </body>
 </html>

@@ -34,6 +34,29 @@ public class SessionDAO extends DBContext {
         return 0; // Trả về 0 nếu lỗi
     }
 
+    // Thêm vào SessionDAO.java
+    public int countActiveSessionsByArea(int areaId) {
+        int count = 0;
+        String sql =  """
+                     SELECT COUNT(*)
+                     FROM ParkingSessions s
+                     JOIN ParkingCards c ON s.card_id = c.card_id
+                     JOIN ParkingAreas a ON a.site_id = c.site_id
+                     WHERE a.area_id = ? AND s.status = 'active' AND s.session_state = 'parked' AND a.vehicle_type_id = s.vehicle_type_id
+                     """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, areaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
     // 2. Hàm lấy danh sách N lượt ra/vào mới nhất (Dùng cho thanh Offcanvas bên phải)
     public List<ParkingSession> getRecentLogs(int siteId, int limit) {
         List<ParkingSession> list = new ArrayList<>();
