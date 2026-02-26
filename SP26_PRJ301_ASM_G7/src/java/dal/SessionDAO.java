@@ -191,7 +191,7 @@ public class SessionDAO extends DBContext {
      */
     public ParkingSession getActiveSession(String cardId) {
         String sql = "SELECT TOP 1 * FROM ParkingSessions "
-                + "WHERE card_id = ?  AND status = 'active'"
+                + "WHERE card_id = ?  AND status = 'active' AND session_state = 'parked'"
                 + "ORDER BY entry_time DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
