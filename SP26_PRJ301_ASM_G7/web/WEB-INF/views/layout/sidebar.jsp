@@ -7,16 +7,37 @@
 <style>
     /* CSS giữ nguyên - Tối giản cho Component */
     .sidebar-nav-link {
-        display: flex; align-items: center; padding: 0.6rem 1rem; margin-bottom: 2px;
-        text-decoration: none; border-radius: 8px; font-weight: 500; color: #374151;
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        margin-bottom: 2px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        color: #374151;
         transition: all 0.2s ease;
     }
-    .sidebar-nav-link:hover:not(.active) { background-color: #f1f5f9; transform: translateX(4px); color: #0f172a; }
-    
+    .sidebar-nav-link:hover:not(.active) {
+        background-color: #f1f5f9;
+        transform: translateX(4px);
+        color: #0f172a;
+    }
+
     /* Active States */
-    .sidebar-nav-link.active { pointer-events: none; }
-    .link-admin.active { background-color: #eff6ff; color: #1a56db !important; font-weight: 700; }
-    .link-staff.active { background-color: #f0fdf4; color: #15803d !important; font-weight: 700; }
+    .sidebar-nav-link.active {
+        pointer-events: none;
+    }
+    .link-admin.active {
+        background-color: #eff6ff;
+        color: #1a56db !important;
+        font-weight: 700;
+    }
+    .link-staff.active {
+        background-color: #f0fdf4;
+        color: #15803d !important;
+        font-weight: 700;
+    }
+
 </style>
 
 <nav class="nav flex-column flex-grow-1 gap-1 w-100">
@@ -49,17 +70,41 @@
 
         <%-- ================= MENU STAFF ================= --%>
         <c:otherwise>
-            <a href="${ctx}/dashboard" class="sidebar-nav-link link-staff ${uri.endsWith('/dashboard') ? 'active' : ''}">
-                <i class="bi bi-arrow-left-right me-2"></i> Xử lý Vào/Ra
+            <div class="nav-section-title mb-2 text-uppercase fw-bold text-primary" style="letter-spacing: 0.5px; font-size: 0.75rem;">
+                Nghiệp vụ trực ca
+            </div>
+
+            <a href="${ctx}/dashboard" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/dashboard') ? 'active' : ''}" 
+               >
+                <i class="bi bi-door-open-fill me-2"></i> Xử lý Vào/Ra
+            </a>
+            <a href="${ctx}/parking/history" class="sidebar-nav-link link-staff py-2 mb-3 ${uri.endsWith('/parking/history') ? 'active' : ''}">
+                <i class="bi bi-clock-history me-2"></i> Nhật ký lượt xe
             </a>
 
-            <div class="nav-section-title">Vận hành</div>
-            <a href="${ctx}/site-overview" class="sidebar-nav-link link-staff ${uri.endsWith('/site-overview') ? 'active' : ''}">
-                <i class="bi bi-grid-1x2 me-2"></i> Sơ đồ bãi xe
-            </a>
-            <a href="${ctx}/search" class="sidebar-nav-link link-staff ${uri.endsWith('/search') ? 'active' : ''}">
-                <i class="bi bi-search me-2"></i> Tra cứu thẻ/xe
-            </a>
+            <div class="nav-section-title mb-2 text-uppercase fw-bold text-primary" style="letter-spacing: 0.5px; font-size: 0.75rem;">
+                Công cụ điều hành
+            </div>
+
+            <div class="nav-group d-flex flex-column gap-1">
+                <a href="${ctx}/site-overview" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/site-overview') ? 'active' : ''}">
+                    <i class="bi bi-grid-3x3-gap me-2"></i> Sơ đồ trực tuyến
+                </a>
+
+                <a href="${ctx}/search" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/search') ? 'active' : ''}">
+                    <i class="bi bi-search-heart me-2"></i> Truy vấn phương tiện
+                </a>
+
+                <a href="${ctx}/subscription" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/subscription') ? 'active' : ''}">
+                    <i class="bi bi-card-heading me-2"></i> Quản lý vé tháng
+                </a>
+
+                <a href="${ctx}/incident-report" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/incident-report') ? 'active' : ''}">
+                    <i class="bi bi-exclamation-octagon me-2"></i> Báo cáo sự cố
+                </a>
+
+
+            </div>
         </c:otherwise>
     </c:choose>
 </nav>
