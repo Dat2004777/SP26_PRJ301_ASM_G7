@@ -2,7 +2,7 @@ package model;
 
 public class ParkingCard {
     
-    public enum Status {
+    public enum State {
         AVAILABLE,  
         USING,     
 //        LOST,       
@@ -10,24 +10,24 @@ public class ParkingCard {
     }
 
     private String cardId;
-    private String siteId; 
-    private Status status;
+    private int siteId; 
+    private State state;
 
     public ParkingCard() {
     }
 
-    public ParkingCard(String cardId, String siteId, Status status) {
+    public ParkingCard(String cardId, int siteId, State state) {
         this.cardId = cardId;
         this.siteId = siteId;
-        this.status = status;
+        this.state = state;
     }
 
     public String getCardId() { return cardId; }
     public void setCardId(String cardId) { this.cardId = cardId; }
 
-    public String getSiteId() { return siteId; }
-    public void setSiteId(String siteId) { this.siteId = siteId; }
+    public int getSiteId() { return siteId; }
+    public void setSiteId(int siteId) { this.siteId = siteId; }
 
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public State getState() { return state; }
+    public void setState(State state) { this.state = state; }
 }

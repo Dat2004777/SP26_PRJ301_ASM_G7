@@ -10,11 +10,6 @@
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-3 border-start ps-4">
-            <div class="text-end d-none d-lg-block">
-                <div class="fw-bold text-dark" style="font-size: 0.95rem;">${sessionScope.user.fullName != null ? sessionScope.user.fullName : 'Nhân viên'}</div>
-            </div>
-            <img src="https://ui-avatars.com/api/?name=Staff&background=eff6ff&color=2563eb" alt="Avatar" class="rounded-circle" width="40" height="40">
-        </div>
+        
     </div>
 </nav>

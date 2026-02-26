@@ -111,8 +111,8 @@ public class SessionDAO extends DBContext {
      */
     public boolean checkIn(ParkingSession session) {
         String sql = "INSERT INTO ParkingSessions "
-                + "(card_id, vehicle_type_id, license_plate, entry_time, session_type, fee_amount, session_state, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(card_id, vehicle_type_id, license_plate, session_type, session_state) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
         // Chỉ dùng try-with-resources cho PreparedStatement để không làm đóng mất connection tổng
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -120,11 +120,8 @@ public class SessionDAO extends DBContext {
             ps.setString(1, session.getCardId());
             ps.setObject(2, session.getVehicleTypeId());
             ps.setString(3, session.getLicensePlate());
-            ps.setObject(4, session.getEntryTime());     // Chuẩn JDBC 4.2 cho LocalDateTime
-            ps.setString(5, session.getSessionType());
-            ps.setObject(6, session.getFeeAmount());
-            ps.setString(7, session.getSessionState());
-            ps.setString(8, session.getStatus());
+            ps.setString(4, session.getSessionType());
+            ps.setString(5, session.getSessionState());
 
             return ps.executeUpdate() > 0;
 
@@ -166,15 +163,14 @@ public class SessionDAO extends DBContext {
     /**
      * HÀM 3: Tìm xe đang đỗ trong bãi dựa vào Mã thẻ HOẶC Biển số
      */
-    public ParkingSession getActiveSession(String cardId, String licensePlate) {
+    public ParkingSession getActiveSession(String cardId) {
         String sql = "SELECT TOP 1 * FROM ParkingSessions "
-                + "WHERE (card_id = ? OR license_plate = ?) AND status = 'active'"
+                + "WHERE card_id = ?  AND status = 'active'"
                 + "ORDER BY entry_time DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, cardId);
-            ps.setString(2, licensePlate);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -245,7 +241,7 @@ public class SessionDAO extends DBContext {
 
         Object feeObj = rs.getObject("fee_amount");
         if (feeObj != null) {
-            session.setFeeAmount(((Number) feeObj).doubleValue());
+            session.setFeeAmount(((Number) feeObj).longValue());
         }
 
         session.setSessionState(rs.getString("session_state"));

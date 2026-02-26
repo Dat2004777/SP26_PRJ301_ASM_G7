@@ -250,7 +250,8 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-4">
-
+                    ${errorMsg}
+                    ${successMsg}
 
                 </div>
             </div>
@@ -302,10 +303,18 @@
                             <form action="${ctx}/parking/checkin" method="POST" id="mainGateForm">
                                 <input type="hidden" name="actionType" id="actionType" value="checkin">
 
-                                <div class="input-group-custom mb-4">
+                                <div class="input-group-custom mb-4 position-relative">
                                     <label class="form-label text-secondary fw-bold" style="font-size: 0.85rem;">MÃ SỐ THẺ</label>
-                                    <i class="bi bi-credit-card-2-front icon-left"></i>
-                                    <input type="text" id="cardId" name="cardId" placeholder="Quét thẻ hoặc nhập mã số..." required autofocus autocomplete="off" class="form-control-lg fs-5">
+                                    <div class="d-flex shadow-sm" style="border-radius: 8px;">
+                                        <div class="position-relative flex-grow-1">
+                                            <i class="bi bi-credit-card-2-front icon-left"></i>
+                                            <input type="text" id="cardId" name="cardId" placeholder="Quét thẻ hoặc nhập mã số..." required autofocus autocomplete="off" class="form-control-lg fs-5 w-100" style="border: 1px solid #e2e8f0; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-left: 3rem;">
+                                        </div>
+
+                                        <button type="button" id="btnRandomCard" class="btn btn-primary px-4" onclick="fetchRandomCard()" style="border-top-left-radius: 0; border-bottom-left-radius: 0; z-index: 1;" title="Lấy thẻ trống ngẫu nhiên">
+                                            <i class="bi bi-shuffle fs-5"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="input-group-custom mb-4">
@@ -566,9 +575,6 @@
                                         const plateInput = document.getElementById('licensePlate');
                                         const btnSubmit = document.getElementById('btnSubmitForm');
 
-                                        // Kéo Element chứa hộp chọn loại xe vào đây
-                                        const vehicleTypeSelector = document.getElementById('vehicleTypeSelector');
-
                                         const ctx = "${ctx}";
 
                                         // Tự động focus vào ô Mã thẻ khi vừa vào trang
@@ -577,7 +583,8 @@
 
                                         // 2. Logic Đổi Tab (Vào/Ra)
                                         window.switchMode = function (mode) {
-                                            const vehicleContainer = document.getElementById('vehicleTypeContainer'); // Gọi cái bọc bên ngoài
+                                            const vehicleContainer = document.getElementById('vehicleTypeContainer');
+                                            const btnRandom = document.getElementById('btnRandomCard'); // Lấy nút Random Card
 
                                             if (mode === 'in') {
                                                 tabIn.classList.add('active');
@@ -585,12 +592,14 @@
                                                 actionType.value = 'checkin';
                                                 form.action = ctx + '/parking/checkin';
 
-                                                btnSubmit.style.backgroundColor = '#3b82f6'; // Xanh
+                                                btnSubmit.style.backgroundColor = '#3b82f6'; // Nút Xanh
                                                 btnSubmit.innerHTML = '<span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right ms-2"></i>';
 
-                                                // Hiện lại nguyên cụm chọn xe
+                                                // HIỆN LẠI cụm chọn loại xe và Nút Random
                                                 if (vehicleContainer)
                                                     vehicleContainer.classList.remove('d-none');
+                                                if (btnRandom)
+                                                    btnRandom.style.display = ''; // Để rỗng để trả về trạng thái flex ban đầu
 
                                             } else {
                                                 tabOut.classList.add('active');
@@ -598,46 +607,21 @@
                                                 actionType.value = 'checkout';
                                                 form.action = ctx + '/parking/checkout';
 
-                                                btnSubmit.style.backgroundColor = '#ef4444'; // Đỏ
+                                                btnSubmit.style.backgroundColor = '#ef4444'; // Nút Đỏ
                                                 btnSubmit.innerHTML = '<span>XÁC NHẬN RA</span> <i class="bi bi-box-arrow-right ms-2"></i>';
 
-                                                // Ẩn sạch cụm chọn xe đi
+                                                // ẨN cụm chọn loại xe và Nút Random đi cho màn hình Check-out gọn gàng
                                                 if (vehicleContainer)
                                                     vehicleContainer.classList.add('d-none');
+                                                if (btnRandom)
+                                                    btnRandom.style.display = 'none'; // Ẩn nút random
                                             }
 
+                                            // Xóa trắng & Tự động Focus lại ô đầu tiên (Mã thẻ) để sẵn sàng quét
                                             cardIdInput.value = '';
                                             plateInput.value = '';
                                             cardIdInput.focus();
                                         };
-                                        
-                                        // 3. Phím tắt F1 / F2 toàn cục
-                                        document.addEventListener('keydown', function (e) {
-                                            if (e.key === 'F1') {
-                                                e.preventDefault(); // Chặn popup Help mặc định của trình duyệt
-                                                switchMode('in');
-                                            } else if (e.key === 'F2') {
-                                                e.preventDefault();
-                                                switchMode('out');
-                                            }
-                                        });
-
-                                        // 4. Logic Smart Focus & Submit bằng Enter
-                                        cardIdInput.addEventListener('keydown', function (e) {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                if (this.value.trim() !== '') {
-                                                    plateInput.focus(); // Quét thẻ xong tự nhảy sang ô Biển số
-                                                }
-                                            }
-                                        });
-
-                                        plateInput.addEventListener('keydown', function (e) {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                submitForm();
-                                            }
-                                        });
 
                                         window.submitForm = function () {
                                             if (cardIdInput.value.trim() === '' && plateInput.value.trim() === '') {
@@ -649,7 +633,9 @@
                                         };
 
                                         // 5. Auto focus thông minh & an toàn
+// (Chỉ focus lại nếu click ra ngoài các vùng tương tác)
                                         document.addEventListener('click', function (e) {
+                                            // Đã thêm .vehicle-box để nhận diện hộp chọn xe là một vùng tương tác hợp lệ
                                             const isInteractiveArea = e.target.closest('button, a, input, .offcanvas, .vehicle-box');
 
                                             if (!isInteractiveArea) {
@@ -661,11 +647,12 @@
                                             }
                                         });
 
-                                        // 6. SỬA LỖI KHÔNG ĐỔI MÀU DIV TẠI ĐÂY: Gắn thẳng hàm vào "window"
+// 6. Gắn thẳng hàm đổi màu vào "window" để HTML gọi được
                                         window.selectVehicleType = function (typeId, boxId) {
                                             const hiddenInput = document.getElementById('vehicleTypeId');
-                                            if (hiddenInput)
+                                            if (hiddenInput) {
                                                 hiddenInput.value = typeId;
+                                            }
 
                                             const allBoxes = document.querySelectorAll('.vehicle-box');
 
@@ -694,8 +681,13 @@
                                                 }
                                             }
 
-                                            // Tự động nhảy sang ô nhập biển số
-                                            cardIdInput.focus();
+                                            // 3. Logic Smart Focus sau khi click chọn xong
+                                            // Nếu chưa quét thẻ -> Trỏ về ô Thẻ. Nếu đã có thẻ -> Trỏ sang ô Biển số
+                                            if (cardIdInput.value.trim() === '') {
+                                                cardIdInput.focus();
+                                            } else {
+                                                plateInput.focus();
+                                            }
                                         };
 
                                         // 7. Đồng hồ Realtime
@@ -712,6 +704,35 @@
                                         setInterval(updateClock, 1000);
                                         updateClock();
                                     });
+
+                                    // Hàm gọi API lấy thẻ rảnh ngẫu nhiên
+                                    window.fetchRandomCard = function () {
+                                        const icon = document.querySelector('#btnRandomCard i');
+
+                                        // Đổi icon thành vòng xoay (Loading) cho chuyên nghiệp
+                                        icon.className = 'bi bi-arrow-repeat spin-animation';
+
+                                        // Gọi API Backend (Bạn nhớ sửa URL ctx cho đúng với route của bạn)
+                                        fetch('${pageContext.request.contextPath}/api/parking/random-card')
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    if (data.success) {
+                                                        // Điền thẻ vào ô input và tự nhảy sang ô Biển số
+                                                        document.getElementById('cardId').value = data.cardId;
+                                                        document.getElementById('licensePlate').focus();
+                                                    } else {
+                                                        alert(data.message || 'Hệ thống báo: Đã hết thẻ trống!');
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Lỗi khi lấy thẻ ngẫu nhiên:', error);
+                                                    alert('Lỗi kết nối đến máy chủ!');
+                                                })
+                                                .finally(() => {
+                                                    // Trả lại icon Shuffle ban đầu
+                                                    icon.className = 'bi bi-shuffle fs-5';
+                                                });
+                                    };
         </script>
     </body>
 </html>

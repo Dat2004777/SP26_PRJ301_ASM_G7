@@ -11,7 +11,7 @@ public class ParkingSession {
     private LocalDateTime entryTime;// Cột: entry_time (Đã đổi sang LocalDateTime)
     private LocalDateTime exitTime; // Cột: exit_time (Đã đổi sang LocalDateTime)
     private String sessionType;     // Cột: session_type
-    private Double feeAmount;       // Cột: fee_amount (Dùng Double cho tiền tệ, hoặc BigDecimal nếu cần siêu chính xác)
+    private Long feeAmount;       // Cột: fee_amount (Dùng Double cho tiền tệ, hoặc BigDecimal nếu cần siêu chính xác)
     private String sessionState;    // Cột: session_state
     private String status;          // Cột: status
 
@@ -22,7 +22,7 @@ public class ParkingSession {
     // 2. Constructor đầy đủ
     public ParkingSession(int sessionId, String cardId, Integer vehicleTypeId, String licensePlate, 
                           LocalDateTime entryTime, LocalDateTime exitTime, String sessionType, 
-                          Double feeAmount, String sessionState, String status) {
+                          Long feeAmount, String sessionState, String status) {
         this.sessionId = sessionId;
         this.cardId = cardId;
         this.vehicleTypeId = vehicleTypeId;
@@ -57,8 +57,8 @@ public class ParkingSession {
     public String getSessionType() { return sessionType; }
     public void setSessionType(String sessionType) { this.sessionType = sessionType; }
 
-    public Double getFeeAmount() { return feeAmount; }
-    public void setFeeAmount(Double feeAmount) { this.feeAmount = feeAmount; }
+    public Long getFeeAmount() { return feeAmount; }
+    public void setFeeAmount(Long feeAmount) { this.feeAmount = feeAmount; }
 
     public String getSessionState() { return sessionState; }
     public void setSessionState(String sessionState) { this.sessionState = sessionState; }
