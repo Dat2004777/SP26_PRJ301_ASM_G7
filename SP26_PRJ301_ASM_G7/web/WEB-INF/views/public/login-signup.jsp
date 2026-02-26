@@ -128,6 +128,9 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <a href="#" class="text-primary text-decoration-none fw-medium"
+                               style="font-size: 0.875rem;">Quay lại trang chủ</a>
+                               
+                            <a href="#" class="text-primary text-decoration-none fw-medium"
                                style="font-size: 0.875rem;">Quên mật khẩu?</a>
                         </div>
 

@@ -65,7 +65,7 @@ public class SignupController extends HttpServlet {
 
         if (acc == null) {
             request.setAttribute("authMode", "signup");
-            request.getRequestDispatcher("/WEB-INF/views/auth/login-signup.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/public/login-signup.jsp").forward(request, response);
         } else {
             response.sendRedirect(request.getContextPath());
         }
@@ -128,7 +128,7 @@ public class SignupController extends HttpServlet {
         // ===== NẾU CÓ LỖI → QUAY LẠI SIGNUP =====
         if (hasError) {
             request.setAttribute("authMode","signup");
-            request.getRequestDispatcher("/WEB-INF/views/auth/login-signup.jsp")
+            request.getRequestDispatcher("/WEB-INF/views/public/login-signup.jsp")
                     .forward(request, response);
             return;
         }

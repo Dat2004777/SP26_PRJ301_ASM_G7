@@ -5,6 +5,8 @@
 package controller.auth;
 
 import dal.AccountDAO;
+import dal.CustomerDAO;
+import dal.EmployeeDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Account;
+import model.Customer;
 import utils.UrlConstants;
 
 /**
@@ -66,7 +69,7 @@ public class LoginController extends HttpServlet {
 
         if (acc == null) {
             request.setAttribute("authMode", "login");
-            request.getRequestDispatcher("/WEB-INF/views/auth/login-signup.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/public/login-signup.jsp").forward(request, response);
         } else {
             response.sendRedirect(request.getContextPath());
         }
@@ -92,25 +95,35 @@ public class LoginController extends HttpServlet {
         HttpSession session = request.getSession();
         
         if(acc != null){
+            EmployeeDAO empDAO = new EmployeeDAO();
             String contextPath = request.getContextPath();
+            session.setAttribute("account",acc);
             switch(acc.getRole()){
                 case ADMIN:
+                    int adminId = empDAO.getEmployeeId(acc.getAccount_id(), "admin");
+                    acc.setEmployeeId(adminId);
                     session.setAttribute("rolePrefix", UrlConstants.URL_ADMIN);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_ADMIN);
                     response.sendRedirect(contextPath + UrlConstants.URL_ADMIN);
                     return;
                 case STAFF:
+                    int staffId = empDAO.getEmployeeId(acc.getAccount_id(), "staff");
+                    acc.setEmployeeId(staffId);
                     session.setAttribute("rolePrefix", UrlConstants.URL_STAFF);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_STAFF);
                     response.sendRedirect(contextPath + UrlConstants.URL_STAFF);
                     return;
                 case MANAGER:
+                    int managerId = empDAO.getEmployeeId(acc.getAccount_id(), "manager");
+                    acc.setEmployeeId(managerId);
                     session.setAttribute("rolePrefix", UrlConstants.URL_MANAGER);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_MANAGER);
                     response.sendRedirect(contextPath + UrlConstants.URL_MANAGER);
                     return;
                 case CUSTOMER:
-                    session.setAttribute("account",acc);
+                    CustomerDAO customerDAO = new CustomerDAO();
+                    Customer customer = customerDAO.getCustomerProfile(acc.getAccount_id());
+                    session.setAttribute("customer",customer);
                     response.sendRedirect(contextPath);
                     return;
                           
@@ -120,7 +133,7 @@ public class LoginController extends HttpServlet {
         request.setAttribute("errorMessage","Hãy đăng nhập lại");
         request.setAttribute("authMode","login");
         request.setAttribute("username", username);
-        request.getRequestDispatcher("/WEB-INF/views/auth/login-signup.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/public/login-signup.jsp").forward(request, response);
     }
 
     /**
