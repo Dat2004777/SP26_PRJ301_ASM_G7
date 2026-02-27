@@ -87,10 +87,6 @@
             </div>
 
             <div class="nav-group d-flex flex-column gap-1">
-                <a href="${ctx}/site-overview" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/site-overview') ? 'active' : ''}">
-                    <i class="bi bi-grid-3x3-gap me-2"></i> Sơ đồ trực tuyến
-                </a>
-
                 <a href="${ctx}/search" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/search') ? 'active' : ''}">
                     <i class="bi bi-search-heart me-2"></i> Truy vấn phương tiện
                 </a>
@@ -98,11 +94,6 @@
                 <a href="${ctx}/subscription" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/subscription') ? 'active' : ''}">
                     <i class="bi bi-card-heading me-2"></i> Quản lý vé tháng
                 </a>
-
-                <a href="${ctx}/incident-report" class="sidebar-nav-link link-staff py-2 ${uri.endsWith('/incident-report') ? 'active' : ''}">
-                    <i class="bi bi-exclamation-octagon me-2"></i> Báo cáo sự cố
-                </a>
-
 
             </div>
         </c:otherwise>

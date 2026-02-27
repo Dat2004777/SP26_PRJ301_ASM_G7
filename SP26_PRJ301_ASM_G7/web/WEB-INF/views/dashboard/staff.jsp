@@ -166,7 +166,7 @@
 
             /* Container giới hạn chiều cao cho danh sách khu vực */
             .scrollable-area-list {
-                max-height: 280px; /* Bạn có thể tăng giảm số này tùy theo độ cao màn hình muốn hiển thị */
+                max-height: 140px; /* Bạn có thể tăng giảm số này tùy theo độ cao màn hình muốn hiển thị */
                 overflow-y: auto;
                 overflow-x: hidden;
                 padding-right: 8px; /* Tránh để thanh cuộn đè lên nội dung */
@@ -551,7 +551,7 @@
                                         </div>
 
                                     </c:forEach>
-
+                                    
                                 </div> 
                             </div>
                         </div>
