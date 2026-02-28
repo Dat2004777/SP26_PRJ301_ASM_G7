@@ -32,11 +32,11 @@ public class Account {
          this.employeeId = employeeId;
     }
 
-    public int getAccount_id() {
+    public int getAccountId() {
         return accountId;
     }
 
-    public void setAccount_id(int accountId) {
+    public void setAccountId(int accountId) {
         this.accountId= accountId;
     }
 

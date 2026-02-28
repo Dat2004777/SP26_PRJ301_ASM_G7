@@ -97,10 +97,10 @@ public class LoginController extends HttpServlet {
                     .forward(request, response);
             return;
         }
-        
+
         username = username.trim();
         password = password.trim();
-        
+
         AccountDAO accDAO = new AccountDAO();
         Account acc = accDAO.checkAccount(username, password);
 
@@ -112,29 +112,29 @@ public class LoginController extends HttpServlet {
             session.setAttribute("account", acc);
             switch (acc.getRole()) {
                 case ADMIN:
-                    int adminId = empDAO.getEmployeeId(acc.getAccount_id(), "admin");
-                    acc.setEmployeeId(adminId);
+                    int adminId = empDAO.getEmployeeId(acc.getAccountId(), "admin");
+                    session.setAttribute("admin", empDAO.getById(adminId));
                     session.setAttribute("rolePrefix", UrlConstants.URL_ADMIN);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_ADMIN);
                     response.sendRedirect(contextPath + UrlConstants.URL_ADMIN);
                     return;
                 case STAFF:
-                    int staffId = empDAO.getEmployeeId(acc.getAccount_id(), "staff");
-                    acc.setEmployeeId(staffId);
+                    int staffId = empDAO.getEmployeeId(acc.getAccountId(), "staff");
+                    session.setAttribute("staff", empDAO.getById(staffId));
                     session.setAttribute("rolePrefix", UrlConstants.URL_STAFF);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_STAFF);
                     response.sendRedirect(contextPath + UrlConstants.URL_STAFF);
                     return;
                 case MANAGER:
-                    int managerId = empDAO.getEmployeeId(acc.getAccount_id(), "manager");
-                    acc.setEmployeeId(managerId);
+                    int managerId = empDAO.getEmployeeId(acc.getAccountId(), "manager");
+                    session.setAttribute("manager", empDAO.getById(managerId));
                     session.setAttribute("rolePrefix", UrlConstants.URL_MANAGER);
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_MANAGER);
                     response.sendRedirect(contextPath + UrlConstants.URL_MANAGER);
                     return;
                 case CUSTOMER:
                     CustomerDAO customerDAO = new CustomerDAO();
-                    Customer customer = customerDAO.getCustomerProfile(acc.getAccount_id());
+                    Customer customer = customerDAO.getCustomerProfile(acc.getAccountId());
                     session.setAttribute("customer", customer);
                     response.sendRedirect(contextPath);
                     return;
