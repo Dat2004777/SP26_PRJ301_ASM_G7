@@ -8,26 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Tra Cứu Thẻ Và Xe - ParkStaff</title>
 
-        <link href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
         <style>
-            :root {
-                --bs-body-bg: #f8fafc;
-                --bs-primary: #1a56db;
-                --bs-font-sans-serif: 'Inter', sans-serif;
-                --text-main: #334155;
-                --text-muted: #64748b;
-                --navbar-height: 70px;
-            }
-            body {
-                font-family: var(--bs-font-sans-serif);
-                color: var(--text-main);
-                background-color: var(--bs-body-bg);
-                padding-top: var(--navbar-height);
-                margin: 0;
-                padding-bottom: 50px;
-            }
             .card-custom {
                 border: none;
                 border-radius: 12px;
@@ -38,6 +19,15 @@
             .nav-tabs-custom {
                 border-bottom: 1px solid #e2e8f0;
                 margin-bottom: 1.5rem;
+                /* Tối ưu mobile: Cho phép vuốt ngang thay vì rớt dòng */
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Ẩn thanh cuộn Firefox */
+            }
+            .nav-tabs-custom::-webkit-scrollbar {
+                display: none; /* Ẩn thanh cuộn Chrome/Safari */
             }
             .nav-tabs-custom .nav-link {
                 border: none;
@@ -45,6 +35,7 @@
                 font-weight: 500;
                 padding: 1rem 1.5rem;
                 background: transparent;
+                white-space: nowrap; /* Không cho rớt chữ trên mobile */
             }
             .nav-tabs-custom .nav-link:hover {
                 color: var(--bs-primary);
@@ -96,34 +87,7 @@
             .value-large {
                 font-size: 1.4rem;
             }
-            .badge-soft-success {
-                background-color: #dcfce7;
-                color: #16a34a;
-                font-weight: 500;
-                padding: 6px 12px;
-                border-radius: 20px;
-            }
-            .badge-soft-warning {
-                background-color: #ffedd5;
-                color: #ea580c;
-                font-weight: 500;
-                padding: 6px 12px;
-                border-radius: 20px;
-            }
-            .badge-soft-danger {
-                background-color: #fee2e2;
-                color: #dc2626;
-                font-weight: 500;
-                padding: 6px 12px;
-                border-radius: 20px;
-            }
-            .badge-outline {
-                border: 1px solid #e2e8f0;
-                background: #f8fafc;
-                color: var(--text-muted);
-                padding: 4px 10px;
-                border-radius: 20px;
-            }
+
             .table-custom th {
                 color: var(--text-muted);
                 font-weight: 500;
@@ -163,27 +127,7 @@
                 display: block;
             }
 
-            /* ... (giữ nguyên các CSS cũ của bạn) ... */
-
-            /* Thêm phần tối ưu Mobile ở dưới cùng của thẻ <style> */
-            .nav-tabs-custom {
-                border-bottom: 1px solid #e2e8f0;
-                margin-bottom: 1.5rem;
-                /* Tối ưu mobile: Cho phép vuốt ngang thay vì rớt dòng */
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                overflow-y: hidden;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none; /* Ẩn thanh cuộn Firefox */
-            }
-            .nav-tabs-custom::-webkit-scrollbar {
-                display: none; /* Ẩn thanh cuộn Chrome/Safari */
-            }
-            .nav-tabs-custom .nav-link {
-                white-space: nowrap; /* Không cho rớt chữ */
-            }
-
-            /* Tối ưu padding cho màn hình nhỏ */
+            /* Tối ưu padding cho màn hình nhỏ (Mobile) */
             @media (max-width: 575.98px) {
                 .search-container {
                     padding: 1rem;
@@ -197,7 +141,10 @@
                 }
                 .value-large {
                     font-size: 1.2rem;
-                } /* Thu nhỏ chữ 1 chút */
+                }
+                body {
+                    padding-bottom: 60px; /* Nhường chỗ cho footer không đè lên content */
+                }
             }
         </style>
     </head>
@@ -503,7 +450,5 @@
             </div>
         </main>
 
-
-        <script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

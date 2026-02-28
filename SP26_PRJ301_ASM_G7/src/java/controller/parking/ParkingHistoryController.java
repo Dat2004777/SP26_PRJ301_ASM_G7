@@ -37,7 +37,9 @@ public class ParkingHistoryController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<RecentActivityDTO> recentLogs = getRecentActivities(1, 10);
+        
+        String state = request.getParameter("state");
+        List<RecentActivityDTO> recentLogs = getRecentActivities(1, 20, state);
         request.setAttribute("recentLogs", recentLogs);
         request.getRequestDispatcher("/WEB-INF/views/parking/history.jsp").forward(request, response);
     }
@@ -46,8 +48,8 @@ public class ParkingHistoryController extends HttpServlet {
      * Hàm lấy nhật ký từ Database và biến đổi thành DTO hiển thị (Chuẩn Clean
      * Architecture)
      */
-    private List<RecentActivityDTO> getRecentActivities(int siteId, int limit) {
-        List<ParkingSession> rawLogs = sessionDAO.getRecentLogs(siteId, limit);
+    private List<RecentActivityDTO> getRecentActivities(int siteId, int limit, String state) {
+        List<ParkingSession> rawLogs = sessionDAO.getRecentLogs(siteId, limit, state);
         List<RecentActivityDTO> dtoList = new ArrayList<>();
 
         // CẬP NHẬT: Thêm định dạng Ngày/Tháng/Năm (dd/MM/yyyy)

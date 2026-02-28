@@ -3,18 +3,80 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Lịch sử ra vào | Smart Parking</title>
-        <link href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    </head>
-    <body class="bg-light">
+    <jsp:include page="/WEB-INF/views/layout/staff-header.jsp">
+        <jsp:param name="pageTitle" value="Lịch sử ra vào | Smart Parking" />
+    </jsp:include>
 
-        <jsp:include page="/WEB-INF/views/layout/staff-header.jsp" />
+    <style>
+        /* Tối ưu hóa card để chứa nội dung cuộn */
+        .history-card {
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            /* Đặt chiều cao tĩnh để ép phần body phải cuộn */
+            height: calc(100vh - 180px); /* Lấy tổng chiều cao màn hình trừ đi header và padding */
+            min-height: 400px;
+        }
 
-        <main class="container-fluid d-flex justify-content-center" style="max-width: 1400px; min-height: calc(100vh - 80px); padding: 6rem 15px 2rem 15px;">
+        .history-card-header {
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            background-color: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 10;
+        }
+
+        /* Vùng chứa bảng có thể cuộn */
+        .history-table-container {
+            flex-grow: 1; /* Tự động phình to chiếm hết khoảng trống */
+            overflow-y: auto; /* Cho phép cuộn dọc */
+            background-color: #fff;
+        }
+
+        /* Giữ cố định tiêu đề cột của bảng khi cuộn */
+        .history-table-container thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8fafc;
+            z-index: 5;
+            box-shadow: 0 1px 0 #e2e8f0; /* Kẻ vạch dưới cho tiêu đề */
+            border-bottom: none; /* Bỏ viền mặc định của bootstrap để tránh lỗi khi sticky */
+        }
+
+        .history-card-footer {
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Custom Scrollbar cho bảng */
+        .history-table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .history-table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .history-table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .history-table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Tối ưu cho Mobile */
+        @media (max-width: 768px) {
+            .history-card {
+                height: calc(100vh - 130px);
+            }
+        }
+    </style>
+
+    <body>
+
+        <main class="container-fluid d-flex justify-content-center py-3 py-md-4" style="max-width: 1400px;">
 
             <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
                 <div class="offcanvas-header border-bottom">
@@ -29,25 +91,18 @@
             </div>
 
             <div class="w-100">
-                <div class="d-flex justify-content-between align-items-end mb-4">
+                <div class="d-flex justify-content-between align-items-end mb-3 mb-md-4">
                     <div>
                         <h4 class="fw-bold text-dark mb-1">Lịch sử ra vào bãi</h4>
                     </div>
-
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                        <i class="bi bi-download me-1"></i> Xuất Excel
-                    </button>
                 </div>
 
-                <div class="card shadow-sm border-0" style="border-radius: 16px;">
+                <div class="card shadow-sm border-0 history-card">
 
-                    <div class="card-header bg-white border-bottom py-3 px-4" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                    <div class="history-card-header py-3 px-3 px-md-4">
                         <form action="${ctx}/parking/history" method="GET" class="row g-2 align-items-center">
-                            <div class="col-md-4 col-sm-6 position-relative">
-                                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                                <input type="text" name="search" class="form-control form-control-sm ps-5 rounded-pill" placeholder="Tìm biển số xe hoặc mã thẻ..." value="${param.search}">
-                            </div>
-                            <div class="col-md-3 col-sm-6">
+
+                            <div class="col-12 col-md-4 col-lg-3 mt-2 mt-md-0">
                                 <select name="state" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="parked" ${param.state == 'parked' ? 'selected' : ''}>Đang đỗ</option>
@@ -57,48 +112,51 @@
                         </form>
                     </div>
 
-                    <div class="card-body p-0 table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light text-muted" style="font-size: 0.85rem;">
+                    <div class="history-table-container p-0">
+                        <table class="table table-hover align-middle mb-0 text-nowrap">
+                            <thead class="text-muted" style="font-size: 0.85rem;">
                                 <tr>
-                                    <th class="ps-4 py-3">Biển số xe</th>
+                                    <th class="ps-3 ps-md-4 py-3">Biển số xe</th>
                                     <th class="py-3">Hành động</th>
                                     <th class="py-3">Thời gian ghi nhận</th>
                                     <th class="py-3">Trạng thái</th>
-                                    <th class="pe-4 py-3 text-end">Chi tiết</th>
+                                    <th class="pe-3 pe-md-4 py-3 text-end">Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:forEach var="log" items="${recentLogs}">
-
-                                    <%-- Logic set màu sắc và Icon (Giữ nguyên của bạn) --%>
                                     <c:choose>
                                         <c:when test="${log.sessionState == 'parked' || log.sessionState == 'PARKED' || log.sessionState == 'ACTIVE'}">
                                             <c:set var="actionName" value="Xe vào bãi" />
-                                            <c:set var="badgeClass" value="bg-primary-subtle text-primary" />
+                                            <c:set var="actionBadge" value="badge-soft-success" /> 
                                             <c:set var="icon" value="bi-arrow-down-circle" />
                                             <c:set var="statusText" value="Đang đỗ" />
+                                            <c:set var="statusBadge" value="badge-soft-warning" /> 
                                         </c:when>
+
                                         <c:when test="${log.sessionState == 'completed' || log.sessionState == 'COMPLETED'}">
                                             <c:set var="actionName" value="Xe ra bãi" />
-                                            <c:set var="badgeClass" value="bg-success-subtle text-success" />
+                                            <c:set var="actionBadge" value="badge-soft-warning" /> 
                                             <c:set var="icon" value="bi-arrow-up-circle" />
-                                            <c:set var="statusText" value="Đã ra" />
+                                            <c:set var="statusText" value="Đã hoàn tất" />
+                                            <c:set var="statusBadge" value="badge-soft-success" /> 
                                         </c:when>
+
                                         <c:otherwise>
                                             <c:set var="actionName" value="Lỗi Dữ liệu" />
-                                            <c:set var="badgeClass" value="bg-secondary-subtle text-secondary" />
-                                            <c:set var="icon" value="bi-question-circle" />
-                                            <c:set var="statusText" value="Lỗi" />
+                                            <c:set var="actionBadge" value="badge-soft-danger" /> 
+                                            <c:set var="icon" value="bi-exclamation-octagon" />
+                                            <c:set var="statusText" value="Lỗi hệ thống" />
+                                            <c:set var="statusBadge" value="badge-soft-danger" />
                                         </c:otherwise>
                                     </c:choose>
 
                                     <tr>
-                                        <td class="ps-4">
-                                            <span class="fw-bold text-dark fs-6">${log.licensePlate}</span>
+                                        <td class="ps-3 ps-md-4">
+                                            <span class="fw-bold text-dark fs-6 text-uppercase">${log.licensePlate}</span>
                                         </td>
                                         <td>
-                                            <span class="${badgeClass} fw-medium px-2 rounded" style="font-size: 0.8rem; padding-top: 4px; padding-bottom: 4px;">
+                                            <span class="${actionBadge} d-inline-block">
                                                 <i class="bi ${icon} me-1"></i> ${actionName}
                                             </span>
                                         </td>
@@ -106,9 +164,9 @@
                                             <span class="text-muted"><i class="bi bi-clock me-1"></i> ${log.formattedTime}</span>
                                         </td>
                                         <td>
-                                            <span class="badge ${badgeClass}" style="font-size: 0.75rem;">${statusText}</span>
+                                            <span class="${statusBadge} d-inline-block">${statusText}</span>
                                         </td>
-                                        <td class="pe-4 text-end">
+                                        <td class="pe-3 pe-md-4 text-end">
                                             <button class="btn btn-sm btn-light text-primary rounded-circle" title="Xem chi tiết">
                                                 <i class="bi bi-eye"></i>
                                             </button>
@@ -118,7 +176,7 @@
 
                                 <c:if test="${empty recentLogs}">
                                     <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
+                                        <td colspan="5" class="text-center py-5 text-muted" style="height: 300px; vertical-align: middle;">
                                             <i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>
                                             <span>Không tìm thấy lịch sử ra vào nào.</span>
                                         </td>
@@ -128,23 +186,17 @@
                         </table>
                     </div>
 
-                    <c:if test="${not empty recentLogs}">
-                        <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-                            <span class="text-muted" style="font-size: 0.85rem;">Hiển thị 20 kết quả mới nhất</span>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">Sau</a></li>
-                            </ul>
-                        </div>
-                    </c:if>
+                    <div class="history-card-footer py-2 px-3 px-md-4 d-flex justify-content-between align-items-center">
+                        <span class="text-muted fw-medium" style="font-size: 0.85rem;">
+                            Đã tải <strong class="text-dark">${recentLogs != null ? recentLogs.size() : 0}</strong> bản ghi
+                        </span>
+                        <span class="text-muted" style="font-size: 0.8rem;">
+                            <i class="bi bi-info-circle me-1"></i> Cuộn để xem thêm
+                        </span>
+                    </div>
 
                 </div>
             </div>
         </main>
-
-        <script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.min.js"></script>                    
     </body>
 </html>

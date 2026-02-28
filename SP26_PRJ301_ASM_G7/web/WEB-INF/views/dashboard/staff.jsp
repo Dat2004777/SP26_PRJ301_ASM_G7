@@ -7,47 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Cổng Nhân Viên - Kiểm Soát Xe</title>
 
-        <link href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-        <!-- Google Fonts: Inter -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
         <style>
-            :root {
-                --bs-body-bg: #f3f4f6;
-                --bs-primary: #1a56db;
-                --bs-primary-rgb: 26, 86, 219;
-                --bs-font-sans-serif: 'Inter', sans-serif;
-                --text-main: #374151;
-                --text-muted: #6b7280;
-                --navbar-height: 70px;
-            }
-            body {
-                font-family: var(--bs-font-sans-serif);
-                color: var(--text-main);
-                -webkit-font-smoothing: antialiased;
-                background-color: var(--bs-body-bg);
-                padding-top: var(--navbar-height);
-            }
-
-            /* NAVBAR HEADER */
-            .navbar-custom {
-                height: var(--navbar-height);
-                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                background-color: #fff;
-            }
-            .header-clock {
-                font-weight: 600;
-                color: #475569;
-                background: #f1f5f9;
-                padding: 8px 16px;
-                border-radius: 8px;
-                font-variant-numeric: tabular-nums;
-            }
-
             /* THỐNG KÊ (STATS CARDS) */
             .stat-card {
                 border: none;
@@ -232,28 +192,7 @@
     <body>
 
         <!--        header-->
-        <nav class="navbar navbar-expand-lg navbar-custom fixed-top px-3 px-md-4">
-            <div class="container-fluid p-0 d-flex justify-content-between align-items-center">
-
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light border-0 bg-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
-                        <i class="bi bi-list fs-4"></i>
-                    </button>
-                    <div class="d-sm-block">
-                        <div class="fw-bold fs-5" style="line-height: 1.2; color: #1e293b;">${overview.siteName}</div>
-                    </div>
-                </div>
-
-                <div class="header-clock d-md-flex align-items-center gap-2">
-                    <i class="bi bi-clock"></i>
-                    <span id="realtimeClock">00:00:00</span> - <span id="realtimeDate">--/--/----</span>
-                </div>
-
-                <div class="d-flex align-items-center gap-4">
-
-                </div>
-            </div>
-        </nav>
+        <jsp:include page="/WEB-INF/views/layout/staff-header.jsp" />
 
 
         <main class="container-fluid d-flex align-items-center justify-content-center" style="max-width: 1400px; min-height: calc(100vh - 80px); padding: 2rem 15px;">
@@ -348,7 +287,7 @@
                                 </div>
 
                                 <div id="vehicleTypeContainer" class="mb-4">
-                                    <label class="form-label text-secondary fw-bold" style="font-size: 0.85rem;">LOẠI XE <span class="text-muted fw-normal text-lowercase">(Dành cho vé lượt)</span></label>
+                                    <label class="form-label text-secondary fw-bold" style="font-size: 0.85rem;">LOẠI XE </label>
                                     <c:set var="hasSelected" value="false" />
                                     <input type="hidden" name="vehicleTypeId" id="vehicleTypeId" value="-1">
 
@@ -521,19 +460,19 @@
                                     <c:choose>
                                         <c:when test="${log.sessionState == 'parked' || log.sessionState == 'PARKED'}">
                                             <c:set var="actionName" value="Xe vào bãi" />
-                                            <c:set var="badgeClass" value="bg-primary-subtle text-primary" />
+                                            <c:set var="badgeClass" value="badge-soft-warning" />
                                             <c:set var="icon" value="bi-arrow-down-circle" />
                                             <c:set var="statusText" value="Đang đỗ" />
                                         </c:when>
                                         <c:when test="${log.sessionState == 'completed' || log.sessionState == 'COMPLETED'}">
                                             <c:set var="actionName" value="Xe ra bãi" />
-                                            <c:set var="badgeClass" value="bg-success-subtle text-success" />
+                                            <c:set var="badgeClass" value="badge-soft-success" />
                                             <c:set var="icon" value="bi-arrow-up-circle" />
                                             <c:set var="statusText" value="Đã ra" />
                                         </c:when>
                                         <c:otherwise>
                                             <c:set var="actionName" value="Lỗi Dữ liệu" />
-                                            <c:set var="badgeClass" value="bg-secondary-subtle text-secondary" />
+                                            <c:set var="badgeClass" value="badge-soft-danger" />
                                             <c:set var="icon" value="bi-question-circle" />
                                             <c:set var="statusText" value="Lỗi" />
                                         </c:otherwise>
@@ -581,7 +520,7 @@
             </div>
         </main>
 
-        <script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.min.js"></script>
+        
         <script>
                                                             document.addEventListener('DOMContentLoaded', function () {
 
@@ -742,16 +681,6 @@
                                                                             });
                                                                 }
 
-                                                                // Xử lý Cập nhật Đồng hồ
-                                                                function updateClock() {
-                                                                    if (el.clockTime && el.clockDate) {
-                                                                        const now = new Date();
-                                                                        el.clockTime.innerText = now.toLocaleTimeString('vi-VN', {hour12: false});
-                                                                        el.clockDate.innerText = now.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
-                                                                    }
-                                                                }
-
-
                                                                 // ==========================================
                                                                 // KHỐI 3: EVENT REGISTRATION (Gắn sự kiện)
                                                                 // ==========================================
@@ -837,10 +766,6 @@
                                                                 if (el.cardIdInput && document.activeElement !== el.cardIdInput) {
                                                                     el.cardIdInput.focus();
                                                                 }
-
-                                                                // Chạy Đồng Hồ Realtime
-                                                                setInterval(updateClock, 1000);
-                                                                updateClock();
 
                                                             });
         </script>

@@ -57,36 +57,46 @@ public class SessionDAO extends DBContext {
         return count;
     }
 
-    // 2. Hàm lấy danh sách N lượt ra/vào mới nhất (Dùng cho thanh Offcanvas bên phải)
-    public List<ParkingSession> getRecentLogs(int siteId, int limit) {
+    public List<ParkingSession> getRecentLogs(int siteId, int limit, String state) {
         List<ParkingSession> list = new ArrayList<>();
 
-        // CẬP NHẬT 1: Thêm ngoặc đơn cho TOP (?), thêm cột s.status và thêm ORDER BY
-        String sql = """
-                     SELECT TOP (?) s.session_id, s.card_id, c.site_id, s.license_plate, 
-                                  s.entry_time, s.exit_time, s.session_state, s.status
-                     FROM ParkingSessions s
-                     JOIN ParkingCards c ON s.card_id = c.card_id
-                     WHERE c.site_id = ? AND s.status = 'active'
-                     ORDER BY s.entry_time DESC
-                     """;
+        // 1. Dùng StringBuilder để xây dựng câu SQL động
+        StringBuilder sql = new StringBuilder("""
+            SELECT TOP (?) s.session_id, s.card_id, c.site_id, s.license_plate, 
+                           s.entry_time, s.exit_time, s.session_state, s.status
+            FROM ParkingSessions s
+            JOIN ParkingCards c ON s.card_id = c.card_id
+            WHERE c.site_id = ? AND s.status = 'active'
+            """);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        // 2. Kiểm tra state: Nếu khác null và không rỗng thì nối thêm điều kiện WHERE
+        boolean hasStateFilter = state != null && !state.trim().isEmpty();
+        if (hasStateFilter) {
+            sql.append(" AND s.session_state = ? ");
+        }
 
-            // CẬP NHẬT 2: Set tham số đúng thứ tự dấu ? trong câu SQL
+        // Nối thêm ORDER BY ở cuối cùng
+        sql.append(" ORDER BY s.entry_time DESC ");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+
+            // 3. Set tham số cứng ban đầu
             ps.setInt(1, limit);
             ps.setInt(2, siteId);
 
+            // 4. Nếu có lọc state thì set tham số thứ 3
+            if (hasStateFilter) {
+                ps.setString(3, state.trim());
+            }
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // CẬP NHẬT 3: Dùng Constructor rỗng và Setter vì câu SELECT không gọi hết các cột
                     ParkingSession session = new ParkingSession();
 
                     session.setSessionId(rs.getInt("session_id"));
                     session.setCardId(rs.getString("card_id"));
                     session.setLicensePlate(rs.getString("license_plate"));
 
-                    // Lấy LocalDateTime chuẩn JDBC 4.2+ (Trực tiếp, không cần convert qua Timestamp)
                     session.setEntryTime(rs.getObject("entry_time", LocalDateTime.class));
                     session.setExitTime(rs.getObject("exit_time", LocalDateTime.class));
 

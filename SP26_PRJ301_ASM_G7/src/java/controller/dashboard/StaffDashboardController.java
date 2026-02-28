@@ -87,7 +87,7 @@ public class StaffDashboardController extends HttpServlet {
      * Architecture)
      */
     private List<RecentActivityDTO> getRecentActivities(int siteId, int limit) {
-        List<ParkingSession> rawLogs = sessionDAO.getRecentLogs(siteId, limit);
+        List<ParkingSession> rawLogs = sessionDAO.getRecentLogs(siteId, limit, "");
         List<RecentActivityDTO> dtoList = new ArrayList<>();
 
         // CẬP NHẬT: Thêm định dạng Ngày/Tháng/Năm (dd/MM/yyyy)
