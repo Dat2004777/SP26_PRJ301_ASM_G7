@@ -22,7 +22,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
                 </div>
                 <div class="offcanvas-body d-flex flex-column p-3">
-                    <jsp:include page="/WEB-INF/views/layout/sidebar.jsp"/>
+                    <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
+                        <jsp:param name="activepage" value="parking/history" />
+                    </jsp:include>
                 </div>
             </div>
 

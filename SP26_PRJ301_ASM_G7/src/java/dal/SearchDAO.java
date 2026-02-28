@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import model.dto.CardSearchResultDTO;
+import model.dto.search.CardSearchResultDTO;
 import model.dto.TransactionHistoryDTO;
-import model.dto.VehicleSearchResultDTO;
+import model.dto.search.VehicleSearchResultDTO;
 
 public class SearchDAO extends DBContext {
 
@@ -20,12 +20,12 @@ public class SearchDAO extends DBContext {
     // =======================================================================
     public VehicleSearchResultDTO findActiveVehicleByPlate(String licensePlate) {
         String sql = "SELECT ps.license_plate, ps.card_id, ps.entry_time, vt.name AS vehicle_type, "
-                   + "ps.session_type, pa.area_name "
-                   + "FROM ParkingSessions ps "
-                   + "JOIN VehicleTypes vt ON ps.vehicle_type_id = vt.vehicle_type_id "
-                   + "JOIN ParkingCards pc ON ps.card_id = pc.card_id "
-                   + "LEFT JOIN ParkingAreas pa ON pc.site_id = pa.site_id AND ps.vehicle_type_id = pa.vehicle_type_id "
-                   + "WHERE ps.license_plate = ? AND ps.session_state = 'parked' AND ps.status = 'active'";
+                + "ps.session_type, pa.area_name "
+                + "FROM ParkingSessions ps "
+                + "JOIN VehicleTypes vt ON ps.vehicle_type_id = vt.vehicle_type_id "
+                + "JOIN ParkingCards pc ON ps.card_id = pc.card_id "
+                + "LEFT JOIN ParkingAreas pa ON pc.site_id = pa.site_id AND ps.vehicle_type_id = pa.vehicle_type_id "
+                + "WHERE ps.license_plate = ? AND ps.session_state = 'parked' AND ps.status = 'active'";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, licensePlate);
@@ -34,18 +34,18 @@ public class SearchDAO extends DBContext {
                 VehicleSearchResultDTO dto = new VehicleSearchResultDTO();
                 dto.setLicensePlate(rs.getString("license_plate"));
                 dto.setRfid(rs.getString("card_id"));
-                
+
                 // Format thời gian
                 if (rs.getTimestamp("entry_time") != null) {
                     dto.setEntryTime(rs.getTimestamp("entry_time").toLocalDateTime().format(timeFormatter));
                 }
-                
+
                 dto.setAreaName(rs.getString("area_name") != null ? rs.getString("area_name") : "Chưa xác định");
-                
+
                 // Chuẩn hóa loại xe để hiển thị đẹp hơn
                 String vType = rs.getString("vehicle_type");
                 dto.setVehicleType("car".equalsIgnoreCase(vType) ? "Ô tô" : "Xe máy");
-                
+
                 // Xác định vé tháng/lượt
                 dto.setIsMonthlyTicket("noncasual".equalsIgnoreCase(rs.getString("session_type")));
                 return dto;
@@ -63,13 +63,13 @@ public class SearchDAO extends DBContext {
         List<TransactionHistoryDTO> list = new ArrayList<>();
         // Dùng UNION ALL để gộp cả lượt VÀO và lượt RA thành 1 danh sách, sắp xếp mới nhất lên đầu
         String sql = "SELECT TOP 10 * FROM ( "
-                   + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
-                   + "  WHERE license_plate = ? AND status = 'active' AND entry_time IS NOT NULL "
-                   + "  UNION ALL "
-                   + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
-                   + "  WHERE license_plate = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
-                   + ") AS History "
-                   + "ORDER BY txn_time DESC";
+                + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
+                + "  WHERE license_plate = ? AND status = 'active' AND entry_time IS NOT NULL "
+                + "  UNION ALL "
+                + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
+                + "  WHERE license_plate = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
+                + ") AS History "
+                + "ORDER BY txn_time DESC";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, licensePlate);
@@ -93,41 +93,77 @@ public class SearchDAO extends DBContext {
     // 3. TÌM KIẾM THÔNG TIN THẺ
     // =======================================================================
     public CardSearchResultDTO findCardByRfid(String rfid) {
-        String sql = "SELECT pc.card_id, pc.card_state, pc.status AS card_sys_status, "
-                   + "s.subscription_id, s.license_plate AS registered_plate, s.end_date, "
-                   + "c.first_name, c.last_name "
-                   + "FROM ParkingCards pc "
-                   + "LEFT JOIN Subscriptions s ON pc.card_id = s.card_id AND s.sub_state = 'active' AND s.status = 'active' "
-                   + "LEFT JOIN Customers c ON s.customer_id = c.customer_id "
-                   + "WHERE pc.card_id = ?";
+        // Câu SQL đã tối ưu: Chặn cứng LEFT JOIN bằng trạng thái "parked" và "active"
+        String sql = """
+                                    SELECT 
+                                        pc.card_id, pc.card_state, pc.status AS card_sys_status, 
+                                        s.subscription_id, s.license_plate AS registered_plate, s.end_date,
+                                        c1.first_name AS owner_first_name, c1.last_name AS owner_last_name, 
+                                        ps.session_state, ps.entry_time, ps.license_plate AS parked_plate,
+                                        b.booking_id, c2.first_name AS booker_first_name, c2.last_name AS booker_last_name, b.start_time AS booking_start, b.end_time AS booking_end
+                                    FROM ParkingCards pc 
+                                    LEFT JOIN Subscriptions s ON pc.card_id = s.card_id AND s.sub_state = 'active' AND s.status = 'active'
+                                    LEFT JOIN Customers c1 ON s.customer_id = c1.customer_id
+                                    LEFT JOIN ParkingSessions ps ON pc.card_id = ps.card_id AND ps.session_state = 'parked'
+                                    LEFT JOIN Bookings b ON b.card_id = pc.card_id AND b.booking_state = 'accepted'
+                                    LEFT JOIN Customers c2 ON b.customer_id = c2.customer_id
+                                    WHERE pc.card_id = ?
+                    """;
+
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, rfid);
             ResultSet rs = st.executeQuery();
+
             if (rs.next()) {
                 CardSearchResultDTO dto = new CardSearchResultDTO();
                 dto.setRfid(rs.getString("card_id"));
-                
-                // Logic Trạng thái thẻ
-                String sysStatus = rs.getString("card_sys_status");
-                if ("inactive".equalsIgnoreCase(sysStatus)) {
-                    dto.setStatus("LOCKED");
-                } else {
-                    dto.setStatus("ACTIVE");
-                }
 
-                // Logic Phân loại thẻ & Lấy thông tin chủ xe
+                // 1. Logic Trạng thái hệ thống của thẻ
+                String sysStatus = rs.getString("card_sys_status");
+                dto.setStatus("inactive".equalsIgnoreCase(sysStatus) ? "LOCKED" : "ACTIVE");
+
+                // 2. Logic Phân loại thẻ & Lấy thông tin chủ xe
                 if (rs.getObject("subscription_id") != null) {
                     dto.setCardType("Vé tháng");
                     dto.setRegisteredPlate(rs.getString("registered_plate"));
-                    dto.setOwnerName(rs.getString("last_name") + " " + rs.getString("first_name"));
+
+                    // Xử lý nối tên an toàn (tránh hiện "null null")
+                    String fName = rs.getString("owner_first_name");
+                    String lName = rs.getString("owner_last_name");
+                    dto.setOwnerName(((lName != null ? lName : "") + " " + (fName != null ? fName : "")).trim());
+
                     if (rs.getTimestamp("end_date") != null) {
                         dto.setExpiryDate(rs.getTimestamp("end_date").toLocalDateTime().format(dateFormatter));
                     }
+                } else if (rs.getObject("booking_id") != null) {
+                    dto.setCardType("Vé đặt trước");
+                    String fName = rs.getString("booker_first_name");
+                    String lName = rs.getString("booker_last_name");
+                    dto.setOwnerName(((lName != null ? lName : "") + " " + (fName != null ? fName : "")).trim());
+                    if (rs.getTimestamp("booking_start") != null) {
+                        dto.setBookingStart(rs.getTimestamp("booking_start").toLocalDateTime().format(timeFormatter)); // hoặc dateFormatter tùy bạn
+                    }
+                    if (rs.getTimestamp("booking_end") != null) {
+                        dto.setBookingEnd(rs.getTimestamp("booking_end").toLocalDateTime().format(timeFormatter));
+                    }
                 } else {
                     dto.setCardType("Vé lượt");
-                    // Các trường ownerName, plate, expiryDate để null
                 }
+
+                // 3. Logic: Thẻ này có đang nằm trong bãi không? (CỰC KỲ QUAN TRỌNG)
+                if ("parked".equalsIgnoreCase(rs.getString("session_state"))) {
+                    dto.setCurrentlyParked(true);
+                    dto.setCurrentParkedPlate(rs.getString("parked_plate"));
+
+                    if (rs.getTimestamp("entry_time") != null) {
+                        // Nhớ dùng đúng formatter thời gian của bạn (vd: timeFormatter)
+                        dto.setCurrentEntryTime(rs.getTimestamp("entry_time").toLocalDateTime().format(timeFormatter));
+                    }
+                } else {
+                    dto.setCurrentlyParked(false);
+                }
+
                 return dto;
             }
         } catch (SQLException e) {
@@ -142,13 +178,13 @@ public class SearchDAO extends DBContext {
     public List<TransactionHistoryDTO> getCardTransactions(String rfid) {
         List<TransactionHistoryDTO> list = new ArrayList<>();
         String sql = "SELECT TOP 10 * FROM ( "
-                   + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
-                   + "  WHERE card_id = ? AND status = 'active' AND entry_time IS NOT NULL "
-                   + "  UNION ALL "
-                   + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
-                   + "  WHERE card_id = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
-                   + ") AS History "
-                   + "ORDER BY txn_time DESC";
+                + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
+                + "  WHERE card_id = ? AND status = 'active' AND entry_time IS NOT NULL "
+                + "  UNION ALL "
+                + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
+                + "  WHERE card_id = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
+                + ") AS History "
+                + "ORDER BY txn_time DESC";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, rfid);
