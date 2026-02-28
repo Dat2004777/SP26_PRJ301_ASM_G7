@@ -194,7 +194,7 @@ public class ValidationUtils {
             return "";
         }
         return licensePlate.toUpperCase().replaceAll("[\\s\\.]", "");
-    
+    }
     /**
      * Kiểm tra phonenumber xem đúng format là gồm 10 chữ số và bắt đầu bằng chữ số 0 (theo VN)
      * @param phone
