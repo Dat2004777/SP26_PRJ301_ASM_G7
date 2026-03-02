@@ -97,6 +97,17 @@
         border-radius: 50%;
         object-fit: cover;
     }
+
+    /* Hiệu ứng cho nút Đăng xuất */
+    .logout-btn {
+        color: var(--text-muted);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .logout-btn:hover {
+        color: #ef4444; /* Đổi sang màu đỏ (Red-500) khi hover */
+        transform: translateX(2px); /* Nhích nhẹ icon sang phải tạo cảm giác tương tác */
+    }
 </style>
 
 <!-- Overlay for mobile sidebar -->
@@ -110,12 +121,12 @@
     </div>
 
     <div class="sidebar-nav">
-        <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item-link active">
+        <a href="${ctx}/dashboard" class="nav-item-link ${param.activePage == 'adminDashboard' ? 'active' : ''}">
             <i class="bi bi-grid-1x2"></i> Bảng điều khiển
         </a>
 
         <div class="nav-section-title">QUẢN LÝ</div>
-        <a href="#" class="nav-item-link">
+        <a href="${ctx}/site" class="nav-item-link ${param.activePage == 'adminSite' ? 'active' : ''}">
             <i class="bi bi-car-front"></i> Quản lý bãi xe
         </a>
         <a href="#" class="nav-item-link">
@@ -137,9 +148,9 @@
     <div class="user-profile-section mt-auto">
         <img src="https://ui-avatars.com/api/?name=Alex+Morgan&background=e2e8f0&color=334155" alt="Avatar" class="user-avatar">
         <div class="flex-grow-1 overflow-hidden">
-            <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;">Alex Morgan</div>
+            <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;">${account.username}</div>
             <div class="text-muted text-truncate" style="font-size: 0.75rem;">Quản trị viên cấp cao</div>
         </div>
-        <a href="#" class="text-muted ms-auto" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right fs-5"></i></a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout-btn text-muted ms-auto" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right fs-5"></i></a>
     </div>
 </aside>

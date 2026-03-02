@@ -12,7 +12,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tổng quan hệ thống - ParkAdmin</title>
+        <title>Tổng quan hệ thống - ParkManager</title>
 
         <!-- Google Fonts: Inter -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -388,7 +388,7 @@
     </head>
     <body>
 
-        <%@include file="../layout/sidebar.jsp" %>
+        <%@include file="../layout/admin-sidebar.jsp" %>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -407,16 +407,6 @@
 
                 <!-- selectionBox -->
                 <div class="header-actions mb-4">
-                    <div class="search-container">
-                        <i class="bi bi-search"></i>
-                        <!--<input type="text" class="search-input" placeholder="Tìm biển số, người dùng, vé...">-->
-                        <select class="search-input" onchange="siteSearch(this)">
-                            <option value="0" selected>Tất cả</option>
-                            <c:forEach var="activeSites" items="${dashboardDTO.allActiveSites}">
-                                <option value="${activeSites.siteId}" ${param.siteId == activeSites.siteId ? 'selected' : ''}>${activeSites.siteName}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
 
                     <!--                    <button class="btn-icon">
                                             <i class="bi bi-bell"></i>
@@ -675,7 +665,7 @@
                                     </div>
                                 </div>
                 
-                            </div>-->
+                            --></div>
         </main>
 
         <!-- Scripts -->
@@ -777,7 +767,7 @@
 
                 // Nếu có giá trị, điều hướng trang kèm theo tham số query
                 if (siteId) {
-                    window.location.href = "${ctx}/dashboard?siteId=" + siteId;
+                    window.location.href = "dashboard?siteId=" + siteId;
                 }
             }
         </script>
