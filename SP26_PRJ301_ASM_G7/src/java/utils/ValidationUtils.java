@@ -1,5 +1,6 @@
 package utils;
 
+import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 /**
@@ -76,7 +77,8 @@ public class ValidationUtils {
             throw new IllegalArgumentException(errorMessage + " (Vui lòng nhập số nguyên hợp lệ)");
         }
     }
-
+    
+    
     /**
      * Kiểm tra và ép kiểu chuỗi đầu vào sang số thực (double). Thường dùng để
      * kiểm tra các trường như Giá tiền, Diện tích, Cân nặng...
@@ -236,6 +238,21 @@ public class ValidationUtils {
             }
         }
         return null;
+    }
+    
+    public static LocalDateTime parseTimeParams(String timeStr, String fieldName) {
+        String cleanStr = requireNonEmpty(timeStr, "Vui lòng cung cấp " + fieldName);
+        try {
+            return LocalDateTime.parse(cleanStr);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Định dạng " + fieldName + " không hợp lệ!");
+        }
+    }
+
+    public static void validateTimeLogic(LocalDateTime timeIn, LocalDateTime timeOut) {
+        if (timeIn != null && timeOut != null && timeIn.isAfter(timeOut)) {
+            throw new IllegalArgumentException("Thời gian vào bãi không được phép lớn hơn thời gian ra!");
+        }
     }
 
 }
