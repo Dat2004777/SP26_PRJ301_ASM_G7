@@ -4,6 +4,8 @@ import model.Employee;
 import dal.CardDAO;
 import dal.SessionDAO;
 import dal.AreaDAO;
+import dal.PaymentTransactionDAO;
+import dal.PriceConfigsDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +16,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import model.ParkingCard;
 import model.ParkingSession;
+import model.PaymentTransaction;
+import utils.ParkingUtils;
 import utils.UrlConstants;
 import utils.ValidationUtils;
 
@@ -23,6 +27,8 @@ public class CheckOutController extends HttpServlet {
     private final CardDAO cardDAO = new CardDAO();
     private final SessionDAO sessionDAO = new SessionDAO();
     private final AreaDAO areaDAO = new AreaDAO();
+    private final PriceConfigsDAO priceDAO = new PriceConfigsDAO();
+    private final PaymentTransactionDAO transactionDAO = new PaymentTransactionDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -81,10 +87,10 @@ public class CheckOutController extends HttpServlet {
         verifyLicensePlateMatch(currentSession.getLicensePlate(), cleanPlate);
 
         // 5. Tính toán phí đỗ xe dựa trên Phân loại vé
-        long feeToCollect = calculateCheckoutFee(currentSession);
+        long feeToCollect = calculateCheckoutFee(currentSession, siteId);
 
         // 6. Cập nhật dữ liệu xuống Database và thu hồi thẻ
-        executeCheckOutTransaction(currentSession, feeToCollect, cardId, staffId);
+        executeCheckOutTransaction(currentSession, feeToCollect, cardId);
 
         // 7. Trả về thông báo thành công
         return buildCheckOutSuccessMessage(cleanPlate, currentSession.getSessionType(), feeToCollect);
@@ -135,39 +141,54 @@ public class CheckOutController extends HttpServlet {
         }
     }
 
-// Hàm 5: Tính toán phí đỗ xe
-    private long calculateCheckoutFee(ParkingSession session) {
-        String type = session.getSessionType(); // "casual", "subscription", "booking"
+    // Hàm 5: Tính toán phí đỗ xe thực tế
+    private long calculateCheckoutFee(ParkingSession session, int siteId) {
+        // 1. Lấy dữ liệu cần thiết từ DAO
+        LocalDateTime expectedOut = sessionDAO.getExpectedTimeOut(session.getCardId());
+        long hourlyPrice = priceDAO.getBasePrice(siteId, session.getVehicleTypeId(), "hourly");
 
-        // Nếu là vé tháng hoặc đã đặt trước -> Không thu phí tại cổng (Hoặc gọi logic tính phụ phí quá giờ)
-        if ("noncasual".equalsIgnoreCase(type)) {
-            return 0;
-        }
-
-        // Nếu là vé lượt ("casual") -> Tính tiền
-        // TODO: Tương lai bạn thay bằng logic tính tiền thực tế:
-        // return pricingService.calculateFee(session.getEntryTime(), LocalDateTime.now(), session.getVehicleTypeId());
-        return 5000; // Tạm thu đồng giá 5.000đ cho vé lượt
+        // 2. Gọi Utils tính toán
+        return ParkingUtils.calculateSessionPrice(
+                session.getSessionType(),
+                session.getEntryTime(),
+                LocalDateTime.now(),
+                expectedOut,
+                hourlyPrice
+        );
     }
 
-// Hàm 6: Ghi nhận giao dịch kết thúc xuống DB
-    private void executeCheckOutTransaction(ParkingSession session, long fee, String cardId, int staffId) throws Exception {
-        // Cập nhật thông tin Session
+    // Hàm 6: Ghi nhận giao dịch kết thúc xuống DB
+    private void executeCheckOutTransaction(ParkingSession session, long fee, String cardId) throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Bước A: Cập nhật Session
         session.setFeeAmount(fee);
         session.setSessionState("completed");
-        session.setExitTime(LocalDateTime.now());
-        // session.setStaffOutId(staffId); // Nếu DB của bạn sau này có lưu nhân viên cho xe ra
+        session.setExitTime(now);
 
-        boolean isSessionUpdated = sessionDAO.checkOut(session);
-        if (!isSessionUpdated) {
-            throw new Exception("Lỗi CSDL: Không thể lưu thông tin xe ra!");
+        if (!sessionDAO.checkOut(session)) {
+            throw new Exception("Lỗi: Không thể kết thúc phiên đỗ!");
         }
 
-        // Giải phóng Thẻ (Trả về trạng thái AVAILABLE)
+        // Bước B: Giải phóng thẻ
         cardDAO.updateState(cardId, ParkingCard.State.AVAILABLE);
-    }
 
+        // Bước C: Ghi nhận giao dịch tài chính (Chỉ khi fee > 0)
+        if (fee > 0) {
+            PaymentTransaction txn = new PaymentTransaction();
+            txn.setTargetId(session.getSessionId());
+            txn.setTotalAmount(fee);
+            txn.setTransactionType(PaymentTransaction.TransactionType.SESSION);
+            txn.setPaymentStatus("completed");
+
+            if (!transactionDAO.add(txn)) {
+                System.err.println("Cảnh báo: Không thể lưu PaymentTransaction cho Session: " + session.getSessionId());
+            }
+        }
+    }
+    
 // Hàm 7: Xây dựng câu thông báo
+
     private String buildCheckOutSuccessMessage(String licensePlate, String sessionType, long fee) {
         java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
         String formattedFee = formatter.format(fee);
