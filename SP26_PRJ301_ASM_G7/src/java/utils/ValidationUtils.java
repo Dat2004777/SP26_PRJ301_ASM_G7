@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
  */
 public class ValidationUtils {
 
-    
     // ==========================================
     // 1. KIỂM TRA CHUỖI (STRING)
     // ==========================================
@@ -89,12 +88,12 @@ public class ValidationUtils {
      * @throws IllegalArgumentException Nếu chuỗi bị rỗng hoặc chứa ký tự không
      * thể định dạng thành số thực.
      */
-    public static double requireValidDouble(String value, String errorMessage) {
+    public static long requireValidLong(String value, String errorMessage) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(errorMessage + " (Không được để trống)");
         }
         try {
-            return Double.parseDouble(value.trim());
+            return Long.parseLong(value.trim());
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(errorMessage + " (Vui lòng nhập số hợp lệ)");
         }
@@ -112,14 +111,13 @@ public class ValidationUtils {
      * hơn nghiêm ngặt: <).
      * @param errorMessage Thông báo lỗi cơ bản sẽ được ném ra nếu xác thực thất
      * bại.
-     * @return Giá trị số nguyên hợp lệ và lớn hơn {@code min}.
-     * @throws IllegalArgumentException Nếu chuỗi không phải số nguyên hợp lệ,
-     * hoặc nhỏ hơn/bằng giá trị {@code min}.
+     * @return Giá trị số nguyên hợp lệ, lớn hơn {@code min}, nhỏ hơn {@code max}.
+     * @throws IllegalArgumentException 
      */
-    public static int requireIntGreaterThan(String value, int min, int max, String errorMessage) {
-        int parsedValue = requireValidInt(value, errorMessage);
+    public static long requireLongGreaterThan(String value, long min, long max, String errorMessage) {
+        long parsedValue = requireValidLong(value, errorMessage);
         if (parsedValue < min || parsedValue > max) {
-            throw new IllegalArgumentException(errorMessage + " (Phải lớn hơn " + min + ")");
+            throw new IllegalArgumentException(errorMessage + " (Phải lớn hơn " + min + "và nhỏ hơn" + max + ")");
         }
         return parsedValue;
     }
@@ -185,7 +183,7 @@ public class ValidationUtils {
         }
         // Chuẩn hóa: Đổi thành in hoa, xóa toàn bộ dấu chấm và khoảng trắng thừa
         String normalizedPlate = licensePlate.toUpperCase().replaceAll("[\\s\\.]", "");
-        return CAR_PATTERN.matcher(normalizedPlate).matches();  
+        return CAR_PATTERN.matcher(normalizedPlate).matches();
     }
 
     // Hàm dùng để lấy ra biển số đã được "Dọn dẹp" sạch sẽ chuẩn format để lưu vào Database
@@ -195,8 +193,11 @@ public class ValidationUtils {
         }
         return licensePlate.toUpperCase().replaceAll("[\\s\\.]", "");
     }
+
     /**
-     * Kiểm tra phonenumber xem đúng format là gồm 10 chữ số và bắt đầu bằng chữ số 0 (theo VN)
+     * Kiểm tra phonenumber xem đúng format là gồm 10 chữ số và bắt đầu bằng chữ
+     * số 0 (theo VN)
+     *
      * @param phone
      * @return true if matching regex
      */
@@ -206,9 +207,10 @@ public class ValidationUtils {
         }
         return phone.matches("^0\\d{9}$");
     }
-    
+
     /**
      * Check email xem viết đúng format chưa
+     *
      * @param email
      * @return true if matching regex
      */
@@ -218,4 +220,22 @@ public class ValidationUtils {
         }
         return email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$");
     }
+
+    /**
+     * 
+     * @param value
+     * @param msg
+     * @return 
+     */
+    public static Integer parseIntegerOrNull(String value, String msg) {
+        if (value != null && !value.trim().isEmpty()) {
+            try {
+                return Integer.valueOf(value.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Lỗi: Mã ID (booking/subscription/session) phải là số!");
+            }
+        }
+        return null;
+    }
+
 }

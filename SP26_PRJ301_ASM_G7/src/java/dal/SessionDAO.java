@@ -219,6 +219,28 @@ public class SessionDAO extends DBContext {
         }
         return null;
     }
+    
+    public ParkingSession getActiveSession(String cardId, String licensePlate) {
+        String sql = "SELECT TOP 1 * FROM ParkingSessions "
+                + "WHERE card_id = ? AND license_plate = ? AND status = 'active' AND session_state = 'parked'"
+                + "ORDER BY entry_time DESC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, cardId);
+            ps.setString(2, licensePlate);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToSession(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi Tìm xe Active: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * HÀM 4: Lấy toàn bộ lịch sử gửi xe (Mới nhất lên đầu)

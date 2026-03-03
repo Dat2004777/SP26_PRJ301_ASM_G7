@@ -1,4 +1,4 @@
-package controller.api;
+package controller.service;
 
 import dal.CardDAO;
 import jakarta.servlet.ServletException;
@@ -26,14 +26,13 @@ public class RandomCardAPI extends HttpServlet {
         
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
-        // Lấy thông tin nhân viên từ Session để biết đang trực ở Bãi nào
-//        Employee emp = (Employee) request.getSession().getAttribute("employee"); // Thay tên attribute của bạn
-//        if (emp == null) {
-//            response.getWriter().write("{\"success\": false, \"message\": \"Vui lòng đăng nhập lại\"}");
-//            return;
-//        }
-
+        
+        Employee emp = (Employee) request.getSession().getAttribute("staff");
+        if (emp == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        
         CardDAO cardDAO = new CardDAO();
         ParkingCard card = cardDAO.getAvailableCardAtSite(1);
         

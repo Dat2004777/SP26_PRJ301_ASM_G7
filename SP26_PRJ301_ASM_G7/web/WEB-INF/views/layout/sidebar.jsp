@@ -1,7 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-
-
 <style>
 
     /* ==================== SIDEBAR ==================== */
@@ -232,6 +230,6 @@
             <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;">${account.username}</div>
             <div class="text-muted text-truncate" style="font-size: 0.75rem;">Quản trị viên cấp cao</div>
         </div>
-        <a href="${ctx}/logout" class="text-muted ms-auto" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right fs-5"></i></a>
+        <a href="${pageContext.request.contextPath}/logout" class="text-muted ms-auto" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right fs-5"></i></a>
     </div>
 </aside>

@@ -6,7 +6,7 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Cổng Nhân Viên - Kiểm Soát Xe</title>
-
+        <jsp:include page="/WEB-INF/views/layout/layout.jsp"/>
         <style>
             /* THỐNG KÊ (STATS CARDS) */
             .stat-card {
@@ -208,8 +208,8 @@
 
             <div class="row g-4 w-100 align-items-center">
 
-                <div class="col-12 d-lg-none order-1">
-                    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="col-12 d-lg-none order-1 pt-5">
+                    <div class="card shadow-sm border-0" style="border-radius: 12px">
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-end">
                                 <div>
@@ -225,29 +225,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <c:if test="${not empty errMsg or not empty sucMsg}">
-                        <div class="alert-wrapper mb-2" style="max-height: 120px; overflow-y: auto; scrollbar-width: thin;">
-                            <c:if test="${not empty errMsg}">
-                                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-start mb-0 py-2 px-3 shadow-sm" role="alert" style="border-radius: 10px; border-left: 4px solid #dc3545;">
-                                    <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger mt-1"></i>
-                                    <div class="flex-grow-1 pe-3">
-                                        <span style="font-size: 0.9rem; line-height: 1.3; display: block;" class="mt-1 fw-medium">${errMsg}</span>
-                                    </div>
-                                    <button type="button" class="btn-close p-2 m-1" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.65rem;"></button>
-                                </div>
-                            </c:if>
-                            <c:if test="${not empty sucMsg}">
-                                <div class="alert alert-success alert-dismissible fade show d-flex align-items-start mb-0 py-2 px-3 shadow-sm" role="alert" style="border-radius: 10px; border-left: 4px solid #198754;">
-                                    <i class="bi bi-check-circle-fill fs-5 me-2 text-success mt-1"></i>
-                                    <div class="flex-grow-1 pe-3">
-                                        <span style="font-size: 0.9rem; line-height: 1.3; display: block;" class="mt-1 fw-medium">${sucMsg}</span>
-                                    </div>
-                                    <button type="button" class="btn-close p-2 m-1" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.65rem;"></button>
-                                </div>
-                            </c:if>
-                        </div>
-                    </c:if>
                 </div>
 
                 <div class="col-lg-8 order-2 order-lg-1">
@@ -361,28 +338,6 @@
                 </div>
 
                 <div class="col-lg-4 order-3 order-lg-2 d-flex flex-column gap-3">
-                    <c:if test="${not empty errMsg or not empty sucMsg}">
-                        <div class="alert-wrapper d-none d-lg-block" style="max-height: 120px; overflow-y: auto; scrollbar-width: thin;">
-                            <c:if test="${not empty errMsg}">
-                                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-start mb-0 py-2 px-3 shadow-sm" role="alert" style="border-radius: 10px; border-left: 4px solid #dc3545;">
-                                    <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger mt-1"></i>
-                                    <div class="flex-grow-1 pe-3">
-                                        <span style="font-size: 0.95rem; line-height: 1.3; display: block;" class="mt-1 fw-medium">${errMsg}</span>
-                                    </div>
-                                    <button type="button" class="btn-close p-2 m-1" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.65rem;"></button>
-                                </div>
-                            </c:if>
-                            <c:if test="${not empty sucMsg}">
-                                <div class="alert alert-success alert-dismissible fade show d-flex align-items-start mb-0 py-2 px-3 shadow-sm" role="alert" style="border-radius: 10px; border-left: 4px solid #198754;">
-                                    <i class="bi bi-check-circle-fill fs-5 me-2 text-success mt-1"></i>
-                                    <div class="flex-grow-1 pe-3">
-                                        <span style="font-size: 0.95rem; line-height: 1.3; display: block;" class="mt-1 fw-medium">${sucMsg}</span>
-                                    </div>
-                                    <button type="button" class="btn-close p-2 m-1" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.65rem;"></button>
-                                </div>
-                            </c:if>
-                        </div>
-                    </c:if>
 
                     <div class="card shadow-sm border-0 d-none d-lg-block" style="border-radius: 16px;">
                         <div class="card-body p-3 p-xl-4">
@@ -460,13 +415,13 @@
                                     <c:choose>
                                         <c:when test="${log.sessionState == 'parked' || log.sessionState == 'PARKED'}">
                                             <c:set var="actionName" value="Xe vào bãi" />
-                                            <c:set var="badgeClass" value="badge-soft-warning" />
+                                            <c:set var="badgeClass" value="badge-soft-success" />
                                             <c:set var="icon" value="bi-arrow-down-circle" />
                                             <c:set var="statusText" value="Đang đỗ" />
                                         </c:when>
                                         <c:when test="${log.sessionState == 'completed' || log.sessionState == 'COMPLETED'}">
                                             <c:set var="actionName" value="Xe ra bãi" />
-                                            <c:set var="badgeClass" value="badge-soft-success" />
+                                            <c:set var="badgeClass" value="badge-soft-warning" />
                                             <c:set var="icon" value="bi-arrow-up-circle" />
                                             <c:set var="statusText" value="Đã ra" />
                                         </c:when>
@@ -518,256 +473,365 @@
                     </jsp:include>
                 </div>
             </div>
+
+            <c:if test="${not empty errMsg or not empty sucMsg}">
+                <script>
+                    // Đợi HTML load xong toàn bộ (bao gồm cả cái khung Toast) rồi mới bắn thông báo
+                    document.addEventListener("DOMContentLoaded", function () {
+
+                    <c:if test="${not empty errMsg}">
+                        // Dùng dấu backtick (`) thay vì nháy đơn (') để tránh lỗi khi chuỗi có chứa dấu nháy
+                        showToast('error', `${errMsg}`);
+                    </c:if>
+
+                    <c:if test="${not empty sucMsg}">
+                        showToast('success', `${sucMsg}`);
+                    </c:if>
+
+                    });
+                </script>
+            </c:if>
         </main>
 
-        
+
         <script>
-                                                            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
 
-                                                                // ==========================================
-                                                                // KHỐI 1: CACHE DOM ELEMENTS
-                                                                // (Lấy 1 lần dùng mãi mãi, giúp thao tác cực mượt)
-                                                                // ==========================================
-                                                                const el = {
-                                                                    form: document.getElementById('mainGateForm'),
-                                                                    actionType: document.getElementById('actionType'),
-                                                                    tabIn: document.getElementById('tabIn'),
-                                                                    tabOut: document.getElementById('tabOut'),
-                                                                    cardIdInput: document.getElementById('cardId'),
-                                                                    plateInput: document.getElementById('licensePlate'),
-                                                                    btnSubmit: document.getElementById('btnSubmitForm'),
-                                                                    btnRandom: document.getElementById('btnRandomCard'),
-                                                                    vehicleContainer: document.getElementById('vehicleTypeContainer'),
-                                                                    hiddenVehicleTypeId: document.getElementById('vehicleTypeId'),
-                                                                    vehicleBoxes: document.querySelectorAll('.vehicle-box'), // Lấy danh sách tất cả hộp chọn xe
-                                                                    clockTime: document.getElementById('realtimeClock'),
-                                                                    clockDate: document.getElementById('realtimeDate'),
-                                                                    ctx: "${ctx}" // Lấy biến môi trường từ JSP
-                                                                };
+                // ==========================================
+                // KHỐI 1: CACHE DOM ELEMENTS
+                // ==========================================
+                const el = {
+                    form: document.getElementById('mainGateForm'),
+                    actionType: document.getElementById('actionType'),
+                    tabIn: document.getElementById('tabIn'),
+                    tabOut: document.getElementById('tabOut'),
+                    cardIdInput: document.getElementById('cardId'),
+                    plateInput: document.getElementById('licensePlate'),
+                    btnSubmit: document.getElementById('btnSubmitForm'),
+                    btnRandom: document.getElementById('btnRandomCard'),
+                    vehicleContainer: document.getElementById('vehicleTypeContainer'),
+                    hiddenVehicleTypeId: document.getElementById('vehicleTypeId'),
+                    vehicleBoxes: document.querySelectorAll('.vehicle-box'),
+                    clockTime: document.getElementById('realtimeClock'),
+                    clockDate: document.getElementById('realtimeDate'),
 
-                                                                // ==========================================
-                                                                // KHỐI 2: EVENT HANDLERS (Logic Cốt Lõi)
-                                                                // ==========================================
+                    // --- CÁC PHẦN TỬ CỦA MODAL THANH TOÁN ---
+                    paymentModal: document.getElementById('paymentModal'),
+                    btnConfirmPayment: document.getElementById('btnConfirmPayment'),
 
-                                                                // Xử lý chuyển chế độ VÀO / RA
-                                                                function handleSwitchMode(mode, isUserClick = true) {
-                                                                    if (!el.tabIn || !el.tabOut || !el.form || !el.actionType)
-                                                                        return;
+                    ctx: "${ctx}"
+                };
 
-                                                                    if (mode === 'in') {
-                                                                        el.tabIn.classList.add('active');
-                                                                        el.tabOut.classList.remove('active');
-                                                                        el.actionType.value = 'checkin';
-                                                                        el.form.action = el.ctx + '/parking/checkin';
+                // ==========================================
+                // KHỐI 2: EVENT HANDLERS (Logic Cốt Lõi)
+                // ==========================================
 
-                                                                        if (el.btnSubmit) {
-                                                                            el.btnSubmit.style.backgroundColor = '#3b82f6';
-                                                                            el.btnSubmit.innerHTML = '<span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right ms-2"></i>';
-                                                                        }
+                function handleSwitchMode(mode, isUserClick = true) {
+                    if (!el.tabIn || !el.tabOut || !el.form || !el.actionType)
+                        return;
 
-                                                                        if (el.vehicleContainer)
-                                                                            el.vehicleContainer.classList.remove('d-none');
-                                                                        if (el.btnRandom)
-                                                                            el.btnRandom.style.display = '';
-                                                                    } else {
-                                                                        el.tabOut.classList.add('active');
-                                                                        el.tabIn.classList.remove('active');
-                                                                        el.actionType.value = 'checkout';
-                                                                        el.form.action = el.ctx + '/parking/checkout';
+                    if (mode === 'in') {
+                        el.tabIn.classList.add('active');
+                        el.tabOut.classList.remove('active');
+                        el.actionType.value = 'checkin';
+                        el.form.action = el.ctx + '/parking/checkin';
 
-                                                                        if (el.btnSubmit) {
-                                                                            el.btnSubmit.style.backgroundColor = '#ef4444';
-                                                                            el.btnSubmit.innerHTML = '<span>XÁC NHẬN RA</span> <i class="bi bi-box-arrow-right ms-2"></i>';
-                                                                        }
+                        if (el.btnSubmit) {
+                            el.btnSubmit.style.backgroundColor = '#3b82f6';
+                            el.btnSubmit.innerHTML = '<span>XÁC NHẬN VÀO</span> <i class="bi bi-box-arrow-in-right ms-2"></i>';
+                        }
 
-                                                                        if (el.vehicleContainer)
-                                                                            el.vehicleContainer.classList.add('d-none');
-                                                                        if (el.btnRandom)
-                                                                            el.btnRandom.style.display = 'none';
-                                                                    }
+                        if (el.vehicleContainer)
+                            el.vehicleContainer.classList.remove('d-none');
+                        if (el.btnRandom)
+                            el.btnRandom.style.display = '';
+                    } else {
+                        el.tabOut.classList.add('active');
+                        el.tabIn.classList.remove('active');
+                        el.actionType.value = 'checkout';
+                        el.form.action = el.ctx + '/parking/checkout';
 
-                                                                    if (isUserClick) {
-                                                                        if (el.cardIdInput) {
-                                                                            el.cardIdInput.value = '';
-                                                                            el.cardIdInput.focus();
-                                                                        }
-                                                                        if (el.plateInput)
-                                                                            el.plateInput.value = '';
-                                                                    }
-                                                                }
+                        if (el.btnSubmit) {
+                            el.btnSubmit.style.backgroundColor = '#ef4444';
+                            el.btnSubmit.innerHTML = '<span>XÁC NHẬN RA</span> <i class="bi bi-box-arrow-right ms-2"></i>';
+                        }
 
-                                                                // Xử lý Submit Form
-                                                                function handleFormSubmit() {
-                                                                    if (el.cardIdInput && el.plateInput) {
-                                                                        if (el.cardIdInput.value.trim() === '' && el.plateInput.value.trim() === '') {
-                                                                            alert('Vui lòng quét thẻ hoặc nhập biển số!');
-                                                                            el.cardIdInput.focus();
-                                                                            return;
-                                                                        }
-                                                                    }
+                        if (el.vehicleContainer)
+                            el.vehicleContainer.classList.add('d-none');
+                        if (el.btnRandom)
+                            el.btnRandom.style.display = 'none';
+                    }
 
-                                                                    if (el.actionType) {
-                                                                        sessionStorage.setItem("lastActiveTab", JSON.stringify(el.actionType.value === 'checkout' ? 'out' : 'in'));
-                                                                    }
-                                                                    if (el.form)
-                                                                        el.form.submit();
-                                                                }
+                    if (isUserClick) {
+                        if (el.cardIdInput) {
+                            el.cardIdInput.value = '';
+                            el.cardIdInput.focus();
+                        }
+                        if (el.plateInput)
+                            el.plateInput.value = '';
+                }
+                }
 
-                                                                // Xử lý Chọn Hộp Loại Xe
-                                                                function handleVehicleSelect(boxElement) {
-                                                                    const typeId = boxElement.getAttribute('data-type-id');
+                // --- HÀM XỬ LÝ SUBMIT (ĐÃ CẬP NHẬT EVENT) ---
+                function handleFormSubmit(event) {
+                    // Chặn submit mặc định của nút (Vì nút đang nằm trong form)
+                    if (event) {
+                        event.preventDefault();
+                    }
 
-                                                                    if (el.hiddenVehicleTypeId) {
-                                                                        el.hiddenVehicleTypeId.value = typeId;
-                                                                    }
+                    if (el.cardIdInput && el.plateInput) {
+                        if (el.cardIdInput.value.trim() === '' && el.plateInput.value.trim() === '') {
+                            showToast('warning', 'Vui lòng quét thẻ hoặc nhập biển số!');
+                            el.cardIdInput.focus();
+                            return;
+                        }
+                    }
 
-                                                                    // Reset màu tất cả các hộp
-                                                                    el.vehicleBoxes.forEach(box => {
-                                                                        box.classList.remove('bg-primary', 'border-primary', 'text-white', 'active-box');
-                                                                        box.classList.add('bg-light', 'border-secondary', 'text-secondary');
-                                                                        const subtitle = box.querySelector('.subtitle-text');
-                                                                        if (subtitle) {
-                                                                            subtitle.classList.remove('text-white-50');
-                                                                            subtitle.classList.add('text-muted');
-                                                                        }
-                                                                    });
+                    if (el.actionType) {
+                        sessionStorage.setItem("lastActiveTab", JSON.stringify(el.actionType.value === 'checkout' ? 'out' : 'in'));
+                    }
 
-                                                                    // Kích hoạt hộp vừa chọn
-                                                                    boxElement.classList.remove('bg-light', 'border-secondary', 'text-secondary');
-                                                                    boxElement.classList.add('bg-primary', 'border-primary', 'text-white', 'active-box');
+                    // RẼ NHÁNH LOGIC:
+                    if (el.actionType && el.actionType.value === 'checkout') {
+                        // 1. [XE RA] Dừng submit, gọi API để lấy thông tin cước phí
+                        fetchCheckoutFee(el.cardIdInput.value.trim(), el.plateInput.value.trim());
+                        el.form.submit();
+                    } else {
+                        // 2. [XE VÀO] Cứ submit form để Server xử lý (Mở cửa barie)
+                        if (el.form)
+                            el.form.submit();
+                    }
+                }
 
-                                                                    const selectedSubtitle = boxElement.querySelector('.subtitle-text');
-                                                                    if (selectedSubtitle) {
-                                                                        selectedSubtitle.classList.remove('text-muted');
-                                                                        selectedSubtitle.classList.add('text-white-50');
-                                                                    }
+                function fetchCheckoutFee(cardId, plateNumber) {
+                    const params = new URLSearchParams();
+                    params.append('cardId', cardId);
+                    params.append('plateNumber', plateNumber);
 
-                                                                    // Trả focus về đúng luồng
-                                                                    if (el.cardIdInput && el.plateInput) {
-                                                                        if (el.cardIdInput.value.trim() === '')
-                                                                            el.cardIdInput.focus();
-                                                                        else
-                                                                            el.plateInput.focus();
-                                                                    }
-                                                                }
+                    fetch(el.ctx + '/api/parking/calculate-fee', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: params
+                    })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Cập nhật text vào Modal
+                                    document.getElementById('modalCardId').innerText = data.cardId || cardId;
+                                    document.getElementById('modalPlate').innerText = data.plateNumber || plateNumber;
+                                    document.getElementById('modalTimeIn').innerText = data.timeIn || '---';
+                                    document.getElementById('modalDuration').innerText = data.duration || '---';
+                                    document.getElementById('modalFee').innerText = data.feeFormatted || '0 đ';
 
-                                                                // Xử lý Gọi API Lấy Thẻ Mới
-                                                                function fetchRandomCard() {
-                                                                    if (!el.btnRandom)
-                                                                        return;
-                                                                    const icon = el.btnRandom.querySelector('i');
-                                                                    if (icon)
-                                                                        icon.className = 'bi bi-arrow-repeat spin-animation';
+                                    // KHỞI TẠO MODAL (Cách an toàn nhất)
+                                    const modalEl = document.getElementById('paymentModal');
+                                    const myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                                    myModal.show();
 
-                                                                    fetch('${pageContext.request.contextPath}/api/parking/random-card')
-                                                                            .then(response => response.json())
-                                                                            .then(data => {
-                                                                                if (data.success) {
-                                                                                    if (el.cardIdInput)
-                                                                                        el.cardIdInput.value = data.cardId;
-                                                                                    if (el.plateInput)
-                                                                                        el.plateInput.focus(); // Flow-forward UX
-                                                                                } else {
-                                                                                    alert(data.message || 'Hệ thống báo: Đã hết thẻ trống!');
-                                                                                }
-                                                                            })
-                                                                            .catch(error => {
-                                                                                console.error('Lỗi khi lấy thẻ ngẫu nhiên:', error);
-                                                                                alert('Lỗi kết nối đến máy chủ!');
-                                                                            })
-                                                                            .finally(() => {
-                                                                                if (icon)
-                                                                                    icon.className = 'bi bi-shuffle fs-5';
-                                                                            });
-                                                                }
+                                } else {
+                                    showToast('error', data.message || 'Không tìm thấy lượt đỗ xe!');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi:', error);
+                                showToast('error', 'Lỗi kết nối máy chủ!');
+                            });
+                }
 
-                                                                // ==========================================
-                                                                // KHỐI 3: EVENT REGISTRATION (Gắn sự kiện)
-                                                                // ==========================================
+// --- HÀM 2.2: CHỐT ĐƠN (Submit thẳng lên CheckOutController) ---
+                function processCheckoutPayment(event) {
+                    if (event)
+                        event.preventDefault();
 
-                                                                // Gắn sự kiện chuyển Tab
-                                                                if (el.tabIn)
-                                                                    el.tabIn.addEventListener('click', () => handleSwitchMode('in'));
-                                                                if (el.tabOut)
-                                                                    el.tabOut.addEventListener('click', () => handleSwitchMode('out'));
+                    const btn = el.btnConfirmPayment;
+                    if (!btn)
+                        return;
 
-                                                                // Gắn sự kiện nút Gửi Form
-                                                                if (el.btnSubmit)
-                                                                    el.btnSubmit.addEventListener('click', handleFormSubmit);
+                    // 1. Vô hiệu hóa nút để tránh bấm nhiều lần
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
 
-                                                                // Gắn sự kiện nút Random Card
-                                                                if (el.btnRandom)
-                                                                    el.btnRandom.addEventListener('click', fetchRandomCard);
+                    // 2. Lấy instance của Modal
+                    const modalInstance = bootstrap.Modal.getInstance(el.paymentModal);
 
-                                                                // Gắn sự kiện Click cho từng hộp chọn loại xe (Bỏ qua hộp bị disable)
-                                                                el.vehicleBoxes.forEach(box => {
-                                                                    box.addEventListener('click', function () {
-                                                                        // Kiểm tra xem CSS của hộp có đang bị khóa (not-allowed) hay không
-                                                                        if (this.style.cursor === 'not-allowed')
-                                                                            return;
-                                                                        handleVehicleSelect(this);
-                                                                    });
-                                                                });
+                    if (modalInstance) {
+                        // LẮNG NGHE SỰ KIỆN: Khi nào modal ẩn hẳn thì mới Submit form
+                        // Điều này giúp tránh xung đột UI và đảm bảo logic chạy mượt mà
+                        el.paymentModal.addEventListener('hidden.bs.modal', function () {
+                            if (el.form) {
+                                el.form.submit();
+                            }
+                        }, {once: true}); // { once: true } đảm bảo sự kiện này chỉ chạy 1 lần duy nhất
+
+                        // 3. Ra lệnh ẩn Modal (sẽ kích hoạt sự kiện hidden bên trên)
+                        modalInstance.hide();
+                    } else {
+                        // Phòng hờ nếu không tìm thấy instance thì submit luôn
+                        if (el.form)
+                            el.form.submit();
+                    }
+                }
+
+                function handleVehicleSelect(boxElement) {
+                    const typeId = boxElement.getAttribute('data-type-id');
+                    if (el.hiddenVehicleTypeId)
+                        el.hiddenVehicleTypeId.value = typeId;
+
+                    el.vehicleBoxes.forEach(box => {
+                        box.classList.remove('bg-primary', 'border-primary', 'text-white', 'active-box');
+                        box.classList.add('bg-light', 'border-secondary', 'text-secondary');
+                        const subtitle = box.querySelector('.subtitle-text');
+                        if (subtitle) {
+                            subtitle.classList.remove('text-white-50');
+                            subtitle.classList.add('text-muted');
+                        }
+                    });
+
+                    boxElement.classList.remove('bg-light', 'border-secondary', 'text-secondary');
+                    boxElement.classList.add('bg-primary', 'border-primary', 'text-white', 'active-box');
+
+                    const selectedSubtitle = boxElement.querySelector('.subtitle-text');
+                    if (selectedSubtitle) {
+                        selectedSubtitle.classList.remove('text-muted');
+                        selectedSubtitle.classList.add('text-white-50');
+                    }
+
+                    if (el.cardIdInput && el.plateInput) {
+                        if (el.cardIdInput.value.trim() === '')
+                            el.cardIdInput.focus();
+                        else
+                            el.plateInput.focus();
+                    }
+                }
+
+                function fetchRandomCard() {
+                    if (!el.btnRandom)
+                        return;
+                    const icon = el.btnRandom.querySelector('i');
+                    if (icon)
+                        icon.className = 'bi bi-arrow-repeat spin-animation';
+
+                    fetch('${pageContext.request.contextPath}/api/parking/random-card')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (el.cardIdInput)
+                                        el.cardIdInput.value = data.cardId;
+                                    if (el.plateInput)
+                                        el.plateInput.focus();
+                                } else {
+                                    showToast('warning', data.message || 'Hệ thống báo: Đã hết thẻ trống!');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi lấy thẻ:', error);
+                                showToast('error', 'Lỗi kết nối đến máy chủ!');
+                            })
+                            .finally(() => {
+                                if (icon)
+                                    icon.className = 'bi bi-shuffle fs-5';
+                            });
+                }
 
 
-                                                                // ==========================================
-                                                                // KHỐI 4: GLOBAL LISTENERS (Bàn phím & Smart Focus)
-                                                                // ==========================================
+                // ==========================================
+                // KHỐI 3: EVENT REGISTRATION (Gắn sự kiện)
+                // ==========================================
 
-                                                                // Lắng nghe Phím Tắt
-                                                                document.addEventListener('keydown', function (e) {
-                                                                    if (e.key === 'F1') {
-                                                                        e.preventDefault();
-                                                                        handleSwitchMode('in');
-                                                                    } else if (e.key === 'F2') {
-                                                                        e.preventDefault();
-                                                                        handleSwitchMode('out');
-                                                                    } else if (e.code === 'Tab') {
-                                                                        e.preventDefault();
-                                                                        if (el.actionType && el.actionType.value === 'checkin') {
-                                                                            fetchRandomCard();
-                                                                        }
-                                                                    } else if (e.key === 'Enter') {
-                                                                        e.preventDefault();
-                                                                        // Nếu quét thẻ xong thì nhảy sang Biển số, ngược lại Submit
-                                                                        if (document.activeElement === el.cardIdInput && el.cardIdInput.value.trim() !== '') {
-                                                                            if (el.plateInput)
-                                                                                el.plateInput.focus();
-                                                                        } else {
-                                                                            handleFormSubmit();
-                                                                        }
-                                                                    }
-                                                                });
+                if (el.tabIn)
+                    el.tabIn.addEventListener('click', () => handleSwitchMode('in'));
+                if (el.tabOut)
+                    el.tabOut.addEventListener('click', () => handleSwitchMode('out'));
 
-                                                                // Lắng nghe Smart Focus (Click ra ngoài UI tự đưa chuột về ô nhập liệu)
-                                                                document.addEventListener('click', function (e) {
-                                                                    const isInteractiveArea = e.target.closest('button, a, input, .offcanvas, .vehicle-box');
-                                                                    if (!isInteractiveArea && el.cardIdInput && el.plateInput) {
-                                                                        if (el.cardIdInput.value === '')
-                                                                            el.cardIdInput.focus();
-                                                                        else
-                                                                            el.plateInput.focus();
-                                                                    }
-                                                                });
+                // Gắn sự kiện nút Submit Form (truyền event vào hàm)
+                if (el.btnSubmit) {
+                    el.btnSubmit.addEventListener('click', function (e) {
+                        handleFormSubmit(e);
+                    });
+                }
+
+                // Gắn sự kiện nút Random Card
+                if (el.btnRandom)
+                    el.btnRandom.addEventListener('click', fetchRandomCard);
+
+                // Gắn sự kiện Hộp xe
+                el.vehicleBoxes.forEach(box => {
+                    box.addEventListener('click', function () {
+                        if (this.style.cursor === 'not-allowed')
+                            return;
+                        handleVehicleSelect(this);
+                    });
+                });
+
+                // Gắn sự kiện nút XÁC NHẬN THU TIỀN trên Modal
+                if (el.btnConfirmPayment) {
+                    el.btnConfirmPayment.addEventListener('click', function (e) {
+                        processCheckoutPayment(e);
+                    });
+                }
 
 
-                                                                // ==========================================
-                                                                // KHỐI 5: INITIALIZATION (Khởi chạy trang)
-                                                                // ==========================================
+                // ==========================================
+                // KHỐI 4: GLOBAL LISTENERS (Bàn phím & Smart Focus)
+                // ==========================================
 
-                                                                // Khôi phục Tab gần nhất từ Bộ nhớ
-                                                                const savedTab = JSON.parse(sessionStorage.getItem("lastActiveTab"));
-                                                                if (savedTab) {
-                                                                    handleSwitchMode(savedTab, false);
-                                                                    sessionStorage.removeItem("lastActiveTab");
-                                                                }
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'F1') {
+                        e.preventDefault();
+                        handleSwitchMode('in');
+                    } else if (e.key === 'F2') {
+                        e.preventDefault();
+                        handleSwitchMode('out');
+                    } else if (e.code === 'Tab') {
+                        e.preventDefault();
+                        if (el.actionType && el.actionType.value === 'checkin') {
+                            fetchRandomCard();
+                        }
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
 
-                                                                // Auto focus ô quét thẻ ban đầu
-                                                                if (el.cardIdInput && document.activeElement !== el.cardIdInput) {
-                                                                    el.cardIdInput.focus();
-                                                                }
+                        // Nếu cái Modal thanh toán đang mở thì bấm Enter là tự động Xác nhận thu tiền luôn
+                        if (el.paymentModal && el.paymentModal.classList.contains('show')) {
+                            processCheckoutPayment(e);
+                            return;
+                        }
 
-                                                            });
+                        if (document.activeElement === el.cardIdInput && el.cardIdInput.value.trim() !== '') {
+                            if (el.plateInput)
+                                el.plateInput.focus();
+                        } else {
+                            handleFormSubmit(e); // Truyền e vào
+                        }
+                    }
+                });
+
+                document.addEventListener('click', function (e) {
+                    // Không kích hoạt Smart Focus nếu click vào Modal hoặc nút tắt Toast
+                    const isInteractiveArea = e.target.closest('button, a, input, .offcanvas, .vehicle-box, .modal, .toast');
+                    if (!isInteractiveArea && el.cardIdInput && el.plateInput) {
+                        if (el.cardIdInput.value === '')
+                            el.cardIdInput.focus();
+                        else
+                            el.plateInput.focus();
+                    }
+                });
+
+
+                // ==========================================
+                // KHỐI 5: INITIALIZATION (Khởi chạy trang)
+                // ==========================================
+
+                const savedTab = JSON.parse(sessionStorage.getItem("lastActiveTab"));
+                if (savedTab) {
+                    handleSwitchMode(savedTab, false);
+                    sessionStorage.removeItem("lastActiveTab");
+                }
+
+                if (el.cardIdInput && document.activeElement !== el.cardIdInput) {
+                    el.cardIdInput.focus();
+                }
+
+            });
         </script>
     </body>
 </html>

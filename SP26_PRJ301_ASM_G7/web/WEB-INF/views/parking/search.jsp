@@ -7,7 +7,7 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Tra Cứu Thẻ Và Xe - ParkStaff</title>
-
+        <jsp:include page="/WEB-INF/views/layout/layout.jsp"/>
         <style>
             .card-custom {
                 border: none;

@@ -18,17 +18,18 @@ public class SearchDAO extends DBContext {
     // =======================================================================
     // 1. TÌM KIẾM XE ĐANG TRONG BÃI
     // =======================================================================
-    public VehicleSearchResultDTO findActiveVehicleByPlate(String licensePlate) {
+    public VehicleSearchResultDTO findActiveVehicleByPlate(String licensePlate, int siteId) {
         String sql = "SELECT ps.license_plate, ps.card_id, ps.entry_time, vt.name AS vehicle_type, "
                 + "ps.session_type, pa.area_name "
                 + "FROM ParkingSessions ps "
                 + "JOIN VehicleTypes vt ON ps.vehicle_type_id = vt.vehicle_type_id "
                 + "JOIN ParkingCards pc ON ps.card_id = pc.card_id "
                 + "LEFT JOIN ParkingAreas pa ON pc.site_id = pa.site_id AND ps.vehicle_type_id = pa.vehicle_type_id "
-                + "WHERE ps.license_plate = ? AND ps.session_state = 'parked' AND ps.status = 'active'";
+                + "WHERE ps.license_plate = ? AND pc.site_id = ? AND ps.session_state = 'parked' AND ps.status = 'active'";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, licensePlate);
+            st.setInt(2, siteId);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 VehicleSearchResultDTO dto = new VehicleSearchResultDTO();
@@ -59,21 +60,26 @@ public class SearchDAO extends DBContext {
     // =======================================================================
     // 2. LẤY LỊCH SỬ GIAO DỊCH CỦA XE (TOP 10)
     // =======================================================================
-    public List<TransactionHistoryDTO> getVehicleTransactions(String licensePlate) {
+    public List<TransactionHistoryDTO> getVehicleTransactions(String licensePlate, int siteId) {
         List<TransactionHistoryDTO> list = new ArrayList<>();
         // Dùng UNION ALL để gộp cả lượt VÀO và lượt RA thành 1 danh sách, sắp xếp mới nhất lên đầu
-        String sql = "SELECT TOP 10 * FROM ( "
-                + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
-                + "  WHERE license_plate = ? AND status = 'active' AND entry_time IS NOT NULL "
-                + "  UNION ALL "
-                + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
-                + "  WHERE license_plate = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
-                + ") AS History "
-                + "ORDER BY txn_time DESC";
+        String sql = """
+                     SELECT TOP 10 * FROM ( 
+                                     SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate, card_id FROM ParkingSessions 
+                                      WHERE license_plate = ? AND status = 'active' AND entry_time IS NOT NULL 
+                                      UNION ALL 
+                                       SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate, card_id FROM ParkingSessions 
+                                     WHERE license_plate = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL 
+                                     ) AS History
+                                     JOIN ParkingCards pc ON History.card_id = pc.card_id
+                                     WHERE site_id = ?
+                                     ORDER BY txn_time DESC
+                     """;
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, licensePlate);
             st.setString(2, licensePlate);
+            st.setInt(3, siteId);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 TransactionHistoryDTO dto = new TransactionHistoryDTO();
@@ -92,8 +98,7 @@ public class SearchDAO extends DBContext {
     // =======================================================================
     // 3. TÌM KIẾM THÔNG TIN THẺ
     // =======================================================================
-    public CardSearchResultDTO findCardByRfid(String rfid) {
-        // Câu SQL đã tối ưu: Chặn cứng LEFT JOIN bằng trạng thái "parked" và "active"
+    public CardSearchResultDTO findCardById(String id, int siteId) {
         String sql = """
                                     SELECT 
                                         pc.card_id, pc.card_state, pc.status AS card_sys_status, 
@@ -107,12 +112,13 @@ public class SearchDAO extends DBContext {
                                     LEFT JOIN ParkingSessions ps ON pc.card_id = ps.card_id AND ps.session_state = 'parked'
                                     LEFT JOIN Bookings b ON b.card_id = pc.card_id AND b.booking_state = 'accepted'
                                     LEFT JOIN Customers c2 ON b.customer_id = c2.customer_id
-                                    WHERE pc.card_id = ?
+                                    WHERE pc.card_id = ? AND pc.site_id = ?
                     """;
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, rfid);
+            st.setString(1, id);
+            st.setInt(2, siteId);
             ResultSet rs = st.executeQuery();
 
             if (rs.next()) {
@@ -175,20 +181,26 @@ public class SearchDAO extends DBContext {
     // =======================================================================
     // 4. LẤY LỊCH SỬ GIAO DỊCH CỦA THẺ (TOP 10)
     // =======================================================================
-    public List<TransactionHistoryDTO> getCardTransactions(String rfid) {
+    public List<TransactionHistoryDTO> getCardTransactions(String id, int siteId) {
         List<TransactionHistoryDTO> list = new ArrayList<>();
-        String sql = "SELECT TOP 10 * FROM ( "
-                + "  SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate FROM ParkingSessions "
-                + "  WHERE card_id = ? AND status = 'active' AND entry_time IS NOT NULL "
-                + "  UNION ALL "
-                + "  SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate FROM ParkingSessions "
-                + "  WHERE card_id = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL "
-                + ") AS History "
-                + "ORDER BY txn_time DESC";
+        String sql = """
+                     SELECT TOP 10 * FROM (
+                        SELECT entry_time AS txn_time, 'IN' AS action_type, license_plate, card_id FROM ParkingSessions
+                        WHERE card_id = ? AND status = 'active' AND entry_time IS NOT NULL
+                        UNION ALL
+                        SELECT exit_time AS txn_time, 'OUT' AS action_type, license_plate, card_id FROM ParkingSessions
+                        WHERE card_id = ? AND session_state = 'completed' AND status = 'active' AND exit_time IS NOT NULL
+                     ) AS History
+                     JOIN ParkingCards pc ON History.card_id = pc.card_id
+                     WHERE site_id = ?
+                     ORDER BY txn_time DESC
+                     """;
+        
         try {
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, rfid);
-            st.setString(2, rfid);
+            st.setString(1, id);
+            st.setString(2, id);
+            st.setInt(3, siteId);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 TransactionHistoryDTO dto = new TransactionHistoryDTO();
