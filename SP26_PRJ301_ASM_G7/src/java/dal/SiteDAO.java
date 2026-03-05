@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.ParkingSite;
+import model.Vehicle;
 
 /**
  *
@@ -33,8 +34,8 @@ public class SiteDAO extends DBContext {
     }
 
     public void update(ParkingSite newSiteData) {
-        String sql = 
-                """
+        String sql
+                = """
                 UPDATE ParkingSites
                 SET site_name = ?, address = ?, region = ?, status = ?, manager_id = ? 
                 WHERE site_id = ?
@@ -102,7 +103,7 @@ public class SiteDAO extends DBContext {
     public ParkingSite getById(int id) {
         String sql
                 = """
-                SELECT s.site_id, s.site_name,s.address, s.region, s.manager_id, s.status,SUM(a.totalSlots) AS total_slots
+                SELECT s.site_id, s.site_name,s.address, s.region, s.manager_id, s.operating_state,SUM(a.totalSlots) AS total_slots
                     FROM ParkingSites s
                     JOIN ParkingAreas a ON s.site_id = a.site_id 
                     WHERE s.site_id = ?
@@ -112,7 +113,7 @@ public class SiteDAO extends DBContext {
                         s.address,
                         s.region,
                         s.manager_id,
-                        s.status;
+                        s.operating_state;
                 """;
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -202,12 +203,155 @@ public class SiteDAO extends DBContext {
         }
     }
 
+    public List<ParkingSite> getAllSitesWithAvailableSlots() {
+        List<ParkingSite> list = new ArrayList<>();
+
+        String sql = """
+                    SELECT 
+                        ps.site_id, 
+                        ps.site_name, 
+                        ps.address, 
+                        ps.region,
+                        ps.operating_state,
+                        (SELECT ISNULL(SUM(pa.totalSlots), 0) 
+                         FROM ParkingAreas pa 
+                         WHERE pa.site_id = ps.site_id AND pa.status = 'active') 
+                        - 
+                        (SELECT COUNT(sess.session_id) 
+                        FROM ParkingSessions sess
+                        JOIN ParkingCards pc ON sess.card_id = pc.card_id
+                        WHERE pc.site_id = ps.site_id 
+                        AND sess.status = 'active' 
+                        AND sess.session_state = 'parked'
+                        AND sess.entry_time <= GETDATE()
+                        AND (sess.exit_time IS NULL OR sess.exit_time > GETDATE())) 
+                        AS availableSlots
+                        FROM ParkingSites ps
+                        WHERE ps.status = 'active'
+                    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ParkingSite site = new ParkingSite();
+                site.setSiteId(rs.getInt("site_id"));
+                site.setSiteName(rs.getString("site_name"));
+                site.setAddress(rs.getString("address"));
+                site.setRegion(ParkingSite.Region.valueOf(rs.getString("region").toUpperCase()));
+                site.setSiteStatus(ParkingSite.State.valueOf(rs.getString("operating_state").toUpperCase()));
+                site.setTotalSlots(rs.getInt("availableSlots"));
+
+                list.add(site);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy Sites với available slots");
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<ParkingSite> filterSites(String address, String region, String status, String vehicleTypeId) {
+        String sql
+                = """
+                SELECT  ps.site_id,ps.site_name,ps.address,ps.region,ps.operating_state,
+                    ISNULL((
+                        SELECT SUM(pa.totalSlots)
+                        FROM ParkingAreas pa 
+                        WHERE pa.site_id = ps.site_id 
+                        AND pa.status = 'active'
+                        AND (? = '' OR pa.vehicle_type_id = ?)
+                    ), 0)
+
+                    -
+
+                    ISNULL((
+                        SELECT COUNT(sess.session_id)
+                        FROM ParkingSessions sess
+                        JOIN ParkingCards pc ON sess.card_id = pc.card_id
+                        WHERE pc.site_id = ps.site_id 
+                        AND sess.status = 'active'
+                        AND sess.session_state = 'parked'
+                        AND sess.entry_time <= GETDATE()
+                        AND (sess.exit_time IS NULL OR sess.exit_time > GETDATE())
+                        AND (? = '' OR sess.vehicle_type_id = ?)
+                    ), 0)
+
+                    AS availableSlots
+
+                FROM ParkingSites ps
+                WHERE 
+                    ps.status = 'active'
+
+                    AND (? = '' OR ps.region = ?)
+
+                    AND (
+                        ? = '' 
+                        OR ps.site_name COLLATE Latin1_General_CI_AI LIKE ?
+                        OR ps.address COLLATE Latin1_General_CI_AI LIKE ?
+                    )
+                    AND (? = '' OR ps.operating_state = ?)
+                    AND (
+                        ? = ''
+                        OR EXISTS (
+                            SELECT 1
+                            FROM ParkingAreas pa
+                            WHERE pa.site_id = ps.site_id
+                            AND pa.status = 'active'
+                            AND pa.vehicle_type_id = ?
+                        )
+                    )    
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, vehicleTypeId);
+            ps.setString(2, vehicleTypeId);
+            ps.setString(3, vehicleTypeId);
+            ps.setString(4, vehicleTypeId);
+
+            ps.setString(5, region);
+            ps.setString(6, region);
+
+            ps.setString(7, address);
+            ps.setString(8, "%" + address + "%");
+            ps.setString(9, "%" + address + "%");
+
+            ps.setString(10, status);
+            ps.setString(11, status);
+
+            ps.setString(12, vehicleTypeId);
+            ps.setString(13, vehicleTypeId);
+
+            List<ParkingSite> list = new ArrayList<>();
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                ParkingSite site = new ParkingSite();
+                site.setSiteId(rs.getInt("site_id"));
+                site.setSiteName(rs.getString("site_name"));
+                site.setAddress(rs.getString("address"));
+                site.setRegion(ParkingSite.Region.valueOf(rs.getString("region").toUpperCase()));
+                site.setSiteStatus(ParkingSite.State.valueOf(rs.getString("operating_state").toUpperCase()));
+                site.setTotalSlots(rs.getInt("availableSlots"));
+                
+                list.add(site);
+            }
+            
+            return list;
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy ra chi tiết site đã filter");
+            return null;
+        }
+    }
+
     private ParkingSite mapRowToSite(ResultSet rs) throws SQLException {
         int id = rs.getInt("site_id");
         String name = rs.getString("site_name");
         String address = rs.getString("address");
         String regionStr = rs.getString("region");
-        String statusStr = rs.getString("status");
+        String statusStr = rs.getString("operating_state");
         int managerId = rs.getInt("manager_id");
         int totalSlots = rs.getInt("total_slots");
         ParkingSite.Region region = ParkingSite.Region.NORTH; // Default
@@ -219,10 +363,10 @@ public class SiteDAO extends DBContext {
             System.out.println("Lỗi convert Region: " + regionStr);
         }
 
-        ParkingSite.Status status = ParkingSite.Status.CLOSED;
+        ParkingSite.State status = ParkingSite.State.CLOSED;
         try {
             if (statusStr != null) {
-                status = ParkingSite.Status.valueOf(statusStr.toUpperCase());
+                status = ParkingSite.State.valueOf(statusStr.toUpperCase());
             }
         } catch (IllegalArgumentException e) {
             System.out.println("Lỗi convert Status: " + statusStr);

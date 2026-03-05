@@ -111,7 +111,7 @@ public class AreaDAO extends DBContext {
         int siteId = rs.getInt("site_id");
         String name = rs.getString("area_name");
         int vehicleTypeId = rs.getInt("vehicle_type_id");
-        int totalSlots = rs.getInt("total_slots");
+        int totalSlots = rs.getInt("totalSlots");
         
         return new ParkingArea(siteId, siteId, name, vehicleTypeId, totalSlots);
     }

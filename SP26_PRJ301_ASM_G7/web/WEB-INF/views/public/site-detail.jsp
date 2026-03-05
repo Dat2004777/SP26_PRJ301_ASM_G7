@@ -181,9 +181,9 @@
                                 <div class="col-md-6 mb-4">
                                     <h5 class="fw-bold mb-3">Khu vực bãi để xe</h5>
                                     <div class="d-flex flex-wrap">
-                                        <c:if test="${not empty areas}">
-                                            <c:forEach var="area" items="${areas}">
-                                                <span class="badge-feature">${area.areaName}</span>
+                                        <c:if test="${not empty vehicles}">
+                                            <c:forEach var="v" items="${vehicles}">
+                                                <span class="badge-feature">${v.vehicle.vehicleName}</span>
                                             </c:forEach>
                                         </c:if>
                                     </div>
@@ -246,8 +246,10 @@
                 </div>
 
                 <div class="col-lg-4">
+                    <span class="text-danger d-block mt-2 text-center">${dateError}</span>
                     <div class="card shadow-sm p-4">
-                        <form action="${pageContext.request.contextPath}/payment?action=booking&siteId=${requestScope.site.siteId}" method="post">
+                        <form id="bookingForm" action="${pageContext.request.contextPath}/sites/site-detail?siteId=${requestScope.site.siteId}" method="post">
+<!--                            <input type="hidden" name="siteId" value="${requestScope.site.siteId}"/>-->
                             <h5 class="fw-bold mb-1">Thiết lập đặt chỗ</h5>
                             <p class="text-muted small mb-4">Vui lòng chọn thời gian gửi xe</p>
 
@@ -257,9 +259,9 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="bi bi-box-arrow-in-right text-primary"></i>
                                     </span>
-                                    <input id="dateIn" name="dateIn" type="date" class="form-control border-start-0 border-end-0 ps-0">
+                                    <input id="dateIn" name="dateIn" type="date" class="form-control border-start-0 border-end-0 ps-0" required>
                                     <span class="input-group-text bg-white border-start-0 border-end-0 px-1 text-muted">|</span>
-                                    <input name="timeIn" type="time" class="form-control border-start-0 ps-1">
+                                    <input name="timeIn" type="time" class="form-control border-start-0 ps-1" required>
                                 </div>
                             </div>
 
@@ -269,12 +271,24 @@
                                     <span class="input-group-text bg-white border-end-0">
                                         <i class="bi bi-box-arrow-in-left text-danger"></i>
                                     </span>
-                                    <input id="dateOut" name="dateOut" type="date" class="form-control border-start-0 border-end-0 ps-0">
+                                    <input id="dateOut" name="dateOut" type="date" class="form-control border-start-0 border-end-0 ps-0" required>
                                     <span class="input-group-text bg-white border-start-0 border-end-0 px-1 text-muted">|</span>
-                                    <input id="timeOut" name="timeOut" type="time" class="form-control border-start-0 ps-1">
+                                    <input id="timeOut" name="timeOut" type="time" class="form-control border-start-0 ps-1" required>
                                 </div>
                             </div>
 
+                            <div class="mb-4">
+                                <label>Loại xe</label>
+                                <select name="typeVehicle" class="form-select" id="vehicleSelect">
+
+                                    <c:forEach var="v" items="${vehicles}">
+                                        <option value="${v.vehicle.vehicleTypeId}" data-price="${v.basePrice}">
+                                            ${v.vehicle.vehicleName}
+                                        </option>
+                                    </c:forEach>
+
+                                </select>
+                            </div>
                             <div class="price-summary mb-4">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Tổng thời gian</span>
@@ -289,7 +303,7 @@
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Đơn giá</span>
-                                <span class="fw-bold">0đ</span>
+                                <span class="fw-bold" id="displayPrice"></span>
                                 <input type="hidden" id="price" name="price" />
                             </div>
                             <div class="d-flex justify-content-between mb-4">
@@ -341,53 +355,101 @@
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
 
-            const minDate = `${yyyy}-${mm}-${dd}`;
+            const minDate = yyyy + '-' + mm + '-' + dd;
             console.log(minDate);
-            
+
             // Set min cho input date
             document.getElementById("dateIn").setAttribute("min", minDate);
             document.getElementById("dateOut").setAttribute("min", minDate);
-            
-            
-            
-                function calculate() {
-                    const dateIn = document.getElementById("dateIn").value;
-                    const timeIn = document.getElementsByName("timeIn")[0].value;
 
-                    const dateOut = document.getElementById("dateOut").value;
-                    const timeOut = document.getElementsByName("timeOut")[0].value;
+            const vehicleSelect = document.getElementById("vehicleSelect");
+            const priceDisplay = document.getElementById("displayPrice");
+            const hiddenPrice = document.getElementById("price");
 
-                    if (!dateIn || !timeIn || !dateOut || !timeOut)
-                        return;
+            function updatePrice() {
+                const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
 
-                    const start = new Date(dateIn);
-                    const end = new Date(dateOut);
+                const basePrice = parseInt(selectedOption.getAttribute("data-price"));
 
-                    const [hourIn, minuteIn] = timeIn.split(":");
-                    const [hourOut, minuteOut] = timeOut.split(":");
+                priceDisplay.innerText = basePrice.toLocaleString() + " đ";
+                hiddenPrice.value = basePrice;
+                
+                calculate();
+            }
 
-                    start.setHours(hourIn, minuteIn, 0);
-                    end.setHours(hourOut, minuteOut, 0);
+            // Khi đổi loại xe
+            vehicleSelect.addEventListener("change", updatePrice);
 
-                    const diffMs = end.getTime() - start.getTime();
-                    const hours = diffMs / (1000 * 60 * 60);
+            // Khi load trang (để hiện giá mặc định)
+            window.onload = updatePrice;
 
-                    if (hours > 0) {
-                        const total = hours * 30000;
+            function calculate() {
+                const dateIn = document.getElementById("dateIn").value;
+                const timeIn = document.getElementsByName("timeIn")[0].value;
 
-                        document.getElementById("hours").innerText = hours + " giờ";
-                        document.getElementById("totalPriceText").innerText =
-                                total.toLocaleString() + " đ";
+                const dateOut = document.getElementById("dateOut").value;
+                const timeOut = document.getElementsByName("timeOut")[0].value;
 
-                        document.getElementById("hour").value = hours;
-                        document.getElementById("totalPrice").value = total;
-                    }
+                if (!dateIn || !timeIn || !dateOut || !timeOut)
+                    return;
+
+                const start = new Date(dateIn);
+                const end = new Date(dateOut);
+
+                const [hourIn, minuteIn] = timeIn.split(":");
+                const [hourOut, minuteOut] = timeOut.split(":");
+
+                start.setHours(hourIn, minuteIn, 0);
+                end.setHours(hourOut, minuteOut, 0);
+
+                const diffMs = end.getTime() - start.getTime();
+                const hours = Math.floor((diffMs / (1000 * 60 * 60)));
+
+                if (hours > 0) {
+                    const basePrice = parseFloat(document.getElementById("price").value) || 0;
+                    const total = hours * basePrice;
+
+                    document.getElementById("hours").innerText = hours + " giờ";
+                    document.getElementById("totalPriceText").innerText =
+                            total.toLocaleString() + " đ";
+
+                    document.getElementById("hour").value = hours;
+                    document.getElementById("totalPrice").value = total;
                 }
+            }
 
-                document.querySelectorAll("input[type=date], input[type=time]")
-                        .forEach(input => {
-                            input.addEventListener("change", calculate);
-                        });
+            document.querySelectorAll("input[type=date], input[type=time]")
+                    .forEach(input => {
+                        input.addEventListener("change", calculate);
+                    });
+
+//            document.getElementById("bookingForm").addEventListener("submit", function (e) {
+//                e.preventDefault(); // chặn submit mặc định
+//
+//                const formData = new FormData(this);
+//                const contextPath = ${pageContext.request.contextPath};
+//                console.log(contextPath);
+//                const siteId = ${requestScope.site.siteId};
+//                fetch(contextPath + `/api/booking/preview?siteId=` + siteId, {
+//                    method: "POST",
+//                    body: formData
+//                })
+//                .then(res => res.json())
+//                .then(data => {
+//                    if (data.error) {
+//                        document.getElementById("dateError").textContent = "Lỗi xác nhận dữ liệu";
+//                        return;
+//                    }
+//
+//                    // Chuyển sang trang confirm bằng JS
+//                    localStorage.setItem("bookingPreview", JSON.stringify(data));
+//                    window.location.href = "${pageContext.request.contextPath}/payment?action=booking&siteId=${requestScope.site.siteId}";
+//
+//                })
+//                .catch(err => {
+//                    alert("Lỗi hệ thống");
+//                });
+//            });
         </script>
     </body>
 </html>
