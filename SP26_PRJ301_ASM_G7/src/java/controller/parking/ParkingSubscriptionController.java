@@ -139,7 +139,7 @@ public class ParkingSubscriptionController extends HttpServlet {
 
         // Nếu tạo mới, cập nhật trạng thái thẻ sang "Đang sử dụng"
         if ("create".equals(d.getActionType())) {
-            cardDAO.updateState(d.getCardId(), ParkingCard.State.USING);
+            cardDAO.updateState(d.getCardId(), ParkingCard.State.ASSIGNED);
         }
 
         try {
@@ -201,8 +201,8 @@ public class ParkingSubscriptionController extends HttpServlet {
             }
 
             // 2. Kiểm tra Thẻ này đã có ai dùng làm vé tháng chưa (Trạng thái thẻ trong bãi)
-            boolean isCardUsed = subDAO.hasActiveSubscriptionByCard(data.getCardId());
-            if (isCardUsed) {
+            Subscription subCardUsed = subDAO.getActiveSubscriptionByCard(data.getCardId());
+            if (subCardUsed != null) {
                 throw new IllegalArgumentException("Thẻ [" + data.getCardId() + "] đã được đăng ký cho một phương tiện khác!");
             }
         }

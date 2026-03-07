@@ -7,7 +7,7 @@ package dal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement; 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Timestamp;
@@ -15,7 +15,6 @@ import model.Subscription;
 
 public class SubscriptionDAO extends DBContext {
 
-    
 // =========================================================================
     // 1. KIỂM TRA BIỂN SỐ ĐÃ CÓ VÉ CÒN HẠN CHƯA
     // =========================================================================
@@ -45,8 +44,8 @@ public class SubscriptionDAO extends DBContext {
     // =========================================================================
     // 2. KIỂM TRA MÃ THẺ ĐÃ ĐƯỢC GÁN CHO VÉ THÁNG NÀO CÒN HẠN CHƯA
     // =========================================================================
-    public boolean hasActiveSubscriptionByCard(String cardId) {
-        String sql = "SELECT COUNT(*) FROM Subscriptions "
+    public Subscription getActiveSubscriptionByCard(String cardId) {
+        String sql = "SELECT * FROM Subscriptions "
                 + "WHERE card_id = ? AND sub_state = 'active' AND status = 'active' "
                 + "AND GETDATE() BETWEEN start_date AND end_date";
 
@@ -54,13 +53,34 @@ public class SubscriptionDAO extends DBContext {
             ps.setString(1, cardId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1) > 0;
+                    Subscription sub = new Subscription();
+                    sub.setSubscriptionId(rs.getInt("subscription_id"));
+                    sub.setCustomerId(rs.getInt("customer_id"));
+                    sub.setCardId(rs.getString("card_id"));
+                    sub.setLicensePlate(rs.getString("license_plate"));
+                    sub.setVehicleTypeId(rs.getInt("vehicle_type_id"));
+
+                    // Chuyển đổi từ SQL Timestamp sang Java LocalDateTime
+                    Timestamp start = rs.getTimestamp("start_date");
+                    if (start != null) {
+                        sub.setStartDate(start.toLocalDateTime());
+                    }
+
+                    Timestamp end = rs.getTimestamp("end_date");
+                    if (end != null) {
+                        sub.setEndDate(end.toLocalDateTime());
+                    }
+
+                    sub.setSubState(rs.getString("sub_state"));
+                    sub.setAppliedPrice(rs.getLong("applied_price"));
+
+                    return sub;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     // =========================================================================
@@ -93,7 +113,6 @@ public class SubscriptionDAO extends DBContext {
 
                     sub.setSubState(rs.getString("sub_state"));
                     sub.setAppliedPrice(rs.getLong("applied_price"));
-                    // sub.setStatus(rs.getString("status")); // Nếu model của bạn có trường này
 
                     return sub;
                 }
@@ -103,7 +122,7 @@ public class SubscriptionDAO extends DBContext {
         }
         return null;
     }
-    
+
     // Hàm lấy danh sách các biển số xe DUY NHẤT của 1 khách hàng
     public List<String> getDistinctPlatesByCustomerId(int customerId) {
         List<String> plates = new ArrayList<>();
@@ -183,6 +202,7 @@ public class SubscriptionDAO extends DBContext {
 
         return false;
     }
+
     /**
      * Thêm mới vé tháng và trả về ID tự tăng (subscription_id)
      *

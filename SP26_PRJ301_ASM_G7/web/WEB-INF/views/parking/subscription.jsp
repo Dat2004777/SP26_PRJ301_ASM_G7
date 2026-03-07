@@ -293,24 +293,24 @@
 
         </script>
 
-<!--        <script id="oldSubDataIsland" type="application/json">
-            <c:choose>
-                <c:when test="${not empty oldSubscription}">
-                    {
-                    "actionType": "${oldSubscription.actionType}",
-                    "phone": "${oldSubscription.phone}",
-                    "fullName": "${oldSubscription.fullName}",
-                    "plate": "${oldSubscription.plate}",
-                    "cardId": "${oldSubscription.cardId}",
-                    "vehicleTypeId": "${oldSubscription.vehicleTypeId}",
-                    "configId": "${oldSubscription.configId}",
-                    "startDate": "${oldSubscription.startDate}",
-                    "oldSubId": "${oldSubscription.oldSubId}"
-                    }
-                </c:when>
-                <c:otherwise>null</c:otherwise>
-            </c:choose>
-        </script>-->
+        <!--        <script id="oldSubDataIsland" type="application/json">
+        <c:choose>
+            <c:when test="${not empty oldSubscription}">
+                {
+                "actionType": "${oldSubscription.actionType}",
+                "phone": "${oldSubscription.phone}",
+                "fullName": "${oldSubscription.fullName}",
+                "plate": "${oldSubscription.plate}",
+                "cardId": "${oldSubscription.cardId}",
+                "vehicleTypeId": "${oldSubscription.vehicleTypeId}",
+                "configId": "${oldSubscription.configId}",
+                "startDate": "${oldSubscription.startDate}",
+                "oldSubId": "${oldSubscription.oldSubId}"
+                }
+            </c:when>
+            <c:otherwise>null</c:otherwise>
+        </c:choose>
+    </script>-->
 
         <c:if test="${not empty errMsg or not empty sucMsg}">
             <script>
@@ -365,7 +365,7 @@
                     sumTotal: document.getElementById('sumTotal'),
 
                     lastValidPhone: ''
-                    
+
                 };
 
                 // =========================================================
@@ -629,6 +629,8 @@
 
                     if (el.nameInput)
                         el.nameInput.value = '';
+                        el.nameInput.readOnly = false; 
+                    
                     if (el.plateInput)
                         el.plateInput.value = '';
                     if (el.actionType)
@@ -639,7 +641,6 @@
                         el.startDate.value = new Date().toISOString().split('T')[0];
                     if (el.sumCardPrice)
                         el.sumCardPrice.innerText = '0 đ';
-
                     updatePricesByMemory();
                 }
 

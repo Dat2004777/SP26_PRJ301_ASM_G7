@@ -5,9 +5,7 @@ public class ParkingCard {
     public enum State {
         AVAILABLE,  
         USING,  
-        BOOKED
-//        LOST,       
-//        BROKEN     
+        ASSIGNED  
     }
 
     private String cardId;

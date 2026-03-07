@@ -78,7 +78,7 @@ public class CheckOutController extends HttpServlet {
         String cleanPlate = validateAndCleanCheckOutInput(cardId, licensePlate);
 
         // 2. Kiểm tra tính hợp lệ của Thẻ
-        validateCardForCheckOut(cardId, siteId);
+        ParkingCard card = validateCardForCheckOut(cardId, siteId);
 
         // 3. Lấy phiên đỗ xe đang diễn ra
         ParkingSession currentSession = fetchActiveSession(cardId);
@@ -90,7 +90,7 @@ public class CheckOutController extends HttpServlet {
         long feeToCollect = calculateCheckoutFee(currentSession, siteId);
 
         // 6. Cập nhật dữ liệu xuống Database và thu hồi thẻ
-        executeCheckOutTransaction(currentSession, feeToCollect, cardId);
+        executeCheckOutTransaction(currentSession, feeToCollect, card);
 
         // 7. Trả về thông báo thành công
         return buildCheckOutSuccessMessage(cleanPlate, currentSession.getSessionType(), feeToCollect);
@@ -109,7 +109,7 @@ public class CheckOutController extends HttpServlet {
     }
 
 // Hàm 2: Kiểm tra trạng thái thẻ khi ra bãi
-    private void validateCardForCheckOut(String cardId, int siteId) throws Exception {
+    private ParkingCard validateCardForCheckOut(String cardId, int siteId) throws Exception {
         ParkingCard card = cardDAO.getById(cardId);
         if (card == null) {
             throw new Exception("Thẻ [" + cardId + "] không tồn tại trên hệ thống!");
@@ -117,9 +117,11 @@ public class CheckOutController extends HttpServlet {
         if (card.getSiteId() != siteId) {
             throw new Exception("Lỗi: Thẻ này thuộc bãi xe khác, không thể check-out tại đây!");
         }
-        if (card.getState() != ParkingCard.State.USING) {
+        if (card.getState() == ParkingCard.State.AVAILABLE) {
             throw new Exception("Lỗi: Thẻ này hiện không có xe nào đang sử dụng (Chưa check-in)!");
         }
+
+        return card;
     }
 
 // Hàm 3: Lấy phiên đỗ xe
@@ -158,7 +160,7 @@ public class CheckOutController extends HttpServlet {
     }
 
     // Hàm 6: Ghi nhận giao dịch kết thúc xuống DB
-    private void executeCheckOutTransaction(ParkingSession session, long fee, String cardId) throws Exception {
+    private void executeCheckOutTransaction(ParkingSession session, long fee, ParkingCard card) throws Exception {
         LocalDateTime now = LocalDateTime.now();
 
         // Bước A: Cập nhật Session
@@ -171,7 +173,13 @@ public class CheckOutController extends HttpServlet {
         }
 
         // Bước B: Giải phóng thẻ
-        cardDAO.updateState(cardId, ParkingCard.State.AVAILABLE);
+        if (card.getState() == ParkingCard.State.USING) {
+            cardDAO.updateState(card.getCardId(), ParkingCard.State.AVAILABLE);
+        }
+
+//        if ("booking".equalsIgnoreCase(session.getSessionType())) {
+//            bookingDAO.markAsCompleted(card.getCardId(), session.getLicensePlate());
+//        }
 
         // Bước C: Ghi nhận giao dịch tài chính (Chỉ khi fee > 0)
         if (fee > 0) {
@@ -186,15 +194,14 @@ public class CheckOutController extends HttpServlet {
             }
         }
     }
-    
-// Hàm 7: Xây dựng câu thông báo
 
+// Hàm 7: Xây dựng câu thông báo
     private String buildCheckOutSuccessMessage(String licensePlate, String sessionType, long fee) {
         java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
         String formattedFee = formatter.format(fee);
 
-        String typeStr = "subscription".equalsIgnoreCase(sessionType) ? "Vé tháng"
-                : ("booking".equalsIgnoreCase(sessionType) ? "Vé đặt trước" : "Vé lượt");
+        String typeStr = sessionType.equals("subscription") ? "Vé tháng"
+                : (sessionType.equals("booking") ? "Vé đặt trước" : "Vé lượt");
 
         return "Check-out thành công: <b>" + licensePlate.toUpperCase() + "</b><br>"
                 + "Loại thẻ: " + typeStr + "<br>"

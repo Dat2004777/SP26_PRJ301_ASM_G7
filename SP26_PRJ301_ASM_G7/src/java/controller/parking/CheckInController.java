@@ -4,6 +4,7 @@ import model.Employee;
 import dal.CardDAO;
 import dal.SessionDAO;
 import dal.AreaDAO;
+import dal.SubscriptionDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,6 +16,7 @@ import java.util.List;
 import model.ParkingArea;
 import model.ParkingCard;
 import model.ParkingSession;
+import model.Subscription;
 import utils.UrlConstants;
 import utils.ValidationUtils;
 
@@ -25,6 +27,7 @@ public class CheckInController extends HttpServlet {
     private final CardDAO cardDAO = new CardDAO();
     private final SessionDAO sessionDAO = new SessionDAO();
     private final AreaDAO areaDAO = new AreaDAO();
+    private final SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -79,10 +82,10 @@ public class CheckInController extends HttpServlet {
         String cleanPlate = validateAndCleanInput(cardId, licensePlate, vehicleTypeId);
 
         // 2. Kiểm tra tính hợp lệ của Thẻ và trạng thái Xe trong bãi
-        validateCardAndVehicle(cardId, cleanPlate, siteId);
+        ParkingCard card = validateCardAndVehicle(cardId, cleanPlate, siteId);
 
-        // 3. Xác định phân loại phiên đỗ xe (Vé tháng / Đặt trước / Vé lượt)
-        String sessionType = determineSessionType(cardId, cleanPlate, vehicleTypeId);
+        // 3. Xác định phân loại phiên đỗ xe
+        String sessionType = determineSessionType(card, cleanPlate, vehicleTypeId);
 
         // 4. Tìm khu vực đỗ xe còn trống
         ParkingArea targetArea = findAvailableArea(siteId, vehicleTypeId);
@@ -122,50 +125,76 @@ public class CheckInController extends HttpServlet {
         return ValidationUtils.cleanLicensePlate(licensePlate);
     }
 
-// Hàm 2: Xác thực Thẻ & Xe
-    private void validateCardAndVehicle(String cardId, String licensePlate, int siteId) throws Exception {
+    // Hàm 2: Xác thực tính hợp lệ cơ bản và lấy đối tượng Thẻ
+    private ParkingCard validateCardAndVehicle(String cardId, String licensePlate, int siteId) throws Exception {
         ParkingCard card = cardDAO.getById(cardId);
 
+        // 1. Kiểm tra sự tồn tại của thẻ
         if (card == null) {
             throw new Exception("Thẻ [" + cardId + "] không tồn tại trên hệ thống!");
         }
+
+        // 2. Kiểm tra thẩm quyền bãi xe
         if (siteId != card.getSiteId()) {
-            throw new Exception("Thẻ này không thuộc thẩm quyền của bãi xe hiện tại!");
-        }
-        if (card.getState() != ParkingCard.State.AVAILABLE) {
-            throw new Exception("Thẻ này đang được xe khác sử dụng hoặc đang bị khóa!");
+            throw new Exception("Thẻ này không thuộc quyền quản lý của bãi xe hiện tại!");
         }
 
+        // 3. Kiểm tra xe có đang kẹt trong bãi không (Chống check-in đúp)
         if (sessionDAO.isVehicleInLot(licensePlate, siteId)) {
             throw new Exception("Xe mang biển số [" + licensePlate + "] đang ở trong bãi, không thể Check-in lần 2!");
         }
+
+        // Trả về thẻ để hàm determineSessionType sử dụng (không cần query lại DB)
+        return card;
     }
 
 // Hàm 3: Xác định Logic Phân quyền vé (Vé tháng / Đặt trước / Vé lượt)
-    private String determineSessionType(String cardId, String licensePlate, int vehicleTypeId) throws Exception {
-        // Ưu tiên 1: Check Vé tháng
-//        Subscription sub = subscriptionDAO.getValidSubscriptionByCard(cardId);
-//        if (sub != null) {
-//            if (!sub.getLicensePlate().equalsIgnoreCase(licensePlate)) {
-//                throw new Exception("Lỗi: Thẻ vé tháng đăng ký cho biển số [" + sub.getLicensePlate() + "], không dùng được cho xe này!");
-//            }
-//            if (sub.getVehicleTypeId() != vehicleTypeId) {
-//                throw new Exception("Lỗi: Thẻ vé tháng này đăng ký cho loại xe khác!");
-//            }
-//            return "subscription";
-//        }
-//
-//        // Ưu tiên 2: Check Lịch đặt trước
-//        Booking booking = bookingDAO.getValidBookingByCard(cardId);
-//        if (booking != null) {
-//            if (booking.getVehicleTypeId() != vehicleTypeId) {
-//                throw new Exception("Lỗi: Lịch đặt trước của thẻ này dành cho loại xe khác!");
-//            }
-//            return "booking";
-//        }
+    // Hàm 3: Xác định Logic Phân quyền vé (Vé tháng / Đặt trước / Vé lượt)
+    private String determineSessionType(ParkingCard card, String licensePlate, int vehicleTypeId) throws Exception {
 
-        // Mặc định: Trả về vé lượt nếu không có các điều kiện trên
-        return "casual";
+        // ==========================================
+        // TRƯỜNG HỢP 1: THẺ CỦA KHÁCH THÀNH VIÊN (ASSIGNED)
+        // ==========================================
+        if (card.getState() == ParkingCard.State.ASSIGNED) {
+
+            // Ưu tiên 1: Check Vé tháng (Subscription)
+            Subscription sub = subscriptionDAO.getActiveSubscriptionByCard(card.getCardId());
+            if (sub != null) {
+                if (!sub.getLicensePlate().equalsIgnoreCase(licensePlate)) {
+                    throw new Exception("Lỗi: Thẻ vé tháng đăng ký cho biển số [" + sub.getLicensePlate() + "], không dùng được cho xe này!");
+                }
+                if (sub.getVehicleTypeId() != vehicleTypeId) {
+                    throw new Exception("Lỗi: Thẻ vé tháng này đăng ký cho loại xe khác!");
+                }
+                return "subscription";
+            }
+
+            // Ưu tiên 2: Check Lịch đặt trước (Booking)
+//            Booking booking = bookingDAO.getValidBookingByCard(card.getCardId());
+//            if (booking != null) {
+//                if (!booking.getLicensePlate().equalsIgnoreCase(licensePlate)) {
+//                    throw new Exception("Lỗi: Lịch đặt trước đăng ký cho biển số [" + booking.getLicensePlate() + "], không khớp với xe hiện tại!");
+//                }
+//                if (booking.getVehicleTypeId() != vehicleTypeId) {
+//                    throw new Exception("Lỗi: Lịch đặt trước của thẻ này dành cho loại xe khác!");
+//                }
+//                return "booking";
+//            }
+            // Chốt chặn an toàn: Thẻ là ASSIGNED nhưng DB lại không có vé tháng/booking nào còn hạn
+            throw new Exception("Lỗi Dữ Liệu: Thẻ đã được cấp phát nhưng không tìm thấy gói vé tháng hay đặt trước nào còn hiệu lực!");
+        }
+
+        // ==========================================
+        // TRƯỜNG HỢP 2: THẺ VÃNG LAI TỪ BỐT BẢO VỆ (AVAILABLE)
+        // ==========================================
+        if (card.getState() == ParkingCard.State.AVAILABLE) {
+            return "casual";
+        }
+
+        // ==========================================
+        // TRƯỜNG HỢP 3: THẺ ĐANG KẸT TRONG BÃI (USING)
+        // ==========================================
+        throw new Exception("Lỗi: Thẻ này đang được xe khác sử dụng trong bãi, không thể Check-in!");
     }
 
 // Hàm 4: Thuật toán tìm khu vực trống
@@ -199,7 +228,9 @@ public class CheckInController extends HttpServlet {
         }
 
         // Cập nhật trạng thái thẻ sang "Đang sử dụng"
-        cardDAO.updateState(cardId, ParkingCard.State.USING);
+        if ("casual".equals(sessionType) || "booking".equals(sessionType)) {
+            cardDAO.updateState(cardId, ParkingCard.State.USING);
+        }
     }
 
 // Hàm 6: Xây dựng câu thông báo thành công cho giao diện

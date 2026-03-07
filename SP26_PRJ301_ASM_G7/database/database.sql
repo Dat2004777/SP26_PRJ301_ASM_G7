@@ -114,7 +114,7 @@ GO
 CREATE TABLE ParkingCards (
     card_id VARCHAR(50) PRIMARY KEY,
     site_id INT NOT NULL,
-    card_state VARCHAR(20) DEFAULT 'available' CHECK (card_state IN ('available', 'using')), -- Đổi tên từ status
+    card_state VARCHAR(20) DEFAULT 'available' CHECK (card_state IN ('available', 'using', 'assigned')), -- Đổi tên từ status
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active', 'inactive')), -- Xóa mềm
     FOREIGN KEY (site_id) REFERENCES ParkingSites(site_id) ON DELETE CASCADE
 );
@@ -131,7 +131,6 @@ CREATE TABLE PriceConfigs (
     vehicle_type_id INT NOT NULL,
     type VARCHAR(20) NOT NULL CHECK (type IN ('hourly', 'monthly', 'yearly')),
     base_price BIGINT NOT NULL,
-    unit VARCHAR(20) NOT NULL, 
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active', 'inactive')), -- Xóa mềm
     FOREIGN KEY (site_id) REFERENCES ParkingSites(site_id),
     FOREIGN KEY (vehicle_type_id) REFERENCES VehicleTypes(vehicle_type_id)
@@ -168,7 +167,7 @@ CREATE TABLE ParkingSessions (
     license_plate VARCHAR(20),
     entry_time DATETIME DEFAULT GETDATE(),
     exit_time DATETIME,
-    session_type VARCHAR(20) CHECK (session_type IN ('noncasual', 'casual')),
+    session_type VARCHAR(20) CHECK (session_type IN ('booking','subscription', 'casual')),
     fee_amount BIGINT DEFAULT 0,
     session_state VARCHAR(20) CHECK (session_state IN ('parked', 'completed')), -- Đổi tên từ status
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active', 'inactive')), -- Xóa mềm
@@ -245,22 +244,22 @@ INSERT INTO ParkingAreas (site_id, area_name, vehicle_type_id, totalSlots) VALUE
 (2, N'Khu C - Ngoài trời', 1, 100);
 
 INSERT INTO ParkingCards (card_id, site_id, card_state) VALUES 
-('CARD-HN-001', 1, 'using'), 
+('CARD-HN-001', 1, 'assigned'), 
 ('CARD-HN-002', 1, 'using'), 
 ('CARD-HN-003', 1, 'available'),
 ('CARD-HCM-001', 2, 'available');
 
-INSERT INTO PriceConfigs (site_id, vehicle_type_id, type, base_price, unit) VALUES 
-(1, 1, 'hourly', 20000, '1 hour'), 
-(1, 1, 'monthly', 1500000, '1 month'), 
-(1, 2, 'hourly', 5000, '4 hour'); 
+INSERT INTO PriceConfigs (site_id, vehicle_type_id, type, base_price) VALUES 
+(1, 1, 'hourly', 20000), 
+(1, 1, 'monthly', 1500000), 
+(1, 2, 'hourly', 5000); 
 
 -- Đã thay đổi config_id thành applied_price (1500000)
 INSERT INTO Subscriptions (customer_id, card_id, license_plate, vehicle_type_id, start_date, end_date, sub_state, applied_price)
 VALUES (1, 'CARD-HN-001', '30A-12345', 1, GETDATE(), DATEADD(day, 30, GETDATE()), 'active', 1500000);
 
 INSERT INTO ParkingSessions (card_id, vehicle_type_id, license_plate, entry_time, session_type, fee_amount, session_state)
-VALUES ('CARD-HN-001', 1, '30A-12345', DATEADD(hour, -2, GETDATE()), 'nonCasual', 0, 'parked');
+VALUES ('CARD-HN-001', 1, '30A-12345', DATEADD(hour, -2, GETDATE()), 'subscription', 0, 'parked');
 
 INSERT INTO ParkingSessions (card_id, vehicle_type_id, license_plate, entry_time, exit_time, session_type, fee_amount, session_state)
 VALUES ('CARD-HN-002', 1, '29C-99999', DATEADD(hour, -5, GETDATE()), DATEADD(hour, -4, GETDATE()), 'casual', 20000, 'completed');
