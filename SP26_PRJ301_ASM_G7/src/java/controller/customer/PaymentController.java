@@ -70,7 +70,7 @@ public class PaymentController extends HttpServlet {
         String siteId = request.getParameter("siteId");
         
         if(action == null || siteId == null || action.isBlank() || siteId.isBlank()){
-            response.sendRedirect(request.getContextPath() + "/sites");
+            response.sendRedirect(request.getContextPath() + "/sites?action=booking");
             return;
         }
         
@@ -92,12 +92,13 @@ public class PaymentController extends HttpServlet {
         
         LocalDateTime formattedIn  = bookingPreview.getTimeIn();
         LocalDateTime formattedOut  = bookingPreview.getTimeOut();
+        
         String inDateTime = formattedIn.format(formatter);
         String outDateTime = formattedOut.format(formatter);
         
         int hours = bookingPreview.getHours();
-        int price = bookingPreview.getBasePrice();
-        int totalPrice = bookingPreview.getTotalPrice();
+        long price = bookingPreview.getBasePrice();
+        long totalPrice = bookingPreview.getTotalPrice();
         
         request.setAttribute("site", site);
         request.setAttribute("vehicles", vehicles);

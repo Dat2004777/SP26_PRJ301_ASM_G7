@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -83,30 +85,6 @@
                 margin-right: 12px;
             }
 
-            /* Plan Cards */
-            .plan-card {
-                border: 1px solid #e5e7eb;
-                border-radius: 1rem;
-                padding: 1.25rem;
-                background: white;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                position: relative;
-                height: 100%;
-            }
-
-            .plan-card.active {
-                border: 2px solid var(--primary-color);
-                background-color: #f0f4ff;
-            }
-
-            .plan-card .check-icon {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                font-size: 1.25rem;
-            }
-
             .badge-promo {
                 position: absolute;
                 top: 10px;
@@ -148,7 +126,7 @@
             #licenseInput {
                 letter-spacing: 1px;
             }
-            
+
             /* Custom Responsive */
             @media (max-width: 991.98px) {
                 .main-content-card {
@@ -161,6 +139,8 @@
         <!--Header-->
         <%@include file="/WEB-INF/views/layout/header.jsp" %>
 
+        <!--Toast Layout-->
+        <%@include file="/WEB-INF/views/layout/customer-layout.jsp" %>
         <div class="container my-5">
             <div class="row g-4">
                 <div class="col-lg-8">
@@ -179,10 +159,11 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <div class="pricing-card active h-100 p-3 border rounded-3 position-relative">
+                                        <input type="radio" name="planType" value="month" checked hidden>
                                         <div class="selected-badge"><i class="fa-solid fa-circle-check"></i></div>
                                         <p class="text-secondary small mb-1">Vé tháng</p>
                                         <h4 class="fw-bold">
-                                            <span id="price-month">500k</span>
+                                            <span id="price-month"></span>
                                             <small class="text-muted fs-6">/tháng</small>
                                         </h4>
                                         <ul class="list-unstyled mt-3 small">
@@ -194,11 +175,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="pricing-card h-100 p-3 border rounded-3 position-relative">
+                                        <input type="radio" name="planType" value="quarter" hidden>
                                         <span
                                             class="badge bg-success-subtle text-success position-absolute top-0 end-0 m-2">-10%</span>
                                         <p class="text-secondary small mb-1">Vé quý</p>
                                         <h4 class="fw-bold">
-                                            <span id="price-quarter">1.350k</span>
+                                            <span id="price-quarter"></span>
                                             <small class="text-muted fs-6">/3 tháng</small>
                                         </h4>
                                         <ul class="list-unstyled mt-3 small">
@@ -210,11 +192,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="pricing-card h-100 p-3 border rounded-3 position-relative">
+                                        <input type="radio" name="planType" value="year" hidden>
                                         <span
                                             class="badge bg-primary-subtle text-primary position-absolute top-0 end-0 m-2 text-uppercase">Best</span>
                                         <p class="text-secondary small mb-1">Vé năm</p>
                                         <h4 class="fw-bold">
-                                            <span id="price-year">5.000k</span>
+                                            <span id="price-year"></span>
                                             <small class="text-muted fs-6">/năm</small>
                                         </h4>
                                         <ul class="list-unstyled mt-3 small">
@@ -232,25 +215,38 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold fs-6">Bãi đỗ xe</label>
-                                    <input type="text"  class="site-display-input" value="${site.siteName}" readonly=""/>
+                                    <input type="text" name="siteName" class="site-display-input" value="${site.siteName}" readonly=""/>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold fs-6">Loại phương tiện</label>
                                     <div class="d-flex gap-2">
-                                        <c:forEach var="v" items="${vehicles}">
-                                            <input type="radio" class="btn-check" name="vtype" value="${v.vehicle.vehicleTypeId}" id="${v.vehicle.vehicleName}" checked>
-                                            <label class="btn btn-outline-primary flex-grow-1 py-2" for="${v.vehicle.vehicleName}"><i class="bi bi-car-front me-2"></i>${v.vehicle.vehicleName}</label>
-                                            </c:forEach>
-                                        <!--                                        <input type="radio" class="btn-check" name="vtype" value="1" id="car" checked>
-                                                                                <label class="btn btn-outline-primary flex-grow-1 py-2" for="car"><i class="bi bi-car-front me-2"></i> Ô tô</label>-->
+                                        <c:forEach var="v" items="${vehicles}" varStatus="status">
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="vtype"
+                                                   value="${v.vehicle.vehicleTypeId}"
+                                                   data-price="${v.basePrice}"
+                                                   id="${v.vehicle.vehicleName}"
+                                                   ${status.first ? "checked" : ""}/>
 
-                                        <!--                                        <input type="radio" class="btn-check" name="vtype" value="2" id="bike">
-                                                                                <label class="btn btn-outline-primary flex-grow-1 py-2" for="bike"><i class="bi bi-bicycle me-2"></i> Xe máy</label>-->
+                                            <label class="btn btn-outline-primary flex-grow-1 py-2" for="${v.vehicle.vehicleName}">
+                                                <c:choose>
+                                                    <c:when test="${v.vehicle.vehicleName eq 'CAR'}">
+                                                        <i class="bi bi-car-front me-2"></i>
+                                                        ${v.vehicle.vehicleName.label}
+                                                    </c:when>
+                                                    <c:when test="${v.vehicle.vehicleName eq 'MOTORBIKE'}">
+                                                        <i class="bi bi-bicycle me-2"></i>
+                                                        ${v.vehicle.vehicleName.label}
+                                                    </c:when>
+                                                </c:choose>
+                                            </label>
+                                        </c:forEach>
                                     </div>
                                 </div>
                                 <div class="col-12 mt-4">
                                     <label class="form-label fw-semibold fs-6">Biển số xe</label>
-                                    <input type="text" class="form-control bg-light border-1 py-2 fs-5 text-uppercase fw-bold" placeholder="VÍ DỤ: 51F-123.45">
+                                    <input id="licensePlate" type="text" class="form-control bg-light border-1 py-2 fs-5 text-uppercase fw-bold" placeholder="VÍ DỤ: 51F-123.45" required>
                                 </div>
                             </div>
                         </section>
@@ -264,26 +260,30 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-sticky" style="top: 20px;">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-sticky" style="top: 20px;border-color: #e5e7eb; background-color: #ffffff;">
                         <div class="card-header bg-white border-0 py-3 px-4">
                             <h5 class="fw-bold mb-0 d-flex align-items-center text-dark">
                                 <i class="bi bi-cart-fill me-2 text-primary"></i> Tóm tắt đơn hàng
                             </h5>
                         </div>
 
-                        <div class="card-body p-4 pt-0">
+                        <div class="card-body p-4 pt-0 mt-3">
                             <div class="summary-info mb-4">
                                 <div class="d-flex justify-content-between mb-3">
                                     <span class="text-muted">Gói đăng ký:</span>
-                                    <span class="fw-bold text-dark">Vé tháng (1 tháng)</span>
+                                    <span class="fw-bold text-dark">Vé tháng </span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-3">
                                     <span class="text-muted">Biển số xe:</span>
-                                    <span class="fw-bold text-dark">51F-123.45</span>
+                                    <span class="fw-bold text-dark"></span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="text-muted">Bãi đỗ xe:</span>
+                                    <span class="fw-bold text-dark">${requestScope.site.siteName}</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted">Thời hạn:</span>
-                                    <span class="fw-bold text-dark">01/10 - 31/10/2023</span>
+                                    <span class="fw-bold text-dark" id="summary-expiry"></span>
                                 </div>
                             </div>
 
@@ -292,19 +292,24 @@
                             <div class="rounded-3 p-3 mb-4" style="background-color: #f8faff;">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted small">Tạm tính:</span>
-                                    <span class="text-dark fw-medium" id="summary-subtotal">500.000đ</span>
+                                    <span class="text-dark fw-medium" id="summary-subtotal"><fmt:formatNumber value="${requestScope.price}" type="number" groupingUsed="true"/>đ</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                                <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted small">Phí dịch vụ:</span>
                                     <span class="text-dark fw-medium">0đ</span>
                                 </div>
+                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                                    <span class="text-muted small">Giảm giá:</span>
+                                    <span class="text-dark fw-medium"></span>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <span class="fw-bold text-dark">Tổng cộng:</span>
-                                    <span class="fw-bold fs-3 text-primary" id="summary-total">500.000đ</span>
+                                    <span class="fw-bold fs-4 text-primary" id="summary-total"><fmt:formatNumber value="${requestScope.price}" type="number" groupingUsed="true"/>đ</span>
                                 </div>
                             </div>
 
                             <button class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center"
+                                    id="playBtn"
                                     style="background-color: #1d61e7; border: none;">
                                 <i class="bi bi-cash-stack me-2"></i> Thanh toán ngay
                             </button>
@@ -313,8 +318,226 @@
                 </div>
             </div>
         </div>
-
         <!--Footer-->
         <%@ include file="/WEB-INF/views/layout/footer.jsp" %>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const discountRates = {
+                month: 1,
+                quarter: 0.9,
+                year: 0.83
+            };
+
+            // 1. BỔ SUNG HÀM NÀY - Đây là hàm bạn đang thiếu
+            function getBasePrice() {
+                const selectedRadio = document.querySelector('input[name="vtype"]:checked');
+                return selectedRadio ? parseFloat(selectedRadio.dataset.price) : 0;
+            }
+
+            // 2. Hàm định dạng tiền 
+            function formatVND(amount) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                }).format(amount).replace(/₫/g, 'đ');
+            }
+
+            function updatePricingCards() {
+                const basePrice = getBasePrice();
+                if (!basePrice)
+                    return;
+
+                // Cập nhật giá lên 3 card chọn gói
+                document.getElementById('price-month').innerText = (basePrice / 1000) + 'k';
+                document.getElementById('price-quarter').innerText = ((basePrice * 3 * discountRates.quarter) / 1000).toLocaleString() + 'k';
+                document.getElementById('price-year').innerText = ((basePrice * 12 * discountRates.year) / 1000).toLocaleString() + 'k';
+
+                updateSummary();
+            }
+            function formatDate(date) {
+                const d = date.getDate().toString().padStart(2, '0');
+                const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                const y = date.getFullYear();
+                return d + "/" + m + "/" + y;
+            }
+
+            function updateSummary() {
+                const activeCard = document.querySelector('.pricing-card.active');
+                const basePrice = getBasePrice();
+                const licenseInput = document.getElementById("licensePlate");
+                const licensePlate = licenseInput ? licenseInput.value : "";
+
+                let total = 0, discount = 0, planLabel = "", durationType = "";
+
+                // Xác định loại gói
+                if (activeCard.innerText.includes('Vé tháng')) {
+                    total = basePrice;
+                    planLabel = "Vé tháng";
+                    durationType = "month";
+                } else if (activeCard.innerText.includes('Vé quý')) {
+                    total = basePrice * 3 * discountRates.quarter;
+                    discount = (basePrice * 3) - total;
+                    planLabel = "Vé quý";
+                    durationType = "quarter";
+                } else {
+                    total = basePrice * 12 * discountRates.year;
+                    discount = (basePrice * 12) - total;
+                    planLabel = "Vé năm";
+                    durationType = "year";
+                }
+
+                // --- LOGIC TÍNH THỜI HẠN CHỐT CUỐI THÁNG ---
+                const startDate = new Date();
+                let endDate = new Date();
+
+                if (durationType === "month") {
+                    // Lấy ngày cuối cùng của tháng hiện tại
+                    // (Tháng kế tiếp, ngày 0 => Tự động lùi về ngày cuối tháng trước)
+                    endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+                } else if (durationType === "quarter") {
+                    // Hết quý (3 tháng tính từ tháng hiện tại)
+                    endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0);
+                } else {
+                    // Hết năm (12 tháng tính từ tháng hiện tại)
+                    endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 12, 0);
+                }
+
+                const dateRangeStr = formatDate(startDate) + " - " + formatDate(endDate);
+
+                // Đổ dữ liệu ra UI
+                const expiryElem = document.getElementById('summary-expiry');
+                if (expiryElem)
+                    expiryElem.innerText = dateRangeStr;
+
+                // Cập nhật các nhãn khác
+                const summaryLabels = document.querySelectorAll('.summary-info span.fw-bold');
+                if (summaryLabels.length >= 2) {
+                    summaryLabels[0].innerText = planLabel;
+                    summaryLabels[1].innerText = licensePlate.toUpperCase() || "Chưa nhập";
+                }
+
+                document.getElementById('summary-subtotal').innerText = formatVND(total + discount);
+                document.getElementById('summary-total').innerText = formatVND(total);
+
+                const discountDisplay = document.querySelector('.border-bottom.pb-2 span:last-child');
+                if (discountDisplay)
+                    discountDisplay.innerText = "-" + formatVND(discount);
+            }
+
+            // --- Xử lý sự kiện ---
+            const cards = document.querySelectorAll(".pricing-card");
+            cards.forEach(card => {
+                card.addEventListener('click', function () {
+                    cards.forEach(c => {
+                        c.classList.remove('active');
+                        const badge = c.querySelector('.selected-badge');
+                        if (badge)
+                            badge.remove();
+                    });
+                    this.classList.add('active');
+
+                    const radio = this.querySelector('input[name="planType"]');
+                    radio.checked = true;
+                    this.insertAdjacentHTML('afterbegin', '<div class="selected-badge"><i class="fa-solid fa-circle-check"></i></div>');
+                    updateSummary();
+                });
+            });
+
+            document.querySelectorAll('input[name="vtype"]').forEach(radio => {
+                radio.addEventListener('change', updatePricingCards);
+            });
+
+            document.getElementById("licensePlate").addEventListener('input', updateSummary);
+
+            // Khởi tạo
+            window.onload = function () {
+                updatePricingCards();
+            };
+
+            //Dùng API để gọi payment
+
+            document.getElementById("playBtn").addEventListener("click", async function () {
+
+                const btn = this;
+                const contextPath = "${pageContext.request.contextPath}";
+                const siteId = "${requestScope.site.siteId}";
+                const vehicleId = document.querySelector('input[name="vtype"]:checked').value;
+                const planType = document.querySelector('input[name="planType"]:checked').value;
+                const licensePlate = document.getElementById("licensePlate").value;
+                const vehicleRadio = document.querySelector('input[name="vtype"]:checked');
+                const planRadio = document.querySelector('input[name="planType"]:checked');
+                
+                if (!licensePlate.trim()) {
+                    showToast("error", "Vui lòng nhập biển số xe!");
+                    return;
+                }
+
+
+                if (!vehicleRadio || !planRadio) {
+                    showToast("error", "Vui lòng chọn loại xe và gói vé!");
+                    return;
+                }
+
+                if (!licensePlate.trim()) {
+                    showToast("error", "Vui lòng nhập biển số xe!");
+                    return;
+                }
+                // Loading state
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
+
+                try {
+
+                    const response = await fetch(contextPath + "/api/payment?type=buying", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            siteId: siteId,
+                            vehicleId: vehicleId,
+                            planType: planType,
+                            licensePlate: licensePlate
+                        })
+                    });
+
+                    // Nếu servlet redirect (ví dụ session hết hạn)
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+
+                        showToast("success", data.message || "Thanh toán thành công!");
+
+                        // đợi user thấy toast
+                        setTimeout(() => {
+                            window.location.href = contextPath + "/sites?action=buying";
+                        }, 2000);
+
+                    } else {
+
+                        showToast("error", data.message || "Mua vé thất bại!");
+
+                        // enable lại nút
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+
+                } catch (err) {
+
+                    console.error(err);
+                    showToast("error", "Lỗi kết nối hệ thống!");
+
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+
+            });
+        </script>
     </body>
 </html>

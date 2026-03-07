@@ -236,9 +236,15 @@
                                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt"></i></span>
                                     <select name="region" class="form-select border-start-0">
                                         <option value="">-- Tất cả khu vực --</option>
-                                        <option value="north" ${param.region == 'north' ? 'selected' : ''}>Miền Bắc</option>
-                                        <option value="central" ${param.region == 'central' ? 'selected' : ''}>Miền Trung</option>
-                                        <option value="south" ${param.region == 'south' ? 'selected' : ''}>Miền Nam</option>
+                                        <c:forEach var="region" items="${regions}">
+                                            <option value="${region}" ${param.region == region ? 'selected' : ''}>
+                                                <c:choose>
+                                                    <c:when test="${region == 'north'}">Miền Bắc</c:when>
+                                                    <c:when test="${region == 'middle'}">Miền Trung</c:when>
+                                                    <c:when test="${region == 'south'}">Miền Nam</c:when>
+                                                </c:choose>
+                                            </option>
+                                        </c:forEach>
                                     </select>
                                 </div>
                             </div>
@@ -263,8 +269,11 @@
                             <div class="filter-dropdown bg-white border rounded-pill px-2 py-1 shadow-sm">
                                 <select name="vehicleType" class="form-select border-0 shadow-none small fw-medium" onchange="this.form.submit()">
                                     <option value="">Loại xe: Tất cả</option>
-                                    <option value="1" ${param.vehicleType == '1' ? 'selected' : ''}>Ô tô</option>
-                                    <option value="2" ${param.vehicleType == '2' ? 'selected' : ''}>Xe máy</option>
+                                    <c:forEach var="vehicle" items="${vehicles}">
+                                            <option value="${vehicle.vehicleTypeId}" ${param.vehicleType == vehicle.vehicleTypeId ? 'selected' : ''}>
+                                                ${vehicle.vehicleName.label} 
+                                            </option>
+                                    </c:forEach>
                                 </select>
                             </div>
                         </div>
@@ -318,8 +327,10 @@
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <h4 class="card-title fw-bold fs-3 mt-3">${s.siteName}</h4>
                                                 <div class="rating-box">
-                                                    <i class="bi bi-box"></i>
-                                                    <span class=" fw-bold text-dark small"> Còn ${s.totalSlots} slots</span>
+                                                    <c:if test="${s.siteStatus eq 'OPERATING'}">
+                                                        <i class="bi bi-box"></i>
+                                                        <span class=" fw-bold text-dark small"> Còn ${s.totalSlots} slots</span>
+                                                    </c:if>
                                                 </div>
                                             </div>
                                             <p class="text-secondary mt-2"><i class="bi bi-map me-2"></i>${s.address}</p>
@@ -396,10 +407,10 @@
         <!-- Bootstrap JS Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                                                function goToSiteDetail(siteId) {
-                                                                    window.location.href =
-                                                                            '${pageContext.request.contextPath}/sites/site-detail?action=${param.action}&siteId=' + siteId;
-                                                                }
+            function goToSiteDetail(siteId) {
+                window.location.href =
+                        '${pageContext.request.contextPath}/sites/site-detail?action=${param.action}&siteId=' + siteId;
+            }
         </script>
     </body>
 </html>

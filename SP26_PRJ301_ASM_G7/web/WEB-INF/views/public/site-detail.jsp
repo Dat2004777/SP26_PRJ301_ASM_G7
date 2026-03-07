@@ -244,7 +244,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-4">
                     <span class="text-danger d-block mt-2 text-center">${dateError}</span>
                     <div class="card shadow-sm p-4">
@@ -283,7 +282,7 @@
 
                                     <c:forEach var="v" items="${vehicles}">
                                         <option value="${v.vehicle.vehicleTypeId}" data-price="${v.basePrice}">
-                                            ${v.vehicle.vehicleName}
+                                            ${v.vehicle.vehicleName.label}
                                         </option>
                                     </c:forEach>
 
@@ -373,7 +372,7 @@
 
                 priceDisplay.innerText = basePrice.toLocaleString() + " đ";
                 hiddenPrice.value = basePrice;
-                
+
                 calculate();
             }
 

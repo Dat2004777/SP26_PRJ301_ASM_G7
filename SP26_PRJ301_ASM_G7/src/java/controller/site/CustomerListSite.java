@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import model.ParkingSite;
+import model.VehicleType;
 
 /**
  *
@@ -62,7 +63,8 @@ public class CustomerListSite extends HttpServlet {
         
         SiteDAO siteDAO = new SiteDAO();
         List<ParkingSite> sites = new ArrayList<>();
-        
+        List<String> regions = siteDAO.getAllRegions();
+        List<VehicleType> vehicles = siteDAO.getVehicles();
         String address = request.getParameter("siteAddress");
         String region = request.getParameter("region");
         String status = request.getParameter("status");
@@ -89,6 +91,8 @@ public class CustomerListSite extends HttpServlet {
         }else{
             sites = siteDAO.filterSites(address,region,status,vehicleType);
         }
+        request.setAttribute("regions", regions);
+        request.setAttribute("vehicles", vehicles);
         request.setAttribute("sites", sites);
         request.getRequestDispatcher("/WEB-INF/views/public/sites.jsp").forward(request, response);
         

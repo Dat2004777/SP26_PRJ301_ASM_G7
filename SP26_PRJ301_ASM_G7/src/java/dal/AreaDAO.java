@@ -105,7 +105,6 @@ public class AreaDAO extends DBContext {
         return false;
     }
     
-    
     private ParkingArea mapRowToArea(ResultSet rs) throws SQLException {
         int id = rs.getInt("area_id");
         int siteId = rs.getInt("site_id");

@@ -5,6 +5,7 @@
 --%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -20,7 +21,6 @@
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <title>Booking Confirmation Page</title>
-
         <style>
             :root {
                 --bs-primary: #1a56db;
@@ -141,7 +141,9 @@
     <body class="bg-light">
         <!--Header-->
         <%@include file="/WEB-INF/views/layout/header.jsp" %>
-
+        
+        <!--Layout-->
+        <%@include file="/WEB-INF/views/layout/customer-layout.jsp" %>
         <div class="container py-4">
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
@@ -295,78 +297,65 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.getElementById("playBtn").addEventListener("click", function () {
+            document.getElementById("playBtn").addEventListener("click", async function () {
+
                 const btn = this;
                 const contextPath = "${pageContext.request.contextPath}";
                 const siteId = "${requestScope.site.siteId}";
 
-                // 1. Hiệu ứng loading để ngăn chặn double-click
-                btn.disabled = true;
+                // Loading state
                 const originalHTML = btn.innerHTML;
+                btn.disabled = true;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
 
-                fetch(contextPath + "/api/payment?siteId=" + siteId, {
-                    method: "POST"
-                })
-                .then(res => {
-                    // Trường hợp Servlet dùng response.sendRedirect (ví dụ: bắt đăng nhập lại)
-                    if (res.redirected) {
-                        window.location.href = res.url;
+                try {
+
+                    const response = await fetch(contextPath + "/api/payment?type=booking", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            siteId: siteId
+                        })
+                    });
+
+                    // Nếu servlet redirect (ví dụ session hết hạn)
+                    if (response.redirected) {
+                        window.location.href = response.url;
                         return;
                     }
-                    return res.json();
-                })
-                .then(data => {
-                    if (!data) return; // Đã redirect ở trên
+
+                    const data = await response.json();
 
                     if (data.success) {
-                        // 2. Bắn toast thành công (Hàm này nằm trong footer.jsp đã include)
-                        showToast('success', data.message || "Thanh toán thành công!");
 
-                        // Đợi 1.5s để người dùng thấy toast rồi mới chuyển trang
+                        showToast("success", data.message || "Thanh toán thành công!");
+
+                        // đợi user thấy toast
                         setTimeout(() => {
-                            window.location.href = contextPath + "/sites?action=booking"; // Trang danh sách vé đặt
-                        }, 1500);
-                    } else {
-                        // 3. Bắn toast lỗi (Hết thẻ, lỗi logic backend...)
-                        showToast('error', data.message || "Giao dịch thất bại!");
+                            window.location.href = contextPath + "/sites?action=booking";
+                        }, 2000);
 
-                        // Khôi phục nút bấm để người dùng thử lại
+                    } else {
+
+                        showToast("error", data.message || "Đặt chỗ thất bại!");
+
+                        // enable lại nút
                         btn.disabled = false;
                         btn.innerHTML = originalHTML;
                     }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showToast('error', "Lỗi kết nối hệ thống. Vui lòng thử lại!");
 
-                    // Khôi phục nút bấm
+                } catch (err) {
+
+                    console.error(err);
+                    showToast("error", "Lỗi kết nối hệ thống!");
+
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
-                });
+                }
+
             });
         </script>
-        <!--        <script>
-                    document.getElementById("playBtn").addEventListener("click", function () {
-        
-                    const contextPath = "${pageContext.request.contextPath}";
-        
-                    fetch(contextPath + "/api/payment?siteId=${requestScope.site.siteId}", {
-                        method: "POST"
-                    })
-                    .then(res => {
-                        if (res.redirected) {
-                            window.location.href = res.url;
-                        } else {
-                            return res.json();
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert("Lỗi hệ thống");
-                    });
-        
-                });
-                </script>-->
     </body>
 </html>

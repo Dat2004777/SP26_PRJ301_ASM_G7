@@ -73,12 +73,26 @@ public class CustomerDAO extends DBContext {
 
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            return rs.next(); 
+            return rs.next();
 
         } catch (Exception e) {
             System.out.println("Lỗi lấy user-email");
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean updateWalletAmount(int customerId, long newAmount) {
+        String sql = "UPDATE Customers SET wallet_amount = ? WHERE customer_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, newAmount);
+            ps.setInt(2, customerId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

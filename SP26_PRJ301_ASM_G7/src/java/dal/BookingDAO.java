@@ -14,11 +14,11 @@ import java.sql.ResultSet;
  */
 public class BookingDAO extends DBContext {
 
-    public int insertBooking(int customerId, String cardId, int vehicleId, String bookingState, LocalDateTime startTime, LocalDateTime endTime, int bookingAmount) {
+    public int insertBooking(int customerId, String cardId, int vehicleId, String bookingState, LocalDateTime startTime, LocalDateTime endTime, long bookingAmount) {
         String sql
                 = """
                INSERT INTO Bookings(customer_id, card_id, vehicle_type_id, start_time, end_time, booking_state, booking_amount)
-               VALUES(?, ?, ?, ?, ?, ?)
+               VALUES(?, ?, ?, ?, ?, ?, ?)
                """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -27,8 +27,8 @@ public class BookingDAO extends DBContext {
             ps.setString(2, cardId);
             ps.setInt(3, vehicleId);
             ps.setObject(4, startTime);
-            ps.setString(5,bookingState);
-            ps.setObject(6, endTime);
+            ps.setObject(5, endTime);
+            ps.setString(6,bookingState);
             ps.setLong(7, bookingAmount);
 
             int affectedRows = ps.executeUpdate();
@@ -49,16 +49,17 @@ public class BookingDAO extends DBContext {
         }
     }
     
-    public void cancelBooking(int bookingId){
+    public void updateBookingState(int bookingId, String state){
         String sql =
                 """
                 UPDATE Bookings
-                SET booking_state = 'cancelled' 
+                SET  booking_state = ?
                 WHERE booking_id = ?
                 """;
         
         try(PreparedStatement ps = connection.prepareStatement(sql)){
-            ps.setInt(1,bookingId);
+            ps.setString(1,state);
+            ps.setInt(2,bookingId);
             
             ps.executeUpdate();
         }catch(Exception e){
@@ -66,4 +67,5 @@ public class BookingDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    
 }

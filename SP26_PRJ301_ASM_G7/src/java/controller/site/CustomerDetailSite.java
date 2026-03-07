@@ -116,7 +116,6 @@ public class CustomerDetailSite extends HttpServlet {
         ParkingSite site = new ParkingSite();
         try {
             site = siteDAO.getById(Integer.parseInt(siteId));
-            System.out.println(site.getSiteName());
             vehicles = priceConfigDAO.getBasePriceMonth(Integer.parseInt(siteId));
         } catch (NumberFormatException e) {
             System.out.println(e.toString());
@@ -137,9 +136,9 @@ public class CustomerDetailSite extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
-        
+
         //Lấy id của site
         String siteId = request.getParameter("siteId");
 
@@ -157,11 +156,11 @@ public class CustomerDetailSite extends HttpServlet {
             request.getRequestDispatcher("/WEB-INFF/views/public/site-detail.jsp").forward(request, response);
             return;
         }
-        
+
         //lay lai danh sach
         List<VehicleBasePriceDTO> vehicles = new ArrayList<>();
         ParkingSite site = new ParkingSite();
-        
+
         try {
             site = siteDAO.getById(Integer.parseInt(siteId));
             vehicles = priceConfigDAO.getBasePriceHour(Integer.parseInt(siteId));
@@ -170,7 +169,7 @@ public class CustomerDetailSite extends HttpServlet {
         }
         request.setAttribute("site", site);
         request.setAttribute("vehicles", vehicles);
-        
+
         boolean hasError = false;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -181,24 +180,24 @@ public class CustomerDetailSite extends HttpServlet {
             request.setAttribute("dateError", "Thời gian ra phải sau thời gian vào!");
             hasError = true;
         }
+
+        int hours = (int) Duration.between(inDateTime, outDateTime).toHours();
+        if (hours <= 0) {
+            request.setAttribute("dateError", "Thời gian không đủ để đặt chỗ!");
+            hasError = true;
+        }
         if (hasError) {
             request.getRequestDispatcher("/WEB-INF/views/public/site-detail.jsp").forward(request, response);
             return;
         } else {
             String vehicleId = request.getParameter("typeVehicle");
-            int hours = (int) Duration.between(inDateTime, outDateTime).toHours();
-
-            if (hours <= 0) {
-                request.setAttribute("dateError", "Thời gian không hợp lệ!");
-                return;
-            }
-
+    
             PriceConfigDAO priceConfigDAO = new PriceConfigDAO();
             try {
-                int basePrice = priceConfigDAO.getPriceByVehicleAndSite("hourly", Integer.parseInt(siteId), Integer.parseInt(vehicleId));
-                int totalPrice = basePrice * hours;
+                long basePrice = priceConfigDAO.getPriceByVehicleAndSite("hourly", Integer.parseInt(siteId), Integer.parseInt(vehicleId));
+                long totalPrice = basePrice * hours;
 
-                BookingPreviewDTO bookingPreview = new BookingPreviewDTO(inDateTime, outDateTime,Integer.parseInt(vehicleId) ,hours, basePrice, totalPrice);
+                BookingPreviewDTO bookingPreview = new BookingPreviewDTO(inDateTime, outDateTime, Integer.parseInt(vehicleId), hours, basePrice, totalPrice);
                 session.setAttribute("bookingPreview", bookingPreview);
 //                session.setAttribute("inDateTime", inDateTime);
 //                session.setAttribute("outDateTime", outDateTime);

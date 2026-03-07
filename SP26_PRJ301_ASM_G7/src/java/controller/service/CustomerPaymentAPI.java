@@ -6,7 +6,10 @@ package controller.service;
 
 import dal.BookingDAO;
 import dal.CardDAO;
+import dal.CustomerDAO;
 import dal.PaymentTransactionDAO;
+import dal.PriceConfigDAO;
+import dal.SubscriptionDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,9 +18,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import model.Account;
 import model.Customer;
 import model.ParkingCard;
 import model.PaymentTransaction;
+import model.Subscription;
 import model.dto.BookingPreviewDTO;
 
 /**
@@ -26,6 +32,10 @@ import model.dto.BookingPreviewDTO;
  */
 @WebServlet(name = "BookingPreviewAPI", urlPatterns = {"/api/payment"})
 public class CustomerPaymentAPI extends HttpServlet {
+
+    private final CardDAO cardDAO = new CardDAO();
+    private final PaymentTransactionDAO paymentDAO = new PaymentTransactionDAO();
+    private final CustomerDAO customerDAO = new CustomerDAO();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -79,6 +89,32 @@ public class CustomerPaymentAPI extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("account");
+
+        if (account == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String type = request.getParameter("type");
+
+        if (type == null || type.isBlank()) {
+            response.sendRedirect(request.getContextPath());
+            return;
+        }
+
+        switch (type) {
+            case "booking":
+                bookingPayment(request, response);
+                break;
+            case "buying":
+                buyingPayment(request, response);
+        }
+
+    }
+
+    private void bookingPayment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
@@ -91,63 +127,213 @@ public class CustomerPaymentAPI extends HttpServlet {
 
         if (siteId == null || customer == null || bookingPreview == null) {
             out.print("{\"success\": false, \"message\": \"Phiên làm việc hết hạn hoặc thiếu dữ liệu!\"}");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
-        try {
-            CardDAO cardDAO = new CardDAO();
-            BookingDAO bookingDAO = new BookingDAO();
-            PaymentTransactionDAO paymentDAO = new PaymentTransactionDAO();
 
-            // 1. Lấy thẻ trống
+        try {
+            //  Lấy thẻ trống
             ParkingCard card = cardDAO.getAvailableCardAtSite(Integer.parseInt(siteId));
             if (card == null) {
                 out.print("{\"success\": false, \"message\": \"Đã hết thẻ trống tại bãi này!\"}");
                 return;
             }
+            
+            BookingDAO bookingDAO = new BookingDAO();
 
-            // 2. Tạo Booking
+            //check tiền trước khi thanh toán
+            long walletAmount = customer.getWalletAmount();
+            long totalPrice = bookingPreview.getTotalPrice();
+
+            if (walletAmount < totalPrice) {
+                out.print("{\"success\": false, \"message\": \"Ví không đủ tiền!\"}");
+                return;
+            }
+
+            //1.Set trạng thái ban đầu để lỡ giao dịch đặt vé fail
+            // Tạo Booking
             int bookingId = bookingDAO.insertBooking(
-                    customer.getCustomer_id(),
+                    customer.getCustomerId(),
                     card.getCardId(),
                     bookingPreview.getVehicleTypeId(),
-                    "accepted",
+                    "cancelled",
                     bookingPreview.getTimeIn(),
                     bookingPreview.getTimeOut(),
                     bookingPreview.getTotalPrice()
             );
+
+            //Tạo payment với trạng thái fail trước
+            PaymentTransaction txn = new PaymentTransaction();
+            txn.setTransactionType(PaymentTransaction.TransactionType.BOOKING);
+            txn.setTargetId(bookingId);
+            txn.setTotalAmount(bookingPreview.getTotalPrice());
+            txn.setPaymentStatus("failed");
+            boolean isTxnSaved = paymentDAO.add(txn);
+
+//            //  Lấy thẻ trống
+//            ParkingCard card = cardDAO.getAvailableCardAtSite(Integer.parseInt(siteId));
+//            if (card == null) {
+//                out.print("{\"success\": false, \"message\": \"Đã hết thẻ trống tại bãi này!\"}");
+//                return;
+//            }
 
             if (bookingId == -1) {
                 out.print("{\"success\": false, \"message\": \"Lỗi tạo đơn đặt chỗ!\"}");
                 return;
             }
 
-            //3. Lưu giao dich thanh toán trước khi update Card State để đảm bảo giao dịch thành công trước
-            PaymentTransaction txn = new PaymentTransaction();
-            txn.setTransactionType(PaymentTransaction.TransactionType.BOOKING);
-            txn.setTargetId(bookingId);
-            txn.setTotalAmount(bookingPreview.getTotalPrice());
-            txn.setPaymentStatus("completed");
-
-            boolean isTxnSaved = paymentDAO.add(txn);
-
             if (isTxnSaved) {
-                // 4. CUỐI CÙNG: Mới cập nhật trạng thái thẻ sang 'booked'
-                cardDAO.updateCardStatus(Integer.parseInt(siteId), card.getCardId(), "booked");
 
-                //Xóa thông tin đã lưu trên session
+                // trừ tiền
+                long newWallet = walletAmount - totalPrice;
+
+                boolean walletUpdated = customerDAO.updateWalletAmount(
+                        customer.getCustomerId(),
+                        newWallet
+                );
+
+                //update booking_state
+                bookingDAO.updateBookingState( bookingId, "accepted");
+
+                // update card
+                cardDAO.updateCard(Integer.parseInt(siteId), card.getCardId(), "using");
+
+                //update payment transaction
+                paymentDAO.updatePaymentStatus(bookingId, "completed");
+
+                // update session
+                customer.setWalletAmount(newWallet);
+                session.setAttribute("customer", customer);
+
                 session.removeAttribute("bookingPreview");
 
-                out.print("{\"success\": true, \"message\": \"Đặt hàng thành công! Mã đơn: #" + bookingId + "\"}");
+                out.print("{\"success\": true, \"message\": \"Đặt chỗ thành công! Mã đơn: #" + bookingId + "\"}");
+
             } else {
-                // Trường hợp hy hữu: Booking đã tạo nhưng Payment lỗi
-                // hàm deleteBooking hoặc đánh dấu Booking là 'Cancelled' 
-                bookingDAO.cancelBooking(bookingId);
                 out.print("{\"success\": false, \"message\": \"Giao dịch thất bại!\"}");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            out.print("{\"success\": false, \"message\": \"Có lỗi xảy ra: " + e.getMessage() + "\"}");
+        }
+    }
+
+    private void buyingPayment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
+        HttpSession session = request.getSession();
+        Customer customer = (Customer) session.getAttribute("customer");
+        String siteId = request.getParameter("siteId");
+        String vehicleId = request.getParameter("vehicleId");
+        String planType = request.getParameter("planType");
+        String licensePlate = request.getParameter("licensePlate");
+
+        if (customer == null) {
+            out.print("{\"success\": false, \"message\": \"Phiên làm việc hết hạn hoặc thiếu dữ liệu!\"}");
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        if (vehicleId == null || vehicleId.isBlank() || planType == null || planType.isBlank() || licensePlate == null || licensePlate.isBlank()) {
+            out.print("{\"success\": false, \"message\": \"Thiếu dữ liệu!\"}");
+            return;
+        }
+
+        try {
+            PriceConfigDAO priceDAO = new PriceConfigDAO();
+            SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            long basePrice = priceDAO.getPriceByVehicleAndSite("monthly", Integer.parseInt(siteId), Integer.parseInt(vehicleId));
+
+            long totalPrice = 0;
+            LocalDateTime startDate = LocalDateTime.now();
+            LocalDateTime endDate = null;
+
+            if (planType.equals("month")) {
+                totalPrice = basePrice;
+                endDate = startDate.withDayOfMonth(startDate.toLocalDate().lengthOfMonth());
+            } else if (planType.equals("quarter")) {
+                totalPrice = basePrice * 3 * 70 / 100;
+                LocalDateTime temp = startDate.plusMonths(3);
+                endDate = temp.withDayOfMonth(temp.toLocalDate().lengthOfMonth());
+            } else if (planType.equals("year")) {
+                totalPrice = basePrice * 12 * 83 / 100;
+                LocalDateTime temp = startDate.plusMonths(12);
+                endDate = temp.withDayOfMonth(temp.toLocalDate().lengthOfMonth());
+            }
+
+            //Laays the trong
+            ParkingCard card = cardDAO.getAvailableCardAtSite(Integer.parseInt(siteId));
+            if (card == null) {
+                out.print("{\"success\": false, \"message\": \"Đã hết thẻ trống tại bãi này!\"}");
+                return;
+            }
+            //check tiền trước khi thanh toán
+            long walletAmount = customer.getWalletAmount();
+
+            if (walletAmount < totalPrice) {
+                out.print("{\"success\": false, \"message\": \"Ví không đủ tiền!\"}");
+                return;
+            }
+
+            //Tạo trạng thái mua vé trước
+            //Subscription
+            Subscription subscription = new Subscription();
+            subscription.setCustomerId(customer.getCustomerId());
+            subscription.setCardId(card.getCardId());
+            subscription.setLicensePlate(licensePlate);
+            subscription.setVehicleTypeId(Integer.parseInt(vehicleId));
+            subscription.setStartDate(startDate);
+            subscription.setEndDate(endDate);
+            subscription.setSubState("active");
+            subscription.setAppliedPrice(totalPrice);
+
+            int subscriptionId = subscriptionDAO.insertAndReturnId(subscription);
+            if (subscriptionId == -1) {
+                out.print("{\"success\": false, \"message\": \"Lỗi tạo đơn múa vé!\"}");
+                return;
+            }
+
+            //PaymentTransaction
+            PaymentTransaction txn = new PaymentTransaction();
+            txn.setTransactionType(PaymentTransaction.TransactionType.SUBSCRIPTION);
+            txn.setTargetId(subscriptionId);
+            txn.setTotalAmount(totalPrice);
+            txn.setPaymentStatus("failed");
+            boolean isTxnSaved = paymentDAO.add(txn);
+
+            if (isTxnSaved) {
+                // trừ tiền
+                long newWallet = walletAmount - totalPrice;
+
+                boolean walletUpdated = customerDAO.updateWalletAmount(
+                        customer.getCustomerId(),
+                        newWallet
+                );
+
+                // update card
+                cardDAO.updateCard(Integer.parseInt(siteId), card.getCardId(), "using");
+
+                //update payment transaction
+                paymentDAO.updatePaymentStatus(subscriptionId, "completed");
+
+                // update session
+                customer.setWalletAmount(newWallet);
+                session.setAttribute("customer", customer);
+
+                out.print("{\"success\": true, \"message\": \"Mua vé thành công! Mã đơn: #" + subscriptionId + "\"}");
+            } else {
+                subscriptionDAO.updateSubscription(subscriptionId);
+                out.print("{\"success\": false, \"message\": \"Giao dịch thất bại!\"}");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Lỗi parse");
+            out.print("{\"success\": false, \"message\": \"Có lỗi xảy ra: " + e.getMessage() + "\"}");
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy dữ liệu");
             out.print("{\"success\": false, \"message\": \"Có lỗi xảy ra: " + e.getMessage() + "\"}");
         }
     }

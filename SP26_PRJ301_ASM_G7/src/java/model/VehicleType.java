@@ -8,15 +8,15 @@ package model;
  *
  * @author ADMIN
  */
-public class Vehicle {
+public class VehicleType {
     private int vehicleTypeId;
-    private String vehicleName;
+    private VehicleName vehicleName;
     
-    public Vehicle(){
+    public VehicleType(){
         
     }
 
-    public Vehicle(int vehicleTypeId, String vehicleName) {
+    public VehicleType(int vehicleTypeId, VehicleName vehicleName) {
         this.vehicleTypeId = vehicleTypeId;
         this.vehicleName = vehicleName;
     }
@@ -29,12 +29,26 @@ public class Vehicle {
         this.vehicleTypeId = vehicleTypeId;
     }
 
-    public String getVehicleName() {
+    public VehicleName getVehicleName() {
         return vehicleName;
     }
 
-    public void setVehicleName(String vehicleName) {
+    public void setVehicleName(VehicleName vehicleName) {
         this.vehicleName = vehicleName;
     }
     
+     public enum VehicleName {
+        CAR("Ôtô"),
+        MOTORBIKE("Xe máy");
+
+        private final String label;
+
+        private VehicleName(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+    }
 }

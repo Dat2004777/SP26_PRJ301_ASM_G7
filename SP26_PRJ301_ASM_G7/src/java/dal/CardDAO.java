@@ -154,17 +154,17 @@ public class CardDAO extends DBContext{
     }
     
     //Update Card State
-    public boolean updateCardStatus(int siteId, String cardId, String state){
+    public boolean updateCard(int siteId, String cardId, String state){
         
         String sql = 
                 """
-                UPDATE ParkingCards pa
-                SET pa.card_state = ?
-                WHERE pa.site_id = ?
-                AND pa.card_id = ?
+                UPDATE ParkingCards
+                SET card_state = ? 
+                WHERE site_id = ?
+                AND card_id = ?
                 """;
         
-        try(PreparedStatement ps = connection.prepareStatement(state)){
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setString(1,state);
             ps.setInt(2,siteId);
             ps.setString(3,cardId);

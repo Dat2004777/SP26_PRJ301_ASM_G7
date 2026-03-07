@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.ParkingSite;
-import model.Vehicle;
+import model.VehicleType;
 
 /**
  *
@@ -213,19 +213,13 @@ public class SiteDAO extends DBContext {
                         ps.address, 
                         ps.region,
                         ps.operating_state,
-                        (SELECT ISNULL(SUM(pa.totalSlots), 0) 
-                         FROM ParkingAreas pa 
-                         WHERE pa.site_id = ps.site_id AND pa.status = 'active') 
-                        - 
-                        (SELECT COUNT(sess.session_id) 
-                        FROM ParkingSessions sess
-                        JOIN ParkingCards pc ON sess.card_id = pc.card_id
-                        WHERE pc.site_id = ps.site_id 
-                        AND sess.status = 'active' 
-                        AND sess.session_state = 'parked'
-                        AND sess.entry_time <= GETDATE()
-                        AND (sess.exit_time IS NULL OR sess.exit_time > GETDATE())) 
-                        AS availableSlots
+                        (
+                            SELECT COUNT(pc.card_id)
+                            FROM ParkingCards pc
+                            WHERE pc.site_id = ps.site_id
+                            AND pc.card_state = 'available'
+                            AND pc.status = 'active'
+                        ) AS availableSlots
                         FROM ParkingSites ps
                         WHERE ps.status = 'active'
                     """;
@@ -255,37 +249,23 @@ public class SiteDAO extends DBContext {
     public List<ParkingSite> filterSites(String address, String region, String status, String vehicleTypeId) {
         String sql
                 = """
-                SELECT  ps.site_id,ps.site_name,ps.address,ps.region,ps.operating_state,
-                    ISNULL((
-                        SELECT SUM(pa.totalSlots)
-                        FROM ParkingAreas pa 
-                        WHERE pa.site_id = ps.site_id 
-                        AND pa.status = 'active'
-                        AND (? = '' OR pa.vehicle_type_id = ?)
-                    ), 0)
-
-                    -
-
-                    ISNULL((
-                        SELECT COUNT(sess.session_id)
-                        FROM ParkingSessions sess
-                        JOIN ParkingCards pc ON sess.card_id = pc.card_id
+                SELECT 
+                    ps.site_id, 
+                    ps.site_name, 
+                    ps.address, 
+                    ps.region, 
+                    ps.operating_state,
+                    (
+                        SELECT COUNT(pc.card_id)
+                        FROM ParkingCards pc
                         WHERE pc.site_id = ps.site_id 
-                        AND sess.status = 'active'
-                        AND sess.session_state = 'parked'
-                        AND sess.entry_time <= GETDATE()
-                        AND (sess.exit_time IS NULL OR sess.exit_time > GETDATE())
-                        AND (? = '' OR sess.vehicle_type_id = ?)
-                    ), 0)
-
-                    AS availableSlots
-
+                        AND pc.card_state = 'available' 
+                        AND pc.status = 'active'
+                    ) AS availableSlots
                 FROM ParkingSites ps
                 WHERE 
                     ps.status = 'active'
-
                     AND (? = '' OR ps.region = ?)
-
                     AND (
                         ? = '' 
                         OR ps.site_name COLLATE Latin1_General_CI_AI LIKE ?
@@ -301,27 +281,22 @@ public class SiteDAO extends DBContext {
                             AND pa.status = 'active'
                             AND pa.vehicle_type_id = ?
                         )
-                    )    
+                    )
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, vehicleTypeId);
-            ps.setString(2, vehicleTypeId);
-            ps.setString(3, vehicleTypeId);
-            ps.setString(4, vehicleTypeId);
+            ps.setString(1, region);
+            ps.setString(2, region);
 
-            ps.setString(5, region);
-            ps.setString(6, region);
+            ps.setString(3, address);
+            ps.setString(4, "%" + address + "%");
+            ps.setString(5, "%" + address + "%");
 
-            ps.setString(7, address);
-            ps.setString(8, "%" + address + "%");
-            ps.setString(9, "%" + address + "%");
+            ps.setString(6, status);
+            ps.setString(7, status);
 
-            ps.setString(10, status);
-            ps.setString(11, status);
-
-            ps.setString(12, vehicleTypeId);
-            ps.setString(13, vehicleTypeId);
+            ps.setString(8, vehicleTypeId);
+            ps.setString(9, vehicleTypeId);
 
             List<ParkingSite> list = new ArrayList<>();
 
@@ -335,13 +310,59 @@ public class SiteDAO extends DBContext {
                 site.setRegion(ParkingSite.Region.valueOf(rs.getString("region").toUpperCase()));
                 site.setSiteStatus(ParkingSite.State.valueOf(rs.getString("operating_state").toUpperCase()));
                 site.setTotalSlots(rs.getInt("availableSlots"));
-                
+
                 list.add(site);
             }
-            
+
             return list;
         } catch (Exception e) {
             System.out.println("Lỗi lấy ra chi tiết site đã filter");
+            return null;
+        }
+    }
+
+    public List<String> getAllRegions() {
+        String sql
+                = """
+                SELECT DISTINCT region
+                FROM ParkingSites
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            List<String> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(rs.getString("region"));
+            }
+            return list;
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy ra các region");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<VehicleType> getVehicles() {
+        String sql
+                = """
+                SELECT vehicle_type_id, name
+                FROM VehicleTypes
+                WHERE status = 'active'
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            List<VehicleType> list = new ArrayList<>();
+            while (rs.next()) {
+                VehicleType.VehicleName vehicleEnum
+                        = VehicleType.VehicleName.valueOf(rs.getString("name").toUpperCase());
+
+                list.add(new VehicleType(rs.getInt("vehicle_type_id"), vehicleEnum));
+            }
+
+            return list;
+        } catch (Exception e) {
+            System.out.println("Lỗi lấy ra vehicles");
+            e.printStackTrace();
             return null;
         }
     }

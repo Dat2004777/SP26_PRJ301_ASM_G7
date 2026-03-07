@@ -7,8 +7,6 @@ package dal;
 import model.PaymentTransaction;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
  *
  * @author ADMIN
@@ -47,6 +45,25 @@ public class PaymentTransactionDAO extends DBContext {
         } catch (Exception e) {
             System.out.println("Lỗi PaymentTransactionDAO.add: " + e.getMessage());
             return false;
+        }
+    }
+    
+    public void updatePaymentStatus(int bookingId, String state){
+        String sql = 
+                """
+                UPDATE PaymentTransactions
+                SET payment_status = ?
+                WHERE booking_id = ?
+                """;
+        
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1,state);
+            ps.setInt(2,bookingId);
+            
+            ps.executeUpdate();
+        }catch(Exception e){
+            System.out.println("Lỗi update bảng Payment");
+            e.printStackTrace();
         }
     }
 }

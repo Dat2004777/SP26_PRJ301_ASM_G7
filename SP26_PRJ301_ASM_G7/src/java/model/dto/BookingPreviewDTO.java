@@ -15,13 +15,13 @@ public class BookingPreviewDTO {
     private LocalDateTime timeOut;
     private int vehicleTypeId;
     private int hours;
-    private int basePrice;
-    private int totalPrice;
+    private long basePrice;
+    private long totalPrice;
 
     public BookingPreviewDTO() {
     }
 
-    public BookingPreviewDTO( LocalDateTime timeIn, LocalDateTime timeOut, int vehicleTypeId, int hours, int basePrice, int totalPrice) {
+    public BookingPreviewDTO( LocalDateTime timeIn, LocalDateTime timeOut, int vehicleTypeId, int hours, long basePrice, long totalPrice) {
         this.timeIn = timeIn;
         this.timeOut = timeOut;
         this.vehicleTypeId = vehicleTypeId;
@@ -46,19 +46,19 @@ public class BookingPreviewDTO {
         this.timeOut = timeOut;
     }
 
-    public int getBasePrice() {
+    public long getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(int basePrice) {
+    public void setBasePrice(long basePrice) {
         this.basePrice = basePrice;
     }
 
-    public int getTotalPrice() {
+    public long getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(int totalPrice) {
+    public void setTotalPrice(long totalPrice) {
         this.totalPrice = totalPrice;
     }
 

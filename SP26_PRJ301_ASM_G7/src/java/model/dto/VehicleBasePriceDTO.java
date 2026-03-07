@@ -4,34 +4,34 @@
  */
 package model.dto;
 
-import model.Vehicle;
+import model.VehicleType;
 
 /**
  *
  * @author ADMIN
  */
 public class VehicleBasePriceDTO {
-    private Vehicle vehicle;
-    private int basePrice;
+    private VehicleType vehicle;
+    private long basePrice;
 
-    public VehicleBasePriceDTO(Vehicle vehicle, int basePrice) {
+    public VehicleBasePriceDTO(VehicleType vehicle, long basePrice) {
         this.vehicle = vehicle;
         this.basePrice = basePrice;
     }
 
-    public Vehicle getVehicle() {
+    public VehicleType getVehicle() {
         return vehicle;
     }
 
-    public void setVehicle(Vehicle vehicle) {
+    public void setVehicle(VehicleType vehicle) {
         this.vehicle = vehicle;
     }
 
-    public int getBasePrice() {
+    public long getBasePrice() {
         return basePrice;
     }
 
-    public void setBasePrice(int basePrice) {
+    public void setBasePrice(long basePrice) {
         this.basePrice = basePrice;
     }
     
