@@ -598,6 +598,21 @@
                                 </select>
                             </div>
 
+                            <!-- Thêm số lượng thẻ -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Thêm thẻ</label>
+                                <div class="input-group">
+                                    <input id="cardQuantityInput" name="cardQuantity" type="number" class="form-control" 
+                                           placeholder="Nhập số lượng thẻ thêm mới..." 
+                                           min="1">
+                                    <input type="hidden" id="siteIdForCard" value="${not empty siteId ? siteId : parkingSite.siteId}">
+                                    <button href="${ctx}/site/add-card?siteId=${not empty siteId ? siteId : parkingSite.siteId}" class="btn btn-outline-primary fw-bold" type="button" id="btnAddCards">
+                                        <i class="bi bi-plus-lg me-1"></i> Thêm vé
+                                    </button>
+                                </div>
+                                <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle me-1"></i> Nhập số lượng thẻ muốn cấp phát thêm cho bãi xe này.</small>
+                            </div>
+
                             <!-- ============================================== -->
                             <!-- KHU VỰC ĐỘNG: Cấu hình sức chứa & Giá vé       -->
                             <!-- ============================================== -->
@@ -666,7 +681,7 @@
 
                                                 <div class="col-10 col-md-6">
                                                     <label class="form-label">Số lượng (Sức chứa)</label>
-                                                    <input name="capacity" type="number" class="form-control" value="${config.capacity}">
+                                                    <input name="capacity" type="number" class="form-control" placeholder="Ví dụ: 500" value="${config.capacity}">
                                                 </div>
 
                                                 <div class="col-2 col-md-1 text-center pb-1">
@@ -680,11 +695,11 @@
                                                 <div class="row g-3">
                                                     <div class="col-12 col-md-6">
                                                         <label class="ms-2 form-label-price fw-light text-muted">Giá vé theo giờ</label>
-                                                        <input name="hourlyPrice" type="text" class="form-control mt-2" value="${config.hourlyPrice}">
+                                                        <input name="hourlyPrice" type="text" class="form-control mt-2" placeholder="Ví dụ: 12.000đ" value="${config.hourlyPrice}">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label class="ms-2 form-label-price fw-light text-muted">Giá vé theo tháng</label>
-                                                        <input name="monthlyPrice" type="text" class="form-control mt-2" value="${config.monthlyPrice}">
+                                                        <input name="monthlyPrice" type="text" class="form-control mt-2" placeholder="Ví dụ: 120.000đ" value="${config.monthlyPrice}">
                                                     </div>
                                                 </div>
                                             </div>
@@ -845,9 +860,40 @@
                 // Cập nhật lại dropdown cho ô vừa thêm
                 updateVehicleOptions();
             });
+
             // Chạy cập nhật lần đầu tiên khi trang vừa load xong
             updateVehicleOptions();
 
+            document.getElementById('btnAddCards').addEventListener('click', function () {
+                const quantity = document.getElementById('cardQuantityInput').value;
+                const siteId = document.getElementById('siteIdForCard').value;
+
+                if (!quantity || quantity <= 0) {
+                    showToast("Vui lòng nhập số lượng thẻ hợp lệ!", false);
+                    return;
+                }
+
+                // Tạo một form ẩn để gửi dữ liệu theo kiểu POST truyền thống (để Servlet dễ nhận)
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '${ctx}/site/add-card'; // URL Servlet của bạn
+
+                const inputSiteId = document.createElement('input');
+                inputSiteId.type = 'hidden';
+                inputSiteId.name = 'siteId';
+                inputSiteId.value = siteId;
+
+                const inputQty = document.createElement('input');
+                inputQty.type = 'hidden';
+                inputQty.name = 'cardQuantity';
+                inputQty.value = quantity;
+
+                form.appendChild(inputSiteId);
+                form.appendChild(inputQty);
+                document.body.appendChild(form);
+
+                form.submit(); // Gửi dữ liệu đi
+            });
         </script>
     </body>
 </html>

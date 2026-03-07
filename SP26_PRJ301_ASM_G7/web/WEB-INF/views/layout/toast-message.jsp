@@ -16,7 +16,7 @@
         <div class="d-flex">
             <div class="toast-body">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <span id="errorMsg">${errorMessage}${sessionScope.errorMessage}</span>
+                <span id="errorMsg">${not empty requestScope.errorMessage ? requestScope.errorMessage : sessionScope.errorMessage}</span>
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>

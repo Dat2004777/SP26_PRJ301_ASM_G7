@@ -96,6 +96,17 @@ public class ValidationUtils {
             throw new IllegalArgumentException(errorMessage + " (Vui lòng nhập số hợp lệ)");
         }
     }
+    
+    public static long requireValidLong(String value, String errorMessage) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(errorMessage + " (Không được để trống)");
+        }
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(errorMessage + " (Vui lòng nhập số hợp lệ)");
+        }
+    }
 
     /**
      * Kiểm tra chuỗi đầu vào phải là số nguyên (int) hợp lệ VÀ phải lớn hơn một
@@ -117,6 +128,22 @@ public class ValidationUtils {
         int parsedValue = requireValidInt(value, errorMessage);
         if (parsedValue < min || parsedValue > max) {
             throw new IllegalArgumentException(errorMessage + " (Phải lớn hơn " + min + ")");
+        }
+        return parsedValue;
+    }
+    
+    public static int requireIntInRange(String value, int min, int max, String errorMessage) {
+        int parsedValue = requireValidInt(value, errorMessage);
+        if (parsedValue < min || parsedValue > max) {
+            throw new IllegalArgumentException(errorMessage + " - Phải lớn hơn " + min + " và nhỏ hơn " + max);
+        }
+        return parsedValue;
+    }
+    
+    public static long requireLongInRange(String value, int min, int max, String errorMessage) {
+        long parsedValue = requireValidLong(value, errorMessage);
+        if (parsedValue < min || parsedValue > max) {
+            throw new IllegalArgumentException(errorMessage + " - Phải lớn hơn " + min + " và nhỏ hơn " + max);
         }
         return parsedValue;
     }

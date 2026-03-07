@@ -24,6 +24,7 @@ import model.PriceConfig;
 import model.dto.SaveSiteDataDTO;
 import model.dto.SiteFormDataDTO;
 import model.dto.VehicleConfigDTO;
+import model.dto.VehicleConfigStrDTO;
 import utils.UrlConstants;
 import utils.ValidationUtils;
 
@@ -94,14 +95,14 @@ public class AddSiteController extends HttpServlet {
                 int vehicleId = ValidationUtils.requireValidInt(vehicleTypes[i], "Dữ liệu loại xe bị lỗi.");
 
                 // Ép kiểu Sức chứa (Yêu cầu từ 0 đến 10.000 xe)
-                int capacity = ValidationUtils.requireIntGreaterThan(capacities[i], -1, 10000, "Sức chứa ở dòng " + (i + 1) + " không hợp lệ");
+                int capacity = ValidationUtils.requireIntInRange(capacities[i], 0, 10000, "Sức chứa ở dòng " + (i + 1) + " không hợp lệ");
 
                 // Xử lý giá tiền: Cắt bỏ các chữ 'đ', dấu chấm, phẩy rồi mới validate
                 String cleanHourly = hourlyPrices[i].replaceAll("[^0-9]", "");
-                int hourlyPrice = ValidationUtils.requireIntGreaterThan(cleanHourly, -1, 10000000, "Giá theo giờ ở dòng " + (i + 1) + " không hợp lệ");
+                long hourlyPrice = ValidationUtils.requireLongInRange(cleanHourly, 0, 10000000, "Giá theo giờ ở dòng " + (i + 1) + " không hợp lệ");
 
                 String cleanMonthly = monthlyPrices[i].replaceAll("[^0-9]", "");
-                int monthlyPrice = ValidationUtils.requireIntGreaterThan(cleanMonthly, -1, 100000000, "Giá theo tháng ở dòng " + (i + 1) + " không hợp lệ");
+                long monthlyPrice = ValidationUtils.requireLongInRange(cleanMonthly, 0, 100000000, "Giá theo tháng ở dòng " + (i + 1) + " không hợp lệ");
 
                 ParkingArea parkingArea = new ParkingArea(0, vehicleId, capacity);
                 areaList.add(parkingArea);
@@ -147,7 +148,7 @@ public class AddSiteController extends HttpServlet {
             request.setAttribute("errorMessage", e.getMessage());
 
             // 1. Tạo danh sách config từ mảng input
-            List<VehicleConfigDTO> savedConfigs = new ArrayList<>();
+            List<VehicleConfigStrDTO> savedConfigs = new ArrayList<>();
             if (vehicleTypes != null) {
                 for (int i = 0; i < vehicleTypes.length; i++) {
                     if (vehicleTypes[i] == null || vehicleTypes[i].trim().isEmpty()) {
@@ -155,12 +156,12 @@ public class AddSiteController extends HttpServlet {
                     }
 
                     try {
-                        VehicleConfigDTO config = new VehicleConfigDTO();
+                        VehicleConfigStrDTO config = new VehicleConfigStrDTO();
                         config.setVehicleTypeId(Integer.parseInt(vehicleTypes[i]));
-                        config.setCapacity(Integer.parseInt(capacities[i]));
+                        config.setCapacity(capacities[i]);
                         // Giữ nguyên định dạng tiền tệ hoặc parse sạch để bắn ngược lại
-                        config.setHourlyPrice(Long.parseLong(hourlyPrices[i].replaceAll("[^0-9]", "")));
-                        config.setMonthlyPrice(Long.parseLong(monthlyPrices[i].replaceAll("[^0-9]", "")));
+                        config.setHourlyPrice(hourlyPrices[i]);
+                        config.setMonthlyPrice(monthlyPrices[i]);
                         savedConfigs.add(config);
                     } catch (Exception ex) {
                         // Bỏ qua dòng lỗi parse để giữ các dòng đúng

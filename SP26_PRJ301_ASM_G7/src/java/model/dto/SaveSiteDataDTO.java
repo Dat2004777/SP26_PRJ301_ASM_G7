@@ -17,13 +17,13 @@ public class SaveSiteDataDTO {
     private String siteRegion;
     private String siteManagerId; // Để String để khớp với Parameter nhận từ Form
     private String siteState;
-    private List<VehicleConfigDTO> vehicleConfigs;
+    private List<VehicleConfigStrDTO> vehicleConfigs;
 
     public SaveSiteDataDTO() {
     }
 
     public SaveSiteDataDTO(String siteName, String siteAddress, String siteRegion,
-            String siteManagerId, String siteState, List<VehicleConfigDTO> vehicleConfigs) {
+            String siteManagerId, String siteState, List<VehicleConfigStrDTO> vehicleConfigs) {
         this.siteName = siteName;
         this.siteAddress = siteAddress;
         this.siteRegion = siteRegion;
@@ -72,11 +72,11 @@ public class SaveSiteDataDTO {
         this.siteState = siteState;
     }
 
-    public List<VehicleConfigDTO> getVehicleConfigs() {
+    public List<VehicleConfigStrDTO> getVehicleConfigs() {
         return vehicleConfigs;
     }
 
-    public void setVehicleConfigs(List<VehicleConfigDTO> vehicleConfigs) {
+    public void setVehicleConfigs(List<VehicleConfigStrDTO> vehicleConfigs) {
         this.vehicleConfigs = vehicleConfigs;
     }
 
