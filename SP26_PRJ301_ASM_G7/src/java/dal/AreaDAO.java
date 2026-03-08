@@ -54,21 +54,20 @@ public class AreaDAO extends DBContext {
     }
 
     // 3. THÊM KHU VỰC MỚI
-    public void insertAreas(List<ParkingArea> areas) {
-        String sql = """
-                     INSERT INTO ParkingAreas (site_id, vehicle_type_id, totalSlots) VALUES (?, ?, ?)
-                     """;
+    public boolean insertArea(ParkingArea area) {
+        String sql = "INSERT INTO [ParkingAreas] (site_id, area_name, vehicle_type_id, totalSlots) VALUES (?, ?, ?, ?)";
+        
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, area.getSiteId());
+            ps.setString(2, area.getAreaName());
+            ps.setInt(3, area.getVehicleTypeId());
+            ps.setInt(4, area.getTotalSlots());
 
-            for (ParkingArea area : areas) {
-                ps.setInt(1, area.getSiteId());
-                ps.setInt(2, area.getVehicleTypeId());
-                ps.setInt(3, area.getTotalSlots());
-                ps.executeUpdate();
-            }
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.out.println("Error AreaDAO.insertAreas: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
 
     // 4. CẬP NHẬT KHU VỰC
@@ -89,16 +88,17 @@ public class AreaDAO extends DBContext {
         return false;
     }
 
-    // 5. XÓA KHU VỰC
-    public void deleteAreaBySiteId(int siteId) {
-        String sql = "DELETE FROM ParkingAreas WHERE site_id = ?";
+    // 5. XÓA KHU VỰC (Soft Delete)
+    public boolean deleteArea(int areaId) {
+        String sql = "UPDATE [ParkingAreas] SET status = 'inactive' WHERE area_id = ?";
+        
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, siteId);
-            ps.executeUpdate();
+            ps.setInt(1, areaId);
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.out.println("Error AreaDAO.deleteAreaBySiteId: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
 
     // 6. XÓA TẤT CẢ KHU VỰC CỦA 1 SITE
@@ -117,7 +117,6 @@ public class AreaDAO extends DBContext {
     // ==========================================
     // HÀM MAPPER NỘI BỘ
     // ==========================================
-
     private ParkingArea mapRowToArea(ResultSet rs) throws SQLException {
         int id = rs.getInt("area_id");
         int siteId = rs.getInt("site_id");

@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.ParkingCard;
-import utils.RandomCardId;
 
 /**
  *
@@ -197,42 +196,5 @@ public class CardDAO extends DBContext{
                 rs.getInt("site_id"), // Đã sửa thành getInt
                 status
         );
-    }
-    
-    public void addMultipleCards(int siteId, int quantity) {
-        String sql = """
-                     INSERT INTO ParkingCards(card_id, site_id) VALUES (?, ?)
-                     """;
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-
-            for (int i = 0; i < quantity; i++) {
-                String cardId = RandomCardId.generateCardId(siteId);
-                ps.setString(1, cardId);
-                ps.setInt(2, siteId);
-                ps.executeUpdate();
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error CardDAO.addMultipleCards: " + e.getMessage());
-        }
-
-    }
-
-    public void softDeleteAllCardBySiteId(int siteId) {
-        String sql = """
-                     UPDATE ParkingCards SET status = 'inactive'
-                     WHERE site_id = ?
-                     """;
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, siteId);
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            System.out.println("Error CardDAO.softDeleteAllCardBySiteId: " + e.getMessage());
-        }
     }
 }
