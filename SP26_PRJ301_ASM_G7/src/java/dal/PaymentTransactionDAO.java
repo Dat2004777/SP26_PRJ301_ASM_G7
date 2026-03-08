@@ -48,17 +48,23 @@ public class PaymentTransactionDAO extends DBContext {
         }
     }
     
-    public void updatePaymentStatus(int bookingId, String state){
+    public void updatePaymentStatus(PaymentTransaction txn, String state){
+        String target = "";
+        
+        switch(txn.getTransactionType()){
+            case BOOKING:
+                target = "booking_id";
+                break;
+            case SUBSCRIPTION:
+                target = "subscription_id";
+                break;
+        }
         String sql = 
-                """
-                UPDATE PaymentTransactions
-                SET payment_status = ?
-                WHERE booking_id = ?
-                """;
+                "UPDATE PaymentTransactions SET payment_status = ? WHERE " + target + " = ?";
         
         try(PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setString(1,state);
-            ps.setInt(2,bookingId);
+            ps.setInt(2,txn.getTargetId());
             
             ps.executeUpdate();
         }catch(Exception e){
