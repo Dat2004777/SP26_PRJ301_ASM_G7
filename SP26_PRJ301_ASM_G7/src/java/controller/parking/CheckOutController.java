@@ -147,7 +147,12 @@ public class CheckOutController extends HttpServlet {
     private long calculateCheckoutFee(ParkingSession session, int siteId) {
         // 1. Lấy dữ liệu cần thiết từ DAO
         LocalDateTime expectedOut = sessionDAO.getExpectedTimeOut(session.getCardId());
-        long hourlyPrice = priceDAO.getBasePrice(siteId, session.getVehicleTypeId(), "hourly");
+        long price;
+        if ("casual".equals(session.getSessionType())) {
+            price = priceDAO.getBasePrice(siteId, session.getVehicleTypeId(), "hourly");
+        } else {
+            price = 0;
+        }
 
         // 2. Gọi Utils tính toán
         return ParkingUtils.calculateSessionPrice(
@@ -155,7 +160,7 @@ public class CheckOutController extends HttpServlet {
                 session.getEntryTime(),
                 LocalDateTime.now(),
                 expectedOut,
-                hourlyPrice
+                price
         );
     }
 
@@ -180,7 +185,6 @@ public class CheckOutController extends HttpServlet {
 //        if ("booking".equalsIgnoreCase(session.getSessionType())) {
 //            bookingDAO.markAsCompleted(card.getCardId(), session.getLicensePlate());
 //        }
-
         // Bước C: Ghi nhận giao dịch tài chính (Chỉ khi fee > 0)
         if (fee > 0) {
             PaymentTransaction txn = new PaymentTransaction();
