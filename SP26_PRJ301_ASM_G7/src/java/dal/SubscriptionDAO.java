@@ -249,4 +249,33 @@ public class SubscriptionDAO extends DBContext{
             e.printStackTrace();
         }
     }
+    
+    public boolean checkSubscription(int siteId, String licensePlate){
+        String sql =
+                """
+                SELECT TOP 1 1
+                FROM Subscriptions s
+                JOIN ParkingCards c ON s.card_id = c.card_id
+                WHERE c.site_id = ?
+                AND s.license_plate = ?
+                AND s.sub_state = 'active'
+                AND s.status = 'active'
+                AND GETDATE() BETWEEN s.start_date AND s.end_date
+                """;
+        
+        
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            
+            ps.setInt(1,siteId);
+            ps.setString(2,licensePlate);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            return rs.next();
+        }catch(Exception e){
+            System.out.println("Loi check Subscription");
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

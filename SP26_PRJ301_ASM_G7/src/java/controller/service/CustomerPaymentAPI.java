@@ -263,7 +263,14 @@ public class CustomerPaymentAPI extends HttpServlet {
                 LocalDateTime temp = startDate.plusMonths(12);
                 endDate = temp.withDayOfMonth(temp.toLocalDate().lengthOfMonth());
             }
-
+            
+            //Kiểm tra thẻ xem còn hiệu lực ko(nếu có thì ko được mua)
+            boolean checkSubscription = subscriptionDAO.checkSubscription(Integer.parseInt(siteId), licensePlate);
+            System.out.println(checkSubscription);
+            if(checkSubscription){
+                out.print("{\"success\": false, \"message\": \"Thẻ của bạn vẫn còn hiêu lực. Vui lòng chờ hết hạn!\"}");
+                return;
+            }
             //Laays the trong
             ParkingCard card = cardDAO.getAvailableCardAtSite(Integer.parseInt(siteId));
             if (card == null) {

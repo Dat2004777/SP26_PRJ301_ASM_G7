@@ -251,9 +251,25 @@
                             </div>
                         </section>
 
-                        <div class="map-box position-relative overflow-hidden rounded-4">
-                            <div class="bg-white px-3 py-2 rounded-pill shadow-sm small fw-medium position-absolute top-50 start-50 translate-middle">
-                                <i class="bi bi-geo-alt-fill text-primary me-1"></i> Vị trí bãi xe đã chọn
+                        <div class="map-box position-relative overflow-hidden rounded-4 shadow-sm mx-auto" 
+                             style="height: 280px; max-width: 700px;">
+
+                            <c:url var="mapUrl" value="https://maps.google.com/maps">
+                                <c:param name="q" value="${requestScope.site.address}" />
+                                <c:param name="output" value="embed" />
+                            </c:url>
+
+                            <iframe 
+                                src="${mapUrl}" 
+                                class="w-100 h-100 border-0"
+                                allowfullscreen="" 
+                                loading="lazy">
+                            </iframe>
+
+                            <div class="position-absolute bottom-0 start-0 m-2">
+                                <div class="bg-white px-2 py-1 rounded-2 shadow-sm" style="font-size: 0.75rem; font-weight: 600;">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> ${requestScope.site.address}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -466,7 +482,7 @@
                 const licensePlate = document.getElementById("licensePlate").value;
                 const vehicleRadio = document.querySelector('input[name="vtype"]:checked');
                 const planRadio = document.querySelector('input[name="planType"]:checked');
-                
+
                 if (!licensePlate.trim()) {
                     showToast("error", "Vui lòng nhập biển số xe!");
                     return;
