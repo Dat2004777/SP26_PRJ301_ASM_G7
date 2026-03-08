@@ -25,12 +25,33 @@ public class ParkingArea {
         this.vehicleTypeName = vehicleTypeName;
     }
 
+    public ParkingArea(int siteId, int vehicleTypeId, int totalSlots) {
+        this.siteId = siteId;
+        this.vehicleTypeId = vehicleTypeId;
+        this.totalSlots = totalSlots;
+    }
+
+    public ParkingArea(int areaId, int siteId, String areaName, int vehicleTypeId, int totalSlots) {
+        this.areaId = areaId;
+        this.siteId = siteId;
+        this.areaName = areaName;
+        this.vehicleTypeId = vehicleTypeId;
+        this.totalSlots = totalSlots;
+    }
+
     public ParkingArea(int siteId, String areaName, int vehicleTypeId, int totalSlots, String vehicleTypeName) {
         this.siteId = siteId;
         this.areaName = areaName;
         this.vehicleTypeId = vehicleTypeId;
         this.totalSlots = totalSlots;
         this.vehicleTypeName = vehicleTypeName;
+    }
+
+    public ParkingArea(int siteId, String areaName, int vehicleTypeId, int totalSlots) {
+        this.siteId = siteId;
+        this.areaName = areaName;
+        this.vehicleTypeId = vehicleTypeId;
+        this.totalSlots = totalSlots;
     }
 
     public int getAreaId() {
