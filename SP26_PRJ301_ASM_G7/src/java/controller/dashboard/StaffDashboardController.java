@@ -153,7 +153,7 @@ public class StaffDashboardController extends HttpServlet {
         SiteDetailDTO overview = new SiteDetailDTO(
                 site.getSiteName(),
                 site.getAddress(),
-                site.getSiteStatus(), 
+                site.getSiteState(), 
                 areaList
         );
 
