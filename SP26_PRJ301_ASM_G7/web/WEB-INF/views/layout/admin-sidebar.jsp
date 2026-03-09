@@ -226,16 +226,12 @@
         <a href="${ctx}/employee" class="nav-item-link ${param.activePage == 'adminEmployee' ? 'active' : ''}">
             <i class="bi bi-people"></i> Nhân viên
         </a>
-        <a href="#" class="nav-item-link">
-            <i class="bi bi-card-heading"></i> Vé tháng
+        <a href="${ctx}/subscription" class="nav-item-link ${param.activePage == 'adminSubscription' ? 'active' : ''}">
+            <i class="bi bi-people"></i> Theo dõi vé tháng
         </a>
 
-        <a href="${ctx}/subscription" class="nav-item-link ${param.activepage == 'subscription' ? 'active' : ''}">
-            <i class="bi bi-people"></i> Quản lý vé tháng
-        </a>
-
-        <a href="${ctx}/parking/history" class="nav-item-link ${param.activepage == 'parking/history' ? 'active' : ''}">
-            <i class="bi bi-card-heading"></i> Lịch sử 
+        <a href="${ctx}/transaction-history" class="nav-item-link ${param.activePage == 'adminTransactionHistory' ? 'active' : ''}">
+            <i class="bi bi-card-heading"></i> Lịch sử giao dịch
         </a>
 
     </div>
@@ -244,7 +240,8 @@
         <img src="https://ui-avatars.com/api/?name=${account.username}&background=e2e8f0&color=334155" alt="Avatar" class="user-avatar">
         <div class="flex-grow-1 overflow-hidden">
             <div class="fw-bold text-dark text-truncate" style="font-size: 0.875rem;">${account.username}</div>
-            <div class="text-muted text-truncate" style="font-size: 0.75rem;">${account.role}</div>
+            <div class="text-muted text-truncate" style="font-size: 0.75rem;">${account.role == 'ADMIN' ? 'Quản trị viên' : 
+                                                                                account.role == 'MANAGER' ? 'Quản lí' : 'Nhân viên trực bãi'}</div>
         </div>
         <a href="${pageContext.request.contextPath}/logout" class="logout-btn text-muted ms-auto" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right fs-5"></i></a>
     </div>
