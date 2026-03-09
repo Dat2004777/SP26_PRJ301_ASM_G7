@@ -639,7 +639,7 @@
                                     // Điều này giúp Backend kiểm tra xem giá có bị nhảy sau khi hiện Modal không
                                     const feeInput = document.getElementById('estimatedFeeInput');
                                     if (feeInput) {
-                                        feeInput.value = data.fee;
+                                        feeInput.value = data.price;
                                     }
 
                                     // 4. Khởi tạo và hiển thị Modal (Bootstrap 5)

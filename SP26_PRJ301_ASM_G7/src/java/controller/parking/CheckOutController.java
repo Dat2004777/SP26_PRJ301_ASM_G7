@@ -66,7 +66,7 @@ public class CheckOutController extends HttpServlet {
         session.setAttribute("oldCardId", cardId);
         session.setAttribute("oldPlate", licensePlate);
 
-        response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+        response.sendRedirect(request.getSession().getAttribute("ctx") + "/dashboard");
     }
 
     // =========================================================================
@@ -102,8 +102,14 @@ public class CheckOutController extends HttpServlet {
 // Hàm 1: Validate và dọn dẹp chuỗi đầu vào
     private String validateAndCleanCheckOutInput(String cardId, String licensePlate) throws Exception {
         if (cardId == null || cardId.trim().isEmpty() || licensePlate == null || licensePlate.trim().isEmpty()) {
-            throw new Exception("Vui lòng nhập đầy đủ Mã thẻ và Biển số!");
+            throw new IllegalArgumentException("Vui lòng nhập đầy đủ Mã thẻ và Biển số!");
         }
+
+        if (!((licensePlate.length() == 9 && ValidationUtils.isValidCarPlate(licensePlate))
+                || (licensePlate.length() == 10 && ValidationUtils.isValidMotorbikePlate(licensePlate)))) {
+            throw new IllegalArgumentException("Lỗi: Biển số xe sai định dạng!");
+        }
+
         // Dọn dẹp khoảng trắng, dấu chấm để so sánh chính xác với DB
         return ValidationUtils.cleanLicensePlate(licensePlate);
     }
@@ -139,7 +145,7 @@ public class CheckOutController extends HttpServlet {
         String formattedInputPlate = inputPlate.trim().toUpperCase();
 
         if (!formattedDbPlate.equals(formattedInputPlate)) {
-            throw new Exception("CẢNH BÁO BẢO MẬT: Biển số xe gửi lên [" + formattedInputPlate + "] KHÔNG KHỚP với biển số lúc vào [" + formattedDbPlate + "]!");
+            throw new Exception("CẢNH BÁO BẢO MẬT: Biển số xe gửi lên [" + formattedInputPlate + "] KHÔNG KHỚP với biển số lúc vào");
         }
     }
 
