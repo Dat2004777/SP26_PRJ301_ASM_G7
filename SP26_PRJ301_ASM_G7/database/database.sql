@@ -101,6 +101,7 @@ GO
 CREATE TABLE ParkingAreas (
     area_id INT IDENTITY(1,1) PRIMARY KEY,
     site_id INT NOT NULL,
+    area_name NVARCHAR(100),
     vehicle_type_id INT NOT NULL,
     totalSlots INT DEFAULT 0,
     status VARCHAR(10) DEFAULT 'active' CHECK (status IN ('active', 'inactive')), -- Xóa mềm
