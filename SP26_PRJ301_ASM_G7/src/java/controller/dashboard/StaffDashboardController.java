@@ -156,7 +156,7 @@ public class StaffDashboardController extends HttpServlet {
         SiteDetailDTO overview = new SiteDetailDTO(
                 site.getSiteName(),
                 site.getAddress(),
-                site.getSiteStatus(), // Dựa theo DB của bạn là operating_state
+                site.getSiteState(), // Dựa theo DB của bạn là operating_state
                 areaList
         );
 
