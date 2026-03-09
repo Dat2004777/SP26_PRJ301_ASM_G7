@@ -267,7 +267,7 @@ public class EmployeeDAO extends DBContext {
 // Hàm kiểm tra số điện thoại đã tồn tại hay chưa
 
     public boolean isPhoneExist(String phone) {
-        // Kiểm tra trong bảng Employees (hoặc bảng Accounts tùy thiết kế của bạn)
+        // Kiểm tra trong bảng Employee (hoặc bảng Accounts tùy thiết kế của bạn)
         String sql = "SELECT 1 FROM Employees WHERE phone = ? AND status = 'active'";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
