@@ -99,9 +99,12 @@
             <div class="w-100">
                 <div class="d-flex justify-content-between align-items-end mb-3 mb-md-4">
                     <div>
-                        <h4 class="fw-bold text-dark mb-1">Lịch sử ra vào bãi</h4>
+                        <h4 class="fw-bold text-dark mb-1"><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử ra vào bãi</h4>
                     </div>
+                    <a href="${ctx}/dashboard" class="btn btn-outline-secondary fw-bold">Quay lại</a>
                 </div>
+                
+                
 
                 <div class="card shadow-sm border-0 history-card">
 
@@ -126,7 +129,6 @@
                                     <th class="py-3">Hành động</th>
                                     <th class="py-3">Thời gian ghi nhận</th>
                                     <th class="py-3">Trạng thái</th>
-                                    <th class="pe-3 pe-md-4 py-3 text-end">Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,11 +173,6 @@
                                         </td>
                                         <td>
                                             <span class="${statusBadge} d-inline-block">${statusText}</span>
-                                        </td>
-                                        <td class="pe-3 pe-md-4 text-end">
-                                            <button class="btn btn-sm btn-light text-primary rounded-circle" title="Xem chi tiết">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
                                         </td>
                                     </tr>
                                 </c:forEach>

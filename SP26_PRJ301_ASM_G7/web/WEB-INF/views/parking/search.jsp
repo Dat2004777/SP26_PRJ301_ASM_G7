@@ -169,7 +169,14 @@
         </div>
 
         <main class="container-fluid py-3 py-md-4" style="max-width: 1200px;">
-
+            
+            <div class="d-flex justify-content-between align-items-end mb-3 mb-md-4">
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1"><i class="bi bi-search me-2 text-primary"></i>Tra cứu thông tin</h4>
+                    </div>
+                    <a href="${ctx}/dashboard" class="btn btn-outline-secondary fw-bold">Quay lại</a>
+                </div>
+            
             <c:set var="activeTab" value="${empty param.type ? 'vehicle' : param.type}" />
 
             <ul class="nav nav-tabs nav-tabs-custom" id="searchTabs" role="tablist">
