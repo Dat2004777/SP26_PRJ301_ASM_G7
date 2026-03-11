@@ -439,7 +439,12 @@
                                     <div class="list-group-item px-3 py-2 border-bottom">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="fw-bold text-dark" style="font-size: 0.85rem;">${log.licensePlate}</span>
+
                                             <span class="badge ${badgeClass}" style="font-size: 0.7rem;">${statusText}</span>
+                                        </div>
+                                        <div class="text-primary mb-2" style="font-size: 0.75rem;">
+                                            <i class="bi bi-credit-card me-1"></i>
+                                            <span class="fw-medium">${log.cardId}</span>
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between">
                                             <span class="${badgeClass} fw-medium px-2 rounded" style="font-size: 0.7rem; padding-top: 2px; padding-bottom: 2px;">

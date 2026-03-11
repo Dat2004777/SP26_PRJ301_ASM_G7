@@ -107,7 +107,6 @@
 
                     <div class="history-card-header py-3 px-3 px-md-4">
                         <form action="${ctx}/parking/history" method="GET" class="row g-2 align-items-center">
-
                             <div class="col-12 col-md-4 col-lg-3 mt-2 mt-md-0">
                                 <select name="state" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
                                     <option value="">Tất cả trạng thái</option>
@@ -123,10 +122,10 @@
                             <thead class="text-muted" style="font-size: 0.85rem;">
                                 <tr>
                                     <th class="ps-3 ps-md-4 py-3">Biển số xe</th>
+                                    <th class="py-3">Mã thẻ</th>
                                     <th class="py-3">Hành động</th>
                                     <th class="py-3">Thời gian ghi nhận</th>
                                     <th class="py-3">Trạng thái</th>
-                                    <th class="pe-3 pe-md-4 py-3 text-end">Chi tiết</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -162,6 +161,11 @@
                                             <span class="fw-bold text-dark fs-6 text-uppercase">${log.licensePlate}</span>
                                         </td>
                                         <td>
+                                            <span class="badge bg-primary-subtle text-primary font-monospace fw-medium" style="font-size: 0.8rem; padding: 5px 8px;">
+                                                <i class="bi bi-credit-card me-1"></i>${log.cardId}
+                                            </span>
+                                        </td>
+                                        <td>
                                             <span class="${actionBadge} d-inline-block">
                                                 <i class="bi ${icon} me-1"></i> ${actionName}
                                             </span>
@@ -172,17 +176,12 @@
                                         <td>
                                             <span class="${statusBadge} d-inline-block">${statusText}</span>
                                         </td>
-                                        <td class="pe-3 pe-md-4 text-end">
-                                            <button class="btn btn-sm btn-light text-primary rounded-circle" title="Xem chi tiết">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                        </td>
                                     </tr>
                                 </c:forEach>
 
                                 <c:if test="${empty recentLogs}">
                                     <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted" style="height: 300px; vertical-align: middle;">
+                                        <td colspan="6" class="text-center py-5 text-muted" style="height: 300px; vertical-align: middle;">
                                             <i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>
                                             <span>Không tìm thấy lịch sử ra vào nào.</span>
                                         </td>

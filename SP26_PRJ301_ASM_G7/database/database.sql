@@ -238,14 +238,14 @@ INSERT INTO Customers (first_name, last_name, phone, email, wallet_amount, accou
 (N'An', N'Phạm', '0988888888', 'an@gmail.com', 500000, 4),
 (N'Bình', N'Đỗ', '0977777777', 'binh@gmail.com', 100000, 5);
 
-INSERT INTO ParkingAreas (site_id, vehicle_type_id, totalSlots) VALUES 
-(1, 1, 50),
-(1, 2, 200),
-(2, 1, 100);
+INSERT INTO ParkingAreas (site_id, vehicle_type_id, totalSlots, area_name) VALUES 
+(1, 1, 50, N'Khu ô tô'),
+(1, 2, 200, N'Khu xe máy'),
+(2, 1, 100, N'Khu ô tô');
 
 INSERT INTO ParkingCards (card_id, site_id, card_state) VALUES 
 ('CARD-HN-001', 1, 'assigned'), 
-('CARD-HN-002', 1, 'using'), 
+('CARD-HN-002', 1, 'available'), 
 ('CARD-HN-003', 1, 'available'),
 ('CARD-HCM-001', 2, 'available');
 

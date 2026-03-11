@@ -17,7 +17,7 @@ public class ParkingUtils {
 
     public static long calculateSessionPrice(String sessionType, LocalDateTime timeIn, LocalDateTime timeOut, 
                                              LocalDateTime expectedTimeOut, long hourlyBasePrice) {
-        if ("noncasual".equalsIgnoreCase(sessionType)) {
+        if (!"casual".equalsIgnoreCase(sessionType)) {
             if (expectedTimeOut != null && timeOut.isAfter(expectedTimeOut)) {
                 return calculateHourlyFee(expectedTimeOut, timeOut, hourlyBasePrice);
             }

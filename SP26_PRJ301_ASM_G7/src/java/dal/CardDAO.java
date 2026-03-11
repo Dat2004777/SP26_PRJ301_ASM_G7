@@ -111,18 +111,7 @@ public class CardDAO extends DBContext {
     // 7. [QUAN TRỌNG] Lấy 1 thẻ trống bất kỳ tại bãi xe để cấp cho khách vào
     public ParkingCard getAvailableCardAtSite(int siteId) { // Tham số đã là int từ trước
         // SQL Server dùng TOP 1, MySQL dùng LIMIT 1
-        String sql = "SELECT TOP 1 * FROM ParkingCards WHERE site_id = ? AND card_state = 'available' AND status = 'active'"; // Đã
-                                                                                                                              // sửa
-                                                                                                                              // lại
-                                                                                                                              // card_state
-                                                                                                                              // thành
-                                                                                                                              // status
-                                                                                                                              // cho
-                                                                                                                              // khớp
-                                                                                                                              // với
-                                                                                                                              // Enum
-                                                                                                                              // của
-                                                                                                                              // bạn
+        String sql = "SELECT TOP 1 * FROM ParkingCards WHERE site_id = ? AND card_state = 'available' AND status = 'active'"; 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, siteId);

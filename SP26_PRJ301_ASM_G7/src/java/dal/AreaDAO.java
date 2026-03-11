@@ -13,10 +13,10 @@ public class AreaDAO extends DBContext {
     public List<ParkingArea> getAreasBySite(int siteId) {
         List<ParkingArea> list = new ArrayList<>();
         // Tối ưu: JOIN thẳng với bảng VehicleTypes để lấy tên loại xe
-        String sql = "SELECT pa.*, vt.name AS vehicle_type_name " +
-                "FROM [ParkingAreas] pa " +
-                "LEFT JOIN [VehicleTypes] vt ON pa.vehicle_type_id = vt.vehicle_type_id " +
-                "WHERE pa.site_id = ? AND pa.status = 'active'";
+        String sql = "SELECT pa.*, vt.name AS vehicle_type_name "
+                + "FROM [ParkingAreas] pa "
+                + "LEFT JOIN [VehicleTypes] vt ON pa.vehicle_type_id = vt.vehicle_type_id "
+                + "WHERE pa.site_id = ? AND pa.status = 'active'";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, siteId);
@@ -34,10 +34,10 @@ public class AreaDAO extends DBContext {
 
     // 2. LẤY CHI TIẾT 1 KHU VỰC KÈM LOẠI XE (Dùng cho form Update)
     public ParkingArea getAreaById(int areaId) {
-        String sql = "SELECT pa.*, vt.name AS vehicle_type_name " +
-                "FROM [ParkingAreas] pa " +
-                "LEFT JOIN [VehicleTypes] vt ON pa.vehicle_type_id = vt.vehicle_type_id " +
-                "WHERE pa.area_id = ?";
+        String sql = "SELECT pa.*, vt.name AS vehicle_type_name "
+                + "FROM [ParkingAreas] pa "
+                + "LEFT JOIN [VehicleTypes] vt ON pa.vehicle_type_id = vt.vehicle_type_id "
+                + "WHERE pa.area_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, areaId);
@@ -93,7 +93,7 @@ public class AreaDAO extends DBContext {
     // 3. THÊM KHU VỰC MỚI
     public void insertAreas(List<ParkingArea> areas) {
         String sql = """
-                INSERT INTO ParkingAreas (site_id, vehicle_type_id, totalSlots) VALUES (?, ?, ?)
+                INSERT INTO ParkingAreas (site_id, vehicle_type_id, totalSlots, area_name) VALUES (?, ?, ?, ?)
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -101,6 +101,11 @@ public class AreaDAO extends DBContext {
                 ps.setInt(1, area.getSiteId());
                 ps.setInt(2, area.getVehicleTypeId());
                 ps.setInt(3, area.getTotalSlots());
+                if (area.getVehicleTypeId() == 1) {
+                    ps.setString(4, "Khu ô tô");
+                } else if (area.getVehicleTypeId() == 2) {
+                    ps.setString(4, "Khu xe máy");
+                }
                 ps.executeUpdate();
             }
         } catch (Exception e) {

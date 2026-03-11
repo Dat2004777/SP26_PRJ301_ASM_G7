@@ -34,7 +34,7 @@ public class RandomCardAPI extends HttpServlet {
         }
         
         CardDAO cardDAO = new CardDAO();
-        ParkingCard card = cardDAO.getAvailableCardAtSite(1);
+        ParkingCard card = cardDAO.getAvailableCardAtSite(((Employee)request.getSession().getAttribute("staff")).getSiteId());
         
         if (card != null) {
             // Trả về JSON chứa mã thẻ

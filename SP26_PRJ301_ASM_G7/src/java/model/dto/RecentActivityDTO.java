@@ -5,11 +5,13 @@ public class RecentActivityDTO {
     private String licensePlate;   // Biển số xe (VD: "30F-992.12")
     private String formattedTime;  // Thời gian hiển thị (VD: "10:42 AM")
     private String sessionState;
-
-    public RecentActivityDTO(String licensePlate, String formattedTime, String sessionState) {
+    private String cardId;
+    
+    public RecentActivityDTO(String licensePlate, String formattedTime, String sessionState, String cardId) {
         this.licensePlate = licensePlate;
         this.formattedTime = formattedTime;
         this.sessionState = sessionState;
+        this.cardId = cardId;
     }
 
     public String getLicensePlate() {
@@ -36,4 +38,14 @@ public class RecentActivityDTO {
         this.formattedTime = formattedTime;
     }
 
+    public String getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
+    
+    
 }
