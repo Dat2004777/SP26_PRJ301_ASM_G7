@@ -283,6 +283,17 @@
                     </div>
                 </div>
 
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <div class="stat-card" style="display: block;">
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Doanh thu 7 ngày gần nhất</h5>
+                            <div style="height: 350px; width: 100%;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <h4 class="fw-bold mb-3 text-dark">Truy cập nhanh</h4>
                 <div class="row g-4">
                     <div class="col-6 col-md-3">
@@ -314,6 +325,7 @@
             </div>
         </main>
 
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const mobileToggle = document.getElementById('mobileToggle');
             const sidebar = document.querySelector('.sidebar');
@@ -331,6 +343,71 @@
                 mobileToggle.addEventListener('click', toggleMenu);
             if (overlay)
                 overlay.addEventListener('click', toggleMenu);
+
+            // VẼ BIỂU ĐỒ
+            document.addEventListener("DOMContentLoaded", function () {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+
+                // Dữ liệu được JSTL bắn từ Controller xuống
+                const labels = ${chartLabels != null ? chartLabels : '[]'};
+                const data = ${chartData != null ? chartData : '[]'};
+
+                new Chart(ctx, {
+                    type: 'line', // Biểu đồ đường (Line Chart)
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Doanh thu (VNĐ)',
+                                data: data,
+                                borderColor: '#3b82f6', // Màu xanh lam
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#3b82f6',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                fill: true,
+                                tension: 0.4 // Làm cong đường nối cho mượt
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {display: false},
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let value = context.raw || 0;
+                                        return value.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                border: {display: false},
+                                ticks: {
+                                    callback: function (value) {
+                                        if (value >= 1000000)
+                                            return (value / 1000000) + 'M';
+                                        if (value >= 1000)
+                                            return (value / 1000) + 'k';
+                                        return value;
+                                    }
+                                },
+                                grid: {color: '#f1f5f9'}
+                            },
+                            x: {
+                                border: {display: false},
+                                grid: {display: false}
+                            }
+                        }
+                    }
+                });
+            });
         </script>
     </body>
 </html>

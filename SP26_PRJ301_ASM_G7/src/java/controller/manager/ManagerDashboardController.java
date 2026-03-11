@@ -49,6 +49,20 @@ public class ManagerDashboardController extends HttpServlet {
             long todayRevenue = dashboardDAO.getTodayRevenue(userSiteId);
             int activeSubs = dashboardDAO.countActiveSubscriptions(userSiteId);
             int todayBookings = dashboardDAO.countTodayBookings(userSiteId);
+            java.util.Map<String, Long> revenueMap = dashboardDAO.getLast7DaysRevenue(userSiteId);
+            StringBuilder labels = new StringBuilder("[");
+            StringBuilder data = new StringBuilder("[");
+
+            for (java.util.Map.Entry<String, Long> entry : revenueMap.entrySet()) {
+                labels.append("'").append(entry.getKey()).append("',");
+                data.append(entry.getValue()).append(",");
+            }
+            labels.append("]");
+            data.append("]");
+
+            // Xóa dấu phẩy thừa ở cuối chuỗi JSON (ví dụ: ['12/10',] -> ['12/10'])
+            request.setAttribute("chartLabels", labels.toString().replace(",]", "]"));
+            request.setAttribute("chartData", data.toString().replace(",]", "]"));
 
             // BẮN LÊN JSP
             request.setAttribute("totalParked", totalParked);

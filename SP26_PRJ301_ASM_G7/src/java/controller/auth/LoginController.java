@@ -148,6 +148,7 @@ public class LoginController extends HttpServlet {
 
                     if (managedSite != null) {
                         // NẾU LÀ MANAGER
+                        session.setAttribute("manager", staffEmp);
                         session.setAttribute("userRole", "manager"); // Đặt role là manager để chốt chặn bảo mật nhận diện
                         session.setAttribute("userSiteId", managedSite.getSiteId()); // Lấy ID bãi xe từ managedSite
                         session.setAttribute("rolePrefix", UrlConstants.URL_MANAGER);
