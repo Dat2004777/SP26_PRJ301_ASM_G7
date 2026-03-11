@@ -8,7 +8,7 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
             <div class="d-sm-block">
-                <div class="fw-bold fs-5" style="line-height: 1.2; color: #1e293b;">${overview.siteName}</div>
+                <div class="fw-bold fs-5" style="line-height: 1.2; color: #1e293b;">${site.siteName}</div>
             </div>
         </div>
 

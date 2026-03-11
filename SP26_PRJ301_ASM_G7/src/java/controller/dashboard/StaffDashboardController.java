@@ -39,14 +39,18 @@ public class StaffDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         Employee emp = (Employee) request.getSession().getAttribute("staff");
-        
+
         if (emp == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+
+        ParkingSite site = siteDAO.getById(emp.getSiteId());
         
+        request.getSession().setAttribute("site", site);
+
         try {
 
             int currentSiteId = emp.getSiteId();
@@ -56,8 +60,7 @@ public class StaffDashboardController extends HttpServlet {
             // 1. GỌI CÁC HÀM NỘI BỘ (PRIVATE) ĐỂ LẤY DỮ LIỆU DTO
             request.setAttribute("stats", getDashboardStats(currentSiteId, emp));
             request.setAttribute("recentLogs", getRecentActivities(currentSiteId, 10));
-            
-            
+
             // 2. FORWARD TỚI JSP
             request.getRequestDispatcher("/WEB-INF/views/dashboard/staff.jsp").forward(request, response);
 
@@ -143,7 +146,7 @@ public class StaffDashboardController extends HttpServlet {
             AreaDetailDTO dto = new AreaDetailDTO(
                     area.getAreaId(),
                     area.getAreaName(),
-                    vt, 
+                    vt,
                     area.getTotalSlots(),
                     occupiedSlots
             );
@@ -154,7 +157,7 @@ public class StaffDashboardController extends HttpServlet {
         SiteDetailDTO overview = new SiteDetailDTO(
                 site.getSiteName(),
                 site.getAddress(),
-                site.getSiteState(), 
+                site.getSiteState(),
                 areaList
         );
 

@@ -148,7 +148,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
                 <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-card-checklist me-2 text-primary"></i>Quản lý Vé tháng</h4>
-                <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-secondary fw-bold">Quay lại</a>
+                <a href="${ctx}/dashboard" class="btn btn-outline-secondary fw-bold">Quay lại</a>
             </div>
 
             <form id="subForm" action="${pageContext.request.contextPath}/staff/subscription" method="POST">
