@@ -44,18 +44,6 @@
                 -webkit-font-smoothing: antialiased;
             }
 
-            .password-wrapper{
-                position: relative;
-            }
-
-            .toggle-password {
-                position: absolute;
-                right: 15px;
-                top: 50%;
-                transform: translateY(-50%);
-                cursor: pointer;
-                color: #9ca3af;
-            }
             .plan-card{
                 border:1px solid #e5e7eb;
                 border-radius:12px;
@@ -327,6 +315,8 @@
                 </div>
             </div>
         </div>
+         <!--Footer-->
+        <%@ include file="/WEB-INF/views/layout/footer.jsp" %>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             let selectedPlan = "month";

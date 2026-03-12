@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Account;
 import model.Customer;
+import utils.HashPasswordUtils;
 import utils.UrlConstants;
 
 /**
@@ -102,16 +103,38 @@ public class LoginController extends HttpServlet {
         password = password.trim();
 
         AccountDAO accDAO = new AccountDAO();
-        Account acc = accDAO.checkAccount(username, password);
-
+        Account acc = accDAO.getAccountByUserName(username);
+        String hashedPass = accDAO.getPasswordHash(username);
         HttpSession session = request.getSession();
 
-        if (acc != null) {
+        boolean loginSuccess = false;
+
+        if (acc != null && hashedPass != null) {
+
+            // nếu password là bcrypt
+            if (hashedPass.startsWith("$2a$") || hashedPass.startsWith("$2b$")) {
+                loginSuccess = HashPasswordUtils.checkPassword(password, hashedPass);
+            } // password plain (admin, staff...)
+            else {
+                loginSuccess = password.equals(hashedPass);
+                if (loginSuccess) {
+                    // tự động upgrade password sang bcrypt
+                    String newHash = HashPasswordUtils.hashPassword(password);
+                    boolean update = accDAO.changePassword(acc.getAccountId(), newHash);
+                }
+            }
+        }
+
+        if (loginSuccess) {
+
             EmployeeDAO empDAO = new EmployeeDAO();
             String contextPath = request.getContextPath();
+
             session.setAttribute("account", acc);
             session.setMaxInactiveInterval(3600);
+
             switch (acc.getRole()) {
+
                 case ADMIN:
                     int adminId = empDAO.getEmployeeId(acc.getAccountId(), "admin");
                     session.setAttribute("admin", empDAO.getById(adminId));
@@ -119,6 +142,7 @@ public class LoginController extends HttpServlet {
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_ADMIN);
                     response.sendRedirect(contextPath + UrlConstants.URL_ADMIN + "/dashboard");
                     return;
+
                 case STAFF:
                     int staffId = empDAO.getEmployeeId(acc.getAccountId(), "staff");
                     session.setAttribute("staff", empDAO.getById(staffId));
@@ -126,6 +150,7 @@ public class LoginController extends HttpServlet {
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_STAFF);
                     response.sendRedirect(contextPath + UrlConstants.URL_STAFF);
                     return;
+
                 case MANAGER:
                     int managerId = empDAO.getEmployeeId(acc.getAccountId(), "manager");
                     session.setAttribute("manager", empDAO.getById(managerId));
@@ -133,16 +158,15 @@ public class LoginController extends HttpServlet {
                     session.setAttribute("ctx", contextPath + UrlConstants.URL_MANAGER);
                     response.sendRedirect(contextPath + UrlConstants.URL_MANAGER);
                     return;
+
                 case CUSTOMER:
                     CustomerDAO customerDAO = new CustomerDAO();
                     Customer customer = customerDAO.getCustomerProfile(acc.getAccountId());
                     session.setAttribute("customer", customer);
                     response.sendRedirect(contextPath);
                     return;
-
             }
         }
-
         request.setAttribute("errorMessage", "Hãy đăng nhập lại");
         request.setAttribute("authMode", "login");
         request.setAttribute("username", username);

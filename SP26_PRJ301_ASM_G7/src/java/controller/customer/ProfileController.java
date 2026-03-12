@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Account;
 import model.Customer;
+import utils.HashPasswordUtils;
 import utils.ValidationUtils;
 
 /**
@@ -216,8 +217,8 @@ public class ProfileController extends HttpServlet {
 
         AccountDAO accountDAO = new AccountDAO();
 
-        Account accountOldPass = accountDAO.checkAccount(accountSession.getUsername(), oldPassword);
-        if (accountOldPass == null) {
+        Account accountOldPass = accountDAO.getAccountByUserName(accountSession.getUsername());
+        if (accountOldPass == null && !HashPasswordUtils.checkPassword(oldPassword, oldPassword)) {
             request.setAttribute("errorOldPass", "Mật khẩu hiện tại không đúng!");
             request.getRequestDispatcher("/WEB-INF/views/customer/info-detail.jsp").forward(request, response);
             return;
