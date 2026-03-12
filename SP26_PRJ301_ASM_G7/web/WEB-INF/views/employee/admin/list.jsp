@@ -401,6 +401,10 @@
                         </c:forEach>
                     </select>
 
+                    <select id="siteFilter" class="form-select filter-select">
+                        <option value="" selected>Tất cả bãi xe</option>
+                    </select>
+
                     <a href="${ctx}/employee/add" class="btn btn-primary text-decoration-none">
                         <i class="bi bi-plus-lg"></i> Thêm nhân viên mới
                     </a>
@@ -487,6 +491,65 @@
 
                                                 // Chuyển hướng trang
                                                 window.location.href = currentUrl.toString();
+                                            });
+
+                                            // ========================================================
+                                            // LỌC NHÂN VIÊN KẾT HỢP (CHỨC VỤ + BÃI XE) BẰNG JAVASCRIPT
+                                            // ========================================================
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                                const roleFilter = document.querySelector('select[name="roleFilter"]');
+                                                const siteFilter = document.getElementById('siteFilter');
+                                                const tableRows = document.querySelectorAll('.table tbody tr.clickable-row');
+
+                                                // 1. Tự động lấy danh sách Bãi xe từ bảng để nạp vào thẻ Select
+                                                const uniqueSites = new Set();
+                                                tableRows.forEach(row => {
+                                                    if (row.cells.length >= 4) {
+                                                        const siteName = row.cells[3].textContent.trim(); // Cột bãi xe nằm ở vị trí thứ 4
+                                                        if (siteName && siteName !== '') {
+                                                            uniqueSites.add(siteName);
+                                                        }
+                                                    }
+                                                });
+
+                                                // Đổ tên bãi xe vào các thẻ <option>
+                                                uniqueSites.forEach(site => {
+                                                    const option = document.createElement('option');
+                                                    option.value = site;
+                                                    option.textContent = site;
+                                                    siteFilter.appendChild(option);
+                                                });
+
+                                                // 2. Hàm xử lý lọc chung cho cả 2 điều kiện
+                                                function filterTable() {
+                                                    const selectedRoleVal = roleFilter.value;
+                                                    const selectedRoleLabel = roleFilter.options[roleFilter.selectedIndex].text.trim();
+                                                    const selectedSite = siteFilter.value;
+
+                                                    tableRows.forEach(row => {
+                                                        if (row.cells.length >= 4) {
+                                                            const roleCellText = row.cells[2].textContent.trim(); // Text cột Chức vụ
+                                                            const siteCellText = row.cells[3].textContent.trim(); // Text cột Bãi xe
+
+                                                            // Kiểm tra điều kiện khớp (True nếu chọn "Tất cả" hoặc text giống nhau)
+                                                            const isRoleMatch = (selectedRoleVal === "" || roleCellText === selectedRoleLabel);
+                                                            const isSiteMatch = (selectedSite === "" || siteCellText === selectedSite);
+
+                                                            // Phải thỏa mãn CẢ 2 ĐIỀU KIỆN thì mới hiện hàng lên
+                                                            if (isRoleMatch && isSiteMatch) {
+                                                                row.style.display = '';
+                                                            } else {
+                                                                row.style.display = 'none';
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+                                                // 3. Gắn sự kiện 'change' cho cả 2 ô Select
+                                                if (roleFilter)
+                                                    roleFilter.addEventListener('change', filterTable);
+                                                if (siteFilter)
+                                                    siteFilter.addEventListener('change', filterTable);
                                             });
         </script>
     </body>

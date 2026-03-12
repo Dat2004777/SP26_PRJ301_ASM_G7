@@ -211,7 +211,7 @@
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="brand-logo">P</div>
-        <span class="brand-text">ParkStaff</span>
+        <span class="brand-text">ParkEasy</span>
     </div>
 
     <div class="sidebar-nav">

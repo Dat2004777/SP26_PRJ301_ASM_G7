@@ -105,8 +105,8 @@ public class CheckOutController extends HttpServlet {
             throw new IllegalArgumentException("Vui lòng nhập đầy đủ Mã thẻ và Biển số!");
         }
 
-        if (!((licensePlate.length() == 9 && ValidationUtils.isValidCarPlate(licensePlate))
-                || (licensePlate.length() == 10 && ValidationUtils.isValidMotorbikePlate(licensePlate)))) {
+        if (!(ValidationUtils.isValidCarPlate(licensePlate)
+                || ValidationUtils.isValidMotorbikePlate(licensePlate))) {
             throw new IllegalArgumentException("Lỗi: Biển số xe sai định dạng!");
         }
 

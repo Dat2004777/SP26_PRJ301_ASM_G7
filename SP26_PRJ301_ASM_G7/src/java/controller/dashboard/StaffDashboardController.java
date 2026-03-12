@@ -114,7 +114,8 @@ public class StaffDashboardController extends HttpServlet {
             dtoList.add(new RecentActivityDTO(
                     session.getLicensePlate(),
                     formattedTime,
-                    session.getSessionState()
+                    session.getSessionState(),
+                    session.getCardId()
             ));
         }
         return dtoList;

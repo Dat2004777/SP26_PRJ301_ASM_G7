@@ -182,6 +182,7 @@
                 padding: 0.5rem 1rem;
                 border-radius: 8px;
                 transition: background-color 0.2s;
+                text-decoration: none;
             }
             .btn-book:hover {
                 background-color: #e5e7eb;
@@ -259,7 +260,9 @@
     </head>
     <body>
 
-        <%@include file="WEB-INF/views/layout/header.jsp" %>
+        <jsp:include page="/WEB-INF/views/layout/header.jsp">
+            <jsp:param name="activePage" value="homePage" />
+        </jsp:include>
 
         <!-- Hero Section -->
         <header class="hero-section">
@@ -303,7 +306,7 @@
                         </div>
                         <!-- Button -->
                         <div class="col-12 col-lg-2 p-2 mt-2 mt-lg-0">
-                            <button class="btn btn-primary w-100 btn-search">Tìm kiếm</button>
+                            <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn btn-primary w-100 btn-search">Tìm kiếm</a>
                         </div>
                     </div>
                 </div>
@@ -315,14 +318,14 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="section-title mb-0">Các địa điểm đỗ xe nổi bật</h2>
-                    <a href="#" class="view-all-link d-none d-sm-block">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="view-all-link d-none d-sm-block">Xem tất cả <i class="bi bi-arrow-right"></i></a>
                 </div>
 
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
                     <!-- Location 1 -->
                     <div class="col">
                         <div class="location-card h-100 d-flex flex-column">
-                            <img src="https://images.unsplash.com/photo-1590674899484-131297d02cb1?auto=format&fit=crop&q=80&w=600" alt="Downtown Plaza">
+                            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600" alt="Downtown Plaza">
                             <div class="card-body d-flex flex-column flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <h3 class="location-title">Downtown Plaza</h3>
@@ -333,9 +336,9 @@
                                 <div class="mt-auto d-flex justify-content-between align-items-end">
                                     <div>
                                         <p class="price-label">Giá vé</p>
-                                        <div><span class="price-amount">$5.00</span><span class="price-unit">/giờ</span></div>
+                                        <div><span class="price-amount">25.000đ</span><span class="price-unit">/giờ</span></div>
                                     </div>
-                                    <button class="btn-book">Đặt ngay</button>
+                                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-book">Đặt ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -355,9 +358,9 @@
                                 <div class="mt-auto d-flex justify-content-between align-items-end">
                                     <div>
                                         <p class="price-label">Giá vé</p>
-                                        <div><span class="price-amount">$3.50</span><span class="price-unit">/giờ</span></div>
+                                        <div><span class="price-amount">30.000đ</span><span class="price-unit">/giờ</span></div>
                                     </div>
-                                    <button class="btn-book">Đặt ngay</button>
+                                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-book">Đặt ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -377,9 +380,9 @@
                                 <div class="mt-auto d-flex justify-content-between align-items-end">
                                     <div>
                                         <p class="price-label">Giá vé</p>
-                                        <div><span class="price-amount">$4.00</span><span class="price-unit">/giờ</span></div>
+                                        <div><span class="price-amount">25.000đ</span><span class="price-unit">/giờ</span></div>
                                     </div>
-                                    <button class="btn-book">Đặt ngay</button>
+                                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-book">Đặt ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -399,9 +402,9 @@
                                 <div class="mt-auto d-flex justify-content-between align-items-end">
                                     <div>
                                         <p class="price-label">Giá vé</p>
-                                        <div><span class="price-amount">$12.00</span><span class="price-unit">/ngày</span></div>
+                                        <div><span class="price-amount">50.000đ</span><span class="price-unit">/ngày</span></div>
                                     </div>
-                                    <button class="btn-book">Đặt ngay</button>
+                                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-book">Đặt ngay</a>
                                 </div>
                             </div>
                         </div>
@@ -457,8 +460,8 @@
                 <h2 class="cta-title">Sẵn sàng đỗ xe thông minh hơn?</h2>
                 <p class="cta-desc">Tham gia cùng hàng ngàn tài xế đang tiết kiệm thời gian và tiền bạc với ParkEasy. Tải ứng dụng hoặc đăng ký trực tuyến ngay hôm nay.</p>
                 <div>
-                    <a href="#" class="btn-cta-white">Bắt đầu ngay</a>
-                    <a href="#" class="btn-cta-link">Tìm hiểu thêm <i class="bi bi-arrow-right ms-1"></i></a>
+                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-cta-white">Bắt đầu ngay</a>
+                    <a href="${pageContext.request.contextPath}/sites?action=booking" class="btn-cta-link">Tìm hiểu thêm <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </section>
