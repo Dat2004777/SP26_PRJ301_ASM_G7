@@ -363,8 +363,9 @@
 
             function updatePricingCards() {
                 const basePrice = getBasePrice();
-                if (!basePrice)
+                if (basePrice === null || basePrice === undefined) {
                     return;
+                }
 
                 // Cập nhật giá lên 3 card chọn gói
                 document.getElementById('price-month').innerText = (basePrice / 1000).toLocaleString() + 'k';
