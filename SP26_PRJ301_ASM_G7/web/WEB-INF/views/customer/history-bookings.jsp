@@ -137,9 +137,6 @@
                                                                 </span>
                                                             </td>
 
-                                                            <td>
-                                                                <button class="btn btn-outline-danger btn-sm">Hủy</button>
-                                                            </td>
                                                         </c:when>
                                                         <c:when test="${h.state eq 'completed'}">
                                                             <td>
@@ -147,22 +144,21 @@
                                                                     thành
                                                                 </span>
                                                             </td>
-
-                                                            <td>
-                                                                <button  type="button"
-                                                                         class="btn btn-outline-secondary btn-sm btn-detail"
-                                                                         data-id="${h.booking.bookingId}"
-                                                                         data-site="${h.siteName}"
-                                                                         data-time="${h.booking.timeIn}"
-                                                                         data-amount="${h.booking.bookingAmount}"
-                                                                         data-state="${h.state eq 'upcoming' ? 'Sắp tới' : 'Hoàn thành'}"
-                                                                         data-bs-toggle="modal"
-                                                                         data-bs-target="#bookingDetailModal">
-                                                                    Chi tiết
-                                                                </button>
-                                                            </td>
                                                         </c:when>
                                                     </c:choose>
+                                                    <td>
+                                                        <button  type="button"
+                                                                 class="btn btn-outline-secondary btn-sm btn-detail"
+                                                                 data-id="${h.booking.bookingId}"
+                                                                 data-site="${h.siteName}"
+                                                                 data-time="${h.booking.timeIn}"
+                                                                 data-amount="${h.booking.bookingAmount}"
+                                                                 data-state="${h.state eq 'upcoming' ? 'Sắp tới' : 'Hoàn thành'}"
+                                                                 data-bs-toggle="modal"
+                                                                 data-bs-target="#bookingDetailModal">
+                                                            Chi tiết
+                                                        </button>
+                                                    </td> 
                                                 </tr>
                                             </c:forEach>
                                         </tbody>

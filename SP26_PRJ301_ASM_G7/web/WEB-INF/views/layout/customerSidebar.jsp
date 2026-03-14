@@ -6,6 +6,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <style>
@@ -65,9 +66,15 @@
             </div>
         </div>
 
-        <h6 class="mt-3 mb-0 fw-bold">
-            ${sessionScope.user.fullName}
+        <h6 class="mt-3 mb-0 fw-bold mb-2">
+            ${sessionScope.customer.firstname} ${sessionScope.customer.lastname}
         </h6>
+        <span class="text-muted small">
+            Số ví còn lại:
+        </span>
+        <div class="fw-bold text-danger">
+            <fmt:formatNumber value="${sessionScope.customer.walletAmount}" type="number"/> VND
+        </div>
     </div>
 
     <!-- Menu -->
