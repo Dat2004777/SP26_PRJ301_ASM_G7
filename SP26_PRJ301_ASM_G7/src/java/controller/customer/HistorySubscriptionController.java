@@ -174,6 +174,8 @@ public class HistorySubscriptionController extends HttpServlet {
                 // trừ ví
                 long newWallet = wallet - totalPrice;
                 boolean walletUpdated = customerDAO.updateWalletAmount(customer.getCustomerId(), newWallet);
+                //update payment transaction
+                paymentDAO.updatePaymentStatus(txn, "completed");
                 customer.setWalletAmount(newWallet);
                 session.setAttribute("customer", customer);
             }
