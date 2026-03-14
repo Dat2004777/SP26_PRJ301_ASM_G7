@@ -18,10 +18,10 @@ import model.Customer;
 public class CustomerDAO extends DBContext {
 
     //Tạo 1 Customer object vào trong database
-    public void insertCustomer(String firstname, String lastname, String phone, String email, int accountID) {
+    public void insertCustomer(String firstname, String lastname, String phone, String email, long wallet, int accountID) {
         String sql
                 = """
-                INSERT INTO Customers(first_name,last_name,phone,email,account_id)
+                INSERT INTO Customers(first_name,last_name,phone,email,wallet_amount,account_id)
                 VALUES(?,?,?,?,?)
                 """;
 
@@ -30,7 +30,8 @@ public class CustomerDAO extends DBContext {
             ps.setString(2, lastname);
             ps.setString(3, phone);
             ps.setString(4, email);
-            ps.setInt(5, accountID);
+            ps.setLong(5,wallet);
+            ps.setInt(6, accountID);
 
             ps.executeUpdate();
         } catch (Exception e) {

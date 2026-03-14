@@ -364,7 +364,7 @@
                     return;
 
                 // Cập nhật giá lên 3 card chọn gói
-                document.getElementById('price-month').innerText = (basePrice / 1000) + 'k';
+                document.getElementById('price-month').innerText = (basePrice / 1000).toLocaleString() + 'k';
                 document.getElementById('price-quarter').innerText = ((basePrice * 3 * discountRates.quarter) / 1000).toLocaleString() + 'k';
                 document.getElementById('price-year').innerText = ((basePrice * 12 * discountRates.year) / 1000).toLocaleString() + 'k';
 

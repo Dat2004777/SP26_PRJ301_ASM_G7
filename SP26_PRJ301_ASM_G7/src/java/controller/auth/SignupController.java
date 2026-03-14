@@ -182,7 +182,7 @@ public class SignupController extends HttpServlet {
 
         // ===== ĐĂNG KÝ THÀNH CÔNG =====
         int acc_id = accDAO.insertAccount(username, password, "customer");
-        customerDAO.insertCustomer(firstname, lastname, phone, email, acc_id);
+        customerDAO.insertCustomer(firstname, lastname, phone, email, 1000000, acc_id);
 
         response.sendRedirect(request.getContextPath() + "/signup?success=true");
     }
