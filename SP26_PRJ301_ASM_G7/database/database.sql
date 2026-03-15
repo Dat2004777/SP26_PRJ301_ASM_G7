@@ -220,19 +220,21 @@ INSERT INTO ParkingSites (site_name, address, region, operating_state) VALUES
 (N'FPT Quận 9', N'Khu Công Nghệ Cao, TP.HCM', 'south', 'operating');
 
 INSERT INTO Accounts (username, password, role) VALUES 
-('admin_main', 'pass_hash_1', 'admin'),
-('staff_hn', 'pass_hash_2', 'staff'),
-('staff_hcm', 'pass_hash_3', 'staff'),
-('customer_a', 'pass_hash_4', 'customer'),
-('customer_b', 'pass_hash_5', 'customer');
+('admin', 'admin', 'admin'),
+('staff1', '123', 'staff'),
+('staff2', '123', 'staff'),
+('staff3', '123', 'staff'),
+('customer1', '123', 'customer'),
+('customer2', '123', 'customer');
 
 INSERT INTO Employees (account_id, firstname, lastname, phone, site_id) VALUES 
 (1, N'Quản', N'Nguyễn', '0901111111', NULL),
 (2, N'Bảo', N'Lê', '0902222222', 1),
 (3, N'Vy', N'Trần', '0903333333', 2);
+(4, N'Thành Đạt', N'Nguyễn', '0904444444', 2);
 
 UPDATE ParkingSites SET manager_id = 1 WHERE site_id = 1; 
-UPDATE ParkingSites SET manager_id = 3 WHERE site_id = 2; 
+UPDATE ParkingSites SET manager_id = 4 WHERE site_id = 2; 
 
 INSERT INTO Customers (first_name, last_name, phone, email, wallet_amount, account_id) VALUES 
 (N'An', N'Phạm', '0988888888', 'an@gmail.com', 500000, 4),
