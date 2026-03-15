@@ -150,7 +150,7 @@
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/sites">Tìm kiếm</a></li>
-                    <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/sites">Đặt chỗ</a></li>
+                    <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/sites/site-detail?action=booking&siteId=${requestScope.site.siteId}">Đặt chỗ</a></li>
                     <li class="breadcrumb-item">Xác nhận</li>
                 </ol>
             </nav>

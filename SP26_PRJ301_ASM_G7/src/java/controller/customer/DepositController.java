@@ -31,9 +31,9 @@ public class DepositController extends HttpServlet {
 
         if (account == null || account.getRole() != Account.RoleEnum.CUSTOMER || customer == null) {
             response.sendRedirect(request.getContextPath() + "/login");
-            return;
+        }else{
+            response.sendRedirect(request.getContextPath() +"/customer-info");
         }
-
     }
 
     @Override

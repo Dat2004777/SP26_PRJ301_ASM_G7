@@ -98,7 +98,8 @@
                             <span id="confirmPasswordError" class="text-danger d-block mt-2">${errorPassConfirm}</span>
                         </div>
                         <a href="${pageContext.request.contextPath}" class="text-primary text-decoration-none fw-medium"
-                           style="font-size: 0.875rem;">Quay lại trang chủ</a>
+                           style="font-size: 0.875rem;"><i class="bi bi-arrow-left me-1"></i>
+                            Quay lại trang chủ</a>
                         <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
                     </form>
                     <!--Error message-->
@@ -132,12 +133,10 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <a href="${pageContext.request.contextPath}" class="text-primary text-decoration-none fw-medium"
-                               style="font-size: 0.875rem;">Quay lại trang chủ</a>
-
-                            <a href="#" class="text-primary text-decoration-none fw-medium"
-                               style="font-size: 0.875rem;">Quên mật khẩu?</a>
+                               style="font-size: 0.875rem;">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại trang chủ</a>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>

@@ -145,6 +145,12 @@
         <!--Toast Layout-->
         <%@include file="/WEB-INF/views/layout/customer-layout.jsp" %>
         <div class="container my-5">
+             <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/sites?action=buying">Tìm kiếm</a></li>
+                    <li class="breadcrumb-item">Mua vé</li>
+                </ol>
+            </nav>
             <div class="row g-4">
                 <div class="col-lg-8">
                     <div class="main-content-card h-100">
