@@ -155,119 +155,138 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            const contextPath = "${pageContext.request.contextPath}";
+                                                    const contextPath = "${pageContext.request.contextPath}";
 
-            document.addEventListener("DOMContentLoaded", function () {
+                                                    document.addEventListener("DOMContentLoaded", function () {
 
-                // ===== PROFILE SECTION =====
-                const nameInput = document.getElementById("customerName");
-                const phoneInput = document.getElementById("phone");
-                const updateBtn = document.getElementById("updateBtn");
+                                                        // ===== PROFILE SECTION =====
+                                                        const nameInput = document.getElementById("customerName");
+                                                        const phoneInput = document.getElementById("phone");
+                                                        const updateBtn = document.getElementById("updateBtn");
 
-                const originalName = nameInput.value;
-                const originalPhone = phoneInput.value;
+                                                        const originalName = nameInput.value;
+                                                        const originalPhone = phoneInput.value;
 
-                // 👉 disable ban đầu
-                updateBtn.disabled = true;
+                                                        // 👉 disable ban đầu
+                                                        updateBtn.disabled = true;
 
-                function checkProfileChange() {
-                    if (nameInput.value !== originalName ||
-                            phoneInput.value !== originalPhone) {
-                        updateBtn.disabled = false;
-                    } else {
-                        updateBtn.disabled = true;
-                    }
-                }
+                                                        function checkProfileChange() {
+                                                            if (nameInput.value !== originalName ||
+                                                                    phoneInput.value !== originalPhone) {
+                                                                updateBtn.disabled = false;
+                                                            } else {
+                                                                updateBtn.disabled = true;
+                                                            }
+                                                        }
 
-                nameInput.addEventListener("input", checkProfileChange);
-                phoneInput.addEventListener("input", checkProfileChange);
+                                                        nameInput.addEventListener("input", checkProfileChange);
+                                                        phoneInput.addEventListener("input", checkProfileChange);
 
 
-                // ===== PASSWORD SECTION =====
-                const oldPass = document.getElementById("oldPass");
-                const newPass = document.getElementById("newPass");
-                const confirmPass = document.getElementById("confirmPass");
-                const changePassBtn = document.getElementById("changePassBtn");
+                                                        // ===== PASSWORD SECTION =====
+                                                        const oldPass = document.getElementById("oldPass");
+                                                        const newPass = document.getElementById("newPass");
+                                                        const confirmPass = document.getElementById("confirmPass");
+                                                        const changePassBtn = document.getElementById("changePassBtn");
 
-                // 👉 disable ban đầu
-                changePassBtn.disabled = true;
+                                                        // 👉 disable ban đầu
+                                                        changePassBtn.disabled = true;
 
-                function checkPasswordChange() {
-                    if (oldPass.value !== "" ||
-                            newPass.value !== "" ||
-                            confirmPass.value !== "") {
-                        changePassBtn.disabled = false;
-                    } else {
-                        changePassBtn.disabled = true;
-                    }
-                }
+                                                        function checkPasswordChange() {
+                                                            if (oldPass.value !== "" ||
+                                                                    newPass.value !== "" ||
+                                                                    confirmPass.value !== "") {
+                                                                changePassBtn.disabled = false;
+                                                            } else {
+                                                                changePassBtn.disabled = true;
+                                                            }
+                                                        }
 
-                oldPass.addEventListener("input", checkPasswordChange);
-                newPass.addEventListener("input", checkPasswordChange);
-                confirmPass.addEventListener("input", checkPasswordChange);
-                
-                
-                // ===== XỬ LÝ HIỂN THỊ TOAST TỪ URL PARAMETERS =====
-                const urlParams = new URLSearchParams(window.location.search);
-                const successParam = urlParams.get("success");
+                                                        oldPass.addEventListener("input", checkPasswordChange);
+                                                        newPass.addEventListener("input", checkPasswordChange);
+                                                        confirmPass.addEventListener("input", checkPasswordChange);
 
-                if (successParam === "true") {
-                    // Gọi hàm showToast từ file customerToast.jsp
-                    showToast("success", "Cập nhật thông tin thành công!");
-                    
-                    // Xóa parameter trên URL để tránh hiện lại khi F5
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } 
-                else if (successParam === "false") {
-                    showToast("error", "Cập nhật không thành công. Vui lòng kiểm tra lại!");
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            });
 
-            // Toggle hiển thị Mật khẩu (Eye Icon)
-            function togglePassword(element) {
-                const input = element.previousElementSibling;
-                if (input.type === "password") {
-                    input.type = "text";
-                    element.classList.remove("bi-eye");
-                    element.classList.add("bi-eye-slash");
+                                                        // ===== XỬ LÝ HIỂN THỊ TOAST TỪ URL PARAMETERS =====
+                                                        const urlParams = new URLSearchParams(window.location.search);
+                                                        const successParam = urlParams.get("success");
+
+                                                        if (successParam === "true") {
+                                                            // Gọi hàm showToast từ file customerToast.jsp
+                                                            showToast("success", "Cập nhật thông tin thành công!");
+
+                                                            // Xóa parameter trên URL để tránh hiện lại khi F5
+                                                            window.history.replaceState({}, document.title, window.location.pathname);
+                                                        } else if (successParam === "false") {
+                                                            showToast("error", "Cập nhật không thành công. Vui lòng kiểm tra lại!");
+                                                            window.history.replaceState({}, document.title, window.location.pathname);
+                                                        }
+                                                    });
+
+                                                    // Toggle hiển thị Mật khẩu (Eye Icon)
+                                                    function togglePassword(element) {
+                                                        const input = element.previousElementSibling;
+                                                        if (input.type === "password") {
+                                                            input.type = "text";
+                                                            element.classList.remove("bi-eye");
+                                                            element.classList.add("bi-eye-slash");
+                                                        } else {
+                                                            input.type = "password";
+                                                            element.classList.remove("bi-eye-slash");
+                                                            element.classList.add("bi-eye");
+                                                        }
+                                                    }
+
+                                                    //Validate Phone
+                                                    document.addEventListener("DOMContentLoaded", function () {
+
+                                                        const form = document.querySelector("form");
+
+                                                        // ===== PHONE VALIDATION =====
+                                                        const phoneInput = document.getElementById("phone");
+                                                        const phoneError = document.getElementById("phoneError");
+                                                        const phoneRegex = /^0\d{9}$/;
+
+                                                        phoneInput.addEventListener("input", () => {
+                                                            if (!phoneRegex.test(phoneInput.value.trim())) {
+                                                                phoneError.textContent = "Số điện thoại không hợp lệ";
+                                                                phoneInput.classList.add("is-invalid");
+                                                            } else {
+                                                                phoneError.textContent = "";
+                                                                phoneInput.classList.remove("is-invalid");
+                                                            }
+                                                        });
+
+                                                        // ===== RESET =====
+                                                        form.addEventListener("reset", () => {
+                                                            setTimeout(() => {
+                                                                phoneInput.classList.remove("is-invalid", "is-valid");
+                                                                phoneError.textContent = "";
+                                                            }, 0);
+                                                        });
+
+                                                    });
+
+        </script>
+
+        <script>
+            function generateQR() {
+                const amount = document.getElementById('amountInput').value;
+                if (amount >= 10000) {
+                    // Dùng API miễn phí của VietQR để gen ảnh.
+                    // Bank ID: Thay tên ngân hàng (VD: MB, VCB, TPB...)
+                    // Account No: Số tài khoản của bạn
+                    const bankId = "MB";
+                    const accountNo = "0000309047777";
+                    const accountName = "NGUYEN THANH DAT";
+
+                    const qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + accountNo + "-compact.png?amount=" + amount + "&addInfo=NapTienGuiXe" + ${sessionScope.customer.customerId} +"&accountName=" + accountName;
+                            document.getElementById('qrImage').src = qrUrl;
+                    document.getElementById('qrSection').classList.remove('d-none');
                 } else {
-                    input.type = "password";
-                    element.classList.remove("bi-eye-slash");
-                    element.classList.add("bi-eye");
+                    showToast("error", "Vui lòng nhập số tiền hợp lệ (>10.000đ)");
                 }
             }
-
-            //Validate Phone
-            document.addEventListener("DOMContentLoaded", function () {
-
-                const form = document.querySelector("form");
-
-                // ===== PHONE VALIDATION =====
-                const phoneInput = document.getElementById("phone");
-                const phoneError = document.getElementById("phoneError");
-                const phoneRegex = /^0\d{9}$/;
-
-                phoneInput.addEventListener("input", () => {
-                    if (!phoneRegex.test(phoneInput.value.trim())) {
-                        phoneError.textContent = "Số điện thoại không hợp lệ";
-                        phoneInput.classList.add("is-invalid");
-                    } else {
-                        phoneError.textContent = "";
-                        phoneInput.classList.remove("is-invalid");
-                    }
-                });
-
-                // ===== RESET =====
-                form.addEventListener("reset", () => {
-                    setTimeout(() => {
-                        phoneInput.classList.remove("is-invalid", "is-valid");
-                        phoneError.textContent = "";
-                    }, 0);
-                });
-
-            });
-
         </script>
     </body>
 </html>
