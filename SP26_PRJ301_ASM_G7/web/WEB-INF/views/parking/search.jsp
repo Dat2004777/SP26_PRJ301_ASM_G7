@@ -156,17 +156,9 @@
 
         <jsp:include page="/WEB-INF/views/layout/staff-header.jsp" />
 
-        <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="fw-bold mb-0 text-success"><i class="bi bi-p-square-fill me-2"></i>Smart Parking</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body d-flex flex-column p-3">
-                <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
-                    <jsp:param name="activepage" value="search" />
-                </jsp:include>
-            </div>
-        </div>
+        <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
+                <jsp:param name="activepage" value="search" />
+            </jsp:include>
 
         <main class="container-fluid py-3 py-md-4" style="max-width: 1200px;">
             

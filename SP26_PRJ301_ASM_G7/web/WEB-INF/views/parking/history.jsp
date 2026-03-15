@@ -84,17 +84,9 @@
 
         <main class="container-fluid d-flex justify-content-center py-3 py-md-4" style="max-width: 1400px;">
 
-            <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
-                <div class="offcanvas-header border-bottom">
-                    <h5 class="fw-bold mb-0 text-success"><i class="bi bi-p-square-fill me-2"></i>Smart Parking</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-                </div>
-                <div class="offcanvas-body d-flex flex-column p-3">
-                    <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
-                        <jsp:param name="activepage" value="parking/history" />
-                    </jsp:include>
-                </div>
-            </div>
+            <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
+                <jsp:param name="activepage" value="history" />
+            </jsp:include>
 
             <div class="w-100">
                 <div class="d-flex justify-content-between align-items-end mb-3 mb-md-4">

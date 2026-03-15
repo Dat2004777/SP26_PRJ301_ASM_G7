@@ -133,17 +133,9 @@
         <c:remove var="successMsg" scope="session"/>
         <c:remove var="oldSubscription" scope="session"/>
 
-        <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="sidebarOffcanvas" style="width: 280px;">
-            <div class="offcanvas-header border-bottom">
-                <h5 class="fw-bold mb-0 text-success"><i class="bi bi-p-square-fill me-2"></i>Smart Parking</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body d-flex flex-column p-3">
-                <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
-                    <jsp:param name="activepage" value="subscription" />
-                </jsp:include>
-            </div>
-        </div>
+        <jsp:include page="/WEB-INF/views/layout/sidebar.jsp">
+                <jsp:param name="activepage" value="subscription" />
+            </jsp:include>
 
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
