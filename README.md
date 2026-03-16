@@ -37,6 +37,3 @@ Hệ thống được phát triển và duy trì bởi các thành viên nhóm 7
 
 ---
 
-## 📸 Screenshots
-<img width="1835" height="726" alt="image" src="https://github.com/user-attachments/assets/5a6f1f60-a62a-4640-8391-71fe02f670b6" />
-
