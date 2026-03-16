@@ -68,8 +68,14 @@ src/
 │   │   │   ├── tags/ (Custom Toast Tags)
 │   │   │   └── views/ (JSP Pages)
 │   │   └── assets/ (CSS, JS, Images)
+```
 
+## 📄 Copyright & License
 
-<div align="center">
-<i>© 2026 3I Team - PRJ301 SP26</i>
-</div>
+Copyright © 2026 **3I Team - PRJ301 SP26 (FPT University)**.
+
+This project is part of the PRJ301 course. All rights reserved. 
+The source code is provided for educational purposes and academic evaluation.
+
+- **Leader:** Nguyen Thanh Dat
+- **Co-Leader:** Nguyen Nhat Minh, Nguyen Minh Hieu
