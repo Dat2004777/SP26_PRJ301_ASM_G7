@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚗 Smart Parking Management System
+# 🚗 Vehicle Parking Management System
 ### **Project SP26_PRJ301_G7**
 
 [![Java Servlet](https://img.shields.io/badge/Java-Servlet%20%2F%20JSP-orange?style=for-the-badge&logo=java)](https://www.oracle.com/java/)
