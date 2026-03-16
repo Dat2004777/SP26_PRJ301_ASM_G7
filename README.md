@@ -59,6 +59,7 @@
 ---
 
 ## 📁 Folder Structure
+```text
 src/
 ├── main/
 │   ├── java/ (Controller, DAO, Model, Filter)
