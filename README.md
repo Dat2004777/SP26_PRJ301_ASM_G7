@@ -32,7 +32,7 @@
 
 ---
 
-## 👥 Contributed By (G7 Team)
+## 👥 Contributed By 3I
 
 | Avatar | Full Name | Role | Profile |
 | :---: | :--- | :--- | :--- |
