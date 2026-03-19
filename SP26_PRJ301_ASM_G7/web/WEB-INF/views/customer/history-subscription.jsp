@@ -118,6 +118,10 @@
                                                                 <i class="bi ${sub.subscription.vehicleTypeId == 1 ? 'bi-car-front' : 'bi-bicycle'}"></i> 
                                                                 Biển số: ${sub.subscription.licensePlate}
                                                             </p>
+                                                            <p class="mb-1 small text-muted">
+                                                                <i class="bi bi-postcard-fill"></i>
+                                                                Mã thẻ: ${sub.subscription.cardId}
+                                                            </p>
                                                             <p class="mb-0 small text-muted">
                                                                 <i class="bi bi-clock"></i> Hết hạn:
                                                                 <span class="text-danger fw-bold">
